@@ -1,0 +1,12 @@
+name: dart-carte-du-jour
+version: 0.0.0-pre.0
+authors:
+- Adam Singer <financeCoding@gmail.com>
+description: Service that generates package documentation for pub.dartlang.org
+homepage: https://github.com/financeCoding/dart-carte-du-jour
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+dependencies:
+  args: any
+dev_dependencies:
+  unittest: any
