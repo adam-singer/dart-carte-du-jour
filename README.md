@@ -95,3 +95,10 @@ Pub documentation generation system
 Script used for creating the compute engine instance that has latest dart-sdk
 
 - [scope document](https://docs.google.com/document/d/1DYeca9T-FJTePXLksqNoSrOwp8eFlnbqbLs_qGfC99o/edit)
+
+If we fire and forget on f1-micro the cost per documentation generation would be 
+
+```
+; (0.013/60) * 10
+	~0.00216666666666666667
+```
