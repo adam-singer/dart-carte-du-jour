@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ssh -oStrictHostKeyChecking=no -i ./dart-carte-du-jour-pull $1 $2

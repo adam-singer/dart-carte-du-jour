@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set +o xtrace
+set -x
 
 gcutil --service_version="v1" --project="dart-carte-du-jour" addinstance bootstrap-instance --zone="us-central1-a" --machine_type="g1-small" --network="default" --external_ip_address="ephemeral" --service_account_scopes="https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control" --image="https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-7-wheezy-v20140318" --persistent_boot_disk="true"
 
