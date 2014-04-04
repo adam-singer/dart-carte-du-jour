@@ -7,10 +7,10 @@ homepage: https://github.com/financeCoding/dart-carte-du-jour
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
-  args: any
+  args: ">=0.10.0+2 <0.11.0"
   google_datastore_v1beta1_api: ">=0.4.6 <0.5.0"
-  # googleclouddatastore: ">=0.1.2 <0.2.0" # consider if the rest based api total sucks
-  http: any
-  meta: any
+  http: ">=0.9.0 <0.11.0"
+  meta: ">=0.8.8 <0.9.0"
+  path: ">=1.1.0 <2.0.0"
 dev_dependencies:
-  unittest: any
+  unittest: ">=0.10.1+2 <0.11.0"

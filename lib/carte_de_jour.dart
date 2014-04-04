@@ -4,12 +4,14 @@ import "dart:io";
 import "dart:async";
 import "dart:collection";
 import "dart:convert";
+import "package:path/path.dart";
 import "package:meta/meta.dart";
 import 'package:http/http.dart' as http;
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://dartdocs-org/documentation";
 final String BUILD_DOCUMENTATION_CACHE = "build_documentation_cache";
+final String BUILD_DOCUMENTATION_ROOT_PATH = BUILD_DOCUMENTATION_CACHE + "/hosted/pub.dartlang.org";
 
 class Package {
   List<String> uploaders;
@@ -99,4 +101,63 @@ Future<int> buildDocumentationCache(Package package) {
     stderr.write(result.stderr);
     return result.exitCode;
   });
+}
+
+int buildDocumentationCacheSync(Package package, {Map additionalEnvironment: null}) {
+  Map environment = {};
+  environment['PUB_CACHE'] = BUILD_DOCUMENTATION_CACHE;
+  if (additionalEnvironment != null) {
+    environment.addAll(additionalEnvironment);
+  }
+
+  ProcessResult processResult = Process.runSync('pub', ['cache', 'add', package.name, '--all'],
+  environment: environment, runInShell: true);
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+  return processResult.exitCode;
+}
+
+int initPackageVersion(Package package, String version) {
+  String path = BUILD_DOCUMENTATION_ROOT_PATH + "/${package.name}-${version}";
+  return pubInstall(path);
+}
+
+int pubInstall(String workingDirectory) {
+  List<String> args = ['install'];
+  ProcessResult processResult = Process.runSync('pub', args, workingDirectory: workingDirectory, runInShell: true);
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+  return processResult.exitCode;
+}
+
+int buildDocumentationSync(Package package, String version) {
+  String outputFolder = 'docs';
+  String dartSdkFolder = '/Applications/dart/dart-sdk'; // TODO(adam): get from environment.
+  String packagesFolder = './packages'; // The pub installed packages
+  String dartFiles = './lib/*.dart'; // TODO(adam): use analyzer to
+
+  List<String> args = ['--compile', '--include-private', '--out', outputFolder,
+'--sdk', dartSdkFolder, '--package-root',
+packagesFolder, dartFiles];
+
+  String workingDirectory = BUILD_DOCUMENTATION_ROOT_PATH + "/${package.name}-${version}";
+  ProcessResult processResult = Process.runSync('docgen', args, workingDirectory: workingDirectory, runInShell: true);
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+  return processResult.exitCode;
+}
+
+List<String> findDartLibraryFiles(Package package, String version) {
+  RegExp partOf = new RegExp('^part\Wof\W[a-zA-Z]([a-zA-Z0-9_-]*);\$');
+  Directory libraryDirectory = new Directory(BUILD_DOCUMENTATION_ROOT_PATH + "/${package.name}-${version}/lib");
+  List<FileSystemEntity> libraryFiles = libraryDirectory.listSync(followLinks: false);
+
+  // TODO(adam): chain these together.
+  libraryFiles = libraryFiles.where((FileSystemEntity entity) => FileSystemEntity.isFileSync(entity.path)
+          && extension(entity.path) == '.dart').toList();
+  libraryFiles.removeWhere((FileSystemEntity entity) {
+    String libraryFileString = new File(entity.path).readAsStringSync();
+    return partOf.hasMatch(libraryFileString);
+  });
+  return libraryFiles.map((e) => e.path).toList();
 }
