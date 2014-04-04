@@ -4,10 +4,12 @@ import "dart:io";
 import "dart:async";
 import "dart:collection";
 import "dart:convert";
+import "package:meta/meta.dart";
 import 'package:http/http.dart' as http;
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://dartdocs-org/documentation";
+final String BUILD_DOCUMENTATION_CACHE = "build_documentation_cache";
 
 class Package {
   List<String> uploaders;
@@ -35,7 +37,7 @@ class Package {
 class PubPackages {
   String prev;
   List<String> packages;
-  String pages;
+  int pages;
   String next;
   PubPackages.fromJson(Map data) {
     if (data.containsKey('prev')) {
@@ -60,13 +62,22 @@ class PubPackages {
 }
 
 Future<PubPackages> fetchPackages() {
-  http.get(PACKAGES_DATA_URI).then((response) {
+  return http.get(PACKAGES_DATA_URI).then((response) {
       var data = JSON.decode(response.body);
     PubPackages pubPackages = new PubPackages.fromJson(data);
     return pubPackages;
   });
 }
 
+Future<Package> fetchPackage(String packageJsonUri) {
+  return http.get(packageJsonUri).then((response) {
+    var data = JSON.decode(response.body);
+    Package package = new Package.fromJson(data);
+    return package;
+  });
+}
+
+@deprecated
 String generatePubSpecFile(String packageName, String packageVersion, String mockPackageName) {
   StringBuffer pubSpecData = new StringBuffer()
   ..writeln("name: $mockPackageName")
@@ -79,11 +90,12 @@ String generateStorageLocation(String packageName, String packageVersion) {
   return "${PACKAGE_STORAGE_ROOT}/${packageName}/${packageVersion}";
 }
 
-build_docs() {
-  //
+Future<int> buildDocumentationCache(Package package) {
+  return Process.run('pub', ['cache', 'add', package.name, '--all'],
+  environment: {'PUB_CACHE': BUILD_DOCUMENTATION_CACHE})
+  .then((ProcessResult result) {
+    stdout.write(result.stdout);
+    stderr.write(result.stderr);
+    return result.exitCode;
+  });
 }
-
-fetch_packages() {
-
-}
-
