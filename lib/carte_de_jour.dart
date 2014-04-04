@@ -91,6 +91,7 @@ String generateStorageLocation(String packageName, String packageVersion) {
 }
 
 Future<int> buildDocumentationCache(Package package) {
+  // TODO(adam): make this run sync to avoid out of memory exceptions
   return Process.run('pub', ['cache', 'add', package.name, '--all'],
   environment: {'PUB_CACHE': BUILD_DOCUMENTATION_CACHE})
   .then((ProcessResult result) {
