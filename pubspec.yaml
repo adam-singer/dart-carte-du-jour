@@ -10,5 +10,6 @@ dependencies:
   args: any
   google_datastore_v1beta1_api: ">=0.4.6 <0.5.0"
   # googleclouddatastore: ">=0.1.2 <0.2.0" # consider if the rest based api total sucks
+  http: any
 dev_dependencies:
   unittest: any

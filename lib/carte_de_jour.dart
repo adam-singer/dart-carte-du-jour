@@ -1,5 +1,14 @@
 library carte_de_jour;
 
+import "dart:io";
+import "dart:async";
+import "dart:collection";
+import "dart:convert";
+import 'package:http/http.dart' as http;
+
+final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
+final String PACKAGE_STORAGE_ROOT = "gs://dartdocs-org/documentation";
+
 class Package {
   List<String> uploaders;
   String name;
@@ -41,7 +50,7 @@ class PubPackages {
       next = data['next'];
     }
 
-    packages = new List<Package>();
+    packages = new List<String>();
     if (data.containsKey('packages')) {
       for (var p in data['packages']) {
         packages.add(p);
@@ -50,12 +59,24 @@ class PubPackages {
   }
 }
 
+Future<PubPackages> fetchPackages() {
+  http.get(PACKAGES_DATA_URI).then((response) {
+      var data = JSON.decode(response.body);
+    PubPackages pubPackages = new PubPackages.fromJson(data);
+    return pubPackages;
+  });
+}
+
 String generatePubSpecFile(String packageName, String packageVersion, String mockPackageName) {
   StringBuffer pubSpecData = new StringBuffer()
   ..writeln("name: $mockPackageName")
   ..writeln("dependencies:")
   ..writeln("  $packageName: '$packageVersion'");
   return pubSpecData.toString();
+}
+
+String generateStorageLocation(String packageName, String packageVersion) {
+  return "${PACKAGE_STORAGE_ROOT}/${packageName}/${packageVersion}";
 }
 
 build_docs() {
