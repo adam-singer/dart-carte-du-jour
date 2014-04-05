@@ -4,6 +4,7 @@ import "dart:io";
 import "dart:async";
 import "dart:convert";
 
+import "package:crypto/crypto.dart";
 import "package:path/path.dart";
 import 'package:http/http.dart' as http;
 
@@ -250,3 +251,70 @@ List<String> findDartLibraryFiles(String libPath) {
       });
   return libraryFiles.map((e) => e.path).toList();
 }
+
+// Build a startup script
+String buildStartupScript() {
+  // TODO(adam): add mustash templates
+  return "";
+}
+
+String versionHash(String version) {
+  SHA1 versionHash = new SHA1()
+  ..add(version.codeUnits);
+  return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
+}
+// Call gcutil to deploy a node
+deployDocumentationBuilder(Package package, String version) {
+  String service_version = "v1";
+  String project = "dart-carte-du-jour";
+  String instanceName = "b-${package.name}-${versionHash(version)}";
+  String zone = "us-central1-a";
+  String machineType = "f1-micro";
+  String network = "default"; // TODO(adam): we should use the internal network
+  String externalIpAddress = "ephemeral";
+  String serviceAccountScopes = "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
+  String image = "https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1"; // TODO(adam): parameterize this
+  String persistentBootDisk = "true";
+  String autoDeleteBootDisk = "true";
+  String startupScript = "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
+  String metadataFromFile = "startup-script:$startupScript";
+
+  String workingDirectory = "/tmp/"; // TODO(adam): this might need to be the location where the startup-script.sh was generated..
+  String metadataPackageName = package.name;
+  String metadataPackageVersion = version;
+
+  List<String> args = ['--service_version="$service_version"',
+                       '--project="$project"',
+                       'addinstance',
+                       instanceName,
+                       '--zone="$zone"',
+                       '--machine_type="$machineType"',
+                       '--network="$network"',
+                       '--external_ip_address="$externalIpAddress"',
+                       '--service_account_scopes="$serviceAccountScopes"',
+                       '--image="$image"',
+                       '--persistent_boot_disk="$persistentBootDisk"',
+                       '--auto_delete_boot_disk="$autoDeleteBootDisk"',
+                       '--metadata="$metadataPackageName"',
+                       '--metadata="$metadataPackageVersion"',
+                       '--metadata_from_file=$metadataFromFile'];
+  ProcessResult processResult = Process.runSync('gcutil', args,
+      workingDirectory: workingDirectory, runInShell: true);
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+  return processResult.exitCode;
+
+//  gcutil --service_version="v1"
+//  --project="dart-carte-du-jour"
+//  addinstance "test-instance"
+//  --zone="us-central1-a"
+//  --machine_type="g1-small"
+//  --network="default"
+//  --external_ip_address="ephemeral"
+//  --service_account_scopes="https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control"
+//  --image="https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1"
+//  --persistent_boot_disk="true"
+//  --auto_delete_boot_disk="true"
+//  --metadata_from_file=startup-script:$STARTUP_SCRIPT
+}
+
