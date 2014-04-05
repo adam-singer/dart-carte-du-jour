@@ -177,8 +177,9 @@ int buildDocumentationSync(Package package, String version, String dartSdkPath) 
   List<String> dartFiles = findDartLibraryFiles(join(workingDirectory, "lib"));
   dartFiles =
       dartFiles.map((e) => basename(e)).map((e) => join("lib", e)).toList();
-  List<String> args = ['--compile', '--include-private', '--out', outputFolder,
-      '--sdk', dartSdkPath, '--package-root', packagesFolder];
+  List<String> args = ['--compile', '--no-include-sdk', '--include-private',
+                       '--out', outputFolder, '--sdk', dartSdkPath,
+                       '--package-root', packagesFolder];
   args.addAll(dartFiles);
 
   print("workingDirectory = ${workingDirectory}");
