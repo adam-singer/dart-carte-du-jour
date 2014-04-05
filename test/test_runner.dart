@@ -4,7 +4,7 @@ import 'package:unittest/unittest.dart';
 import 'package:unittest/vm_config.dart';
 
 // TODO(adam): rename dart-carte-du-jour to dart_carte_du_jour
-import 'package:dart-carte-du-jour/carte_de_jour.dart';
+import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
 
