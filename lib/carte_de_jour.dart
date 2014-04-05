@@ -15,6 +15,9 @@ final String BUILD_DOCUMENTATION_ROOT_PATH =
 final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 
 
+/**
+ * Class prepresentation of `<package>.json` file.
+ */
 class Package {
   List<String> uploaders;
   String name;
@@ -38,6 +41,9 @@ class Package {
   }
 }
 
+/**
+ * Class prepresentation of `packages.json` file.
+ */
 class PubPackages {
   String prev;
   List<String> packages;
@@ -65,7 +71,11 @@ class PubPackages {
   }
 }
 
-Future<PubPackages> fetchPackages() {
+/**
+ * Fetch packages.json file and return PubPackages
+ */
+Future<PubPackages> fetchPackages([String page]) {
+  // TODO(adam): implement `page` so any page could be fetched.
   return http.get(PACKAGES_DATA_URI).then((response) {
     var data = JSON.decode(response.body);
     PubPackages pubPackages = new PubPackages.fromJson(data);
@@ -73,6 +83,9 @@ Future<PubPackages> fetchPackages() {
   });
 }
 
+/**
+ * Fetch a particular `<package>.json` file and return `Package`
+ */
 Future<Package> fetchPackage(String packageJsonUri) {
   return http.get(packageJsonUri).then((response) {
     var data = JSON.decode(response.body);
@@ -91,10 +104,12 @@ String generatePubSpecFile(String packageName, String packageVersion, String
   return pubSpecData.toString();
 }
 
+@deprecated
 String generateStorageLocation(String packageName, String packageVersion) {
   return "${PACKAGE_STORAGE_ROOT}/${packageName}/${packageVersion}";
 }
 
+@deprecated
 Future<int> buildDocumentationCache(Package package) {
   // TODO(adam): make this run sync to avoid out of memory exceptions
   return Process.run('pub', ['cache', 'add', package.name, '--all'],
@@ -107,8 +122,12 @@ Future<int> buildDocumentationCache(Package package) {
   });
 }
 
+/**
+ * Builds the cache for a package.
+ */
 int buildDocumentationCacheSync(Package package, {Map additionalEnvironment:
     null}) {
+  // TODO(adam): add version constraint parameter.
   Map environment = {};
   environment['PUB_CACHE'] = BUILD_DOCUMENTATION_CACHE;
   if (additionalEnvironment != null) {
@@ -122,12 +141,18 @@ int buildDocumentationCacheSync(Package package, {Map additionalEnvironment:
   return processResult.exitCode;
 }
 
+/**
+ * Bootstrap a version of a package.
+ */
 int initPackageVersion(Package package, String version) {
   String path = join(BUILD_DOCUMENTATION_ROOT_PATH,
       "${package.name}-${version}");
   return pubInstall(path);
 }
 
+/**
+ * Execute `pub install` at the `workingDirectory`
+ */
 int pubInstall(String workingDirectory) {
   List<String> args = ['install'];
   ProcessResult processResult = Process.runSync('pub', args, workingDirectory:
@@ -137,12 +162,15 @@ int pubInstall(String workingDirectory) {
   return processResult.exitCode;
 }
 
+/**
+ * Copy generated documentation package and version to cloud storage.
+ */
 int copyDocumentation(Package package, String version) {
   String packageFolderPath = "${package.name}-${version}";
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
       DARTDOC_VIEWER_OUT);
   String webPath = 'web';
-  String cloudDocumentationPath = join(PACKAGE_STORAGE_ROOT, packageFolderPath);
+  String cloudDocumentationPath = join(PACKAGE_STORAGE_ROOT, package.name, version);
   List<String> args = ['cp', '-e', '-c', '-a', 'public-read', '-r', webPath,
                        cloudDocumentationPath];
 
@@ -153,6 +181,11 @@ int copyDocumentation(Package package, String version) {
   return processResult.exitCode;
 }
 
+/**
+ * Moves the packages folder into the root of the web folder. WARNING: this may
+ * change in the future versions dartdoc-viewer.
+ *
+ */
 void moveDocumentationPackages(Package package, String version) {
   String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${package.name}-${version}",
       DARTDOC_VIEWER_OUT);
@@ -169,6 +202,9 @@ void moveDocumentationPackages(Package package, String version) {
   outPackagesDirectory.renameSync(webPackagesPath);
 }
 
+/**
+ * Builds documentation for a particular version of a package.
+ */
 int buildDocumentationSync(Package package, String version, String dartSdkPath) {
   String outputFolder = 'docs';
   String packagesFolder = './packages'; // The pub installed packages
@@ -192,6 +228,10 @@ int buildDocumentationSync(Package package, String version, String dartSdkPath) 
   return processResult.exitCode;
 }
 
+/**
+ * Finds all possible dart library files by excluding `.dart` files that have
+ * a `part of id;` string.
+ */
 List<String> findDartLibraryFiles(String libPath) {
   RegExp partOf = new RegExp(r'^part\Wof\W[a-zA-Z]([a-zA-Z0-9_-]*);$');
   Directory libraryDirectory = new Directory(libPath);
