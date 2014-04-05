@@ -1,0 +1,2 @@
+library a;
+void main() {}
