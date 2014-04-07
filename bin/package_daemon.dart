@@ -6,6 +6,26 @@ import 'package:args/args.dart';
 // TODO(adam): rename dart-carte-du-jour to dart_carte_du_jour
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
+class PubRequestService {
+  static const _TIMEOUT = const Duration(seconds: 3);
+  Timer _timer;
+
+  PubRequestService() {
+  }
+
+  start() {
+    _timer = new Timer.periodic(_TIMEOUT, _callback);
+  }
+
+  stop() {
+    _timer.cancel();
+  }
+
+  void _callback(Timer timer) {
+    print("callback ${timer.isActive}");
+  }
+}
+
 void main(args) {
 //  fetchPackages().then((PubPackages pubPackages) {
 //    return pubPackages.packages.map(fetchPackage).toList();
