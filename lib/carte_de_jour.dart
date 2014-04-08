@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://dartdocs.org/documentation";
+final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/dartdocs.org/documentation";
 final String BUILD_DOCUMENTATION_CACHE = "build_documentation_cache";
 final String BUILD_DOCUMENTATION_ROOT_PATH =
 "build_documentation_cache/hosted/pub.dartlang.org";
@@ -72,6 +73,46 @@ class PubPackages {
         packages.add(p);
       }
     }
+  }
+}
+
+/**
+ * Class representation of BUILD_VERSION file.
+ */
+class PackageBuildInfo {
+  String name;
+  String version;
+  String datetime;
+  bool isBuilt;
+
+  PackageBuildInfo(this.name, this.version, this.datetime, bool isBuilt);
+
+  PackageBuildInfo.fromJson(Map data) {
+    if (data.containsKey("name")) {
+      name = data["name"];
+    }
+
+    if (data.containsKey("version")) {
+      version = data["version"];
+    }
+
+    if (data.containsKey("datetime")) {
+      datetime = data["datetime"];
+    }
+
+    if (data.containsKey("isBuilt")) {
+      // TODO(adam): if we decoded from json, this might not be needed... should be a type by then.
+      isBuilt = data['isBuilt'].toString().toLower() == 'true' ? true : false;
+    }
+  }
+
+  String toString() {
+    Map data = new Map<String, String>();
+    data["name"] = name;
+    data["version"] = version;
+    data["datetime"] = datetime;
+    data["isBuilt"] = isBuilt;
+    return JSON.encode(data);
   }
 }
 
@@ -166,6 +207,14 @@ int pubInstall(String workingDirectory) {
   return processResult.exitCode;
 }
 
+_buildCloudStorageDocumentationPath(Package package, String version) {
+  return join(PACKAGE_STORAGE_ROOT, package.name, version);
+}
+
+_buildHttpDocumentationPath(Package package, String version) {
+  return join(DOCUMENTATION_HTTP_ROOT, package.name, version);
+}
+
 /**
  * Copy generated documentation package and version to cloud storage.
  */
@@ -174,7 +223,7 @@ int copyDocumentation(Package package, String version) {
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
       DARTDOC_VIEWER_OUT);
   String webPath = 'web';
-  String cloudDocumentationPath = join(PACKAGE_STORAGE_ROOT, package.name, version);
+  String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
   List<String> args = ['cp', '-e', '-c', '-a', 'public-read', '-r', webPath,
                        cloudDocumentationPath];
 
@@ -321,3 +370,12 @@ deployDocumentationBuilder(Package package, String version) {
 //  --metadata_from_file=startup-script:$STARTUP_SCRIPT
 }
 
+Future<PackageBuildInfo> checkPackageIsBuilt(Package package, String version) {
+  String docPath = _buildHttpDocumentationPath(package, version);
+  // TODO: response / error handling.
+  return http.get(docPath).then((response) {
+    var data = JSON.decode(response.body);
+    PackageBuildInfo packageBuildInfo = new PackageBuildInfo.fromJson(data);
+    return packageBuildInfo;
+  });
+}
