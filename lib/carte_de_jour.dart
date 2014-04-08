@@ -23,6 +23,9 @@ class Package {
   List<String> uploaders;
   String name;
   List<String> versions;
+
+  Package(this.name, this.versions, {this.uploaders});
+
   Package.fromJson(Map data) {
     uploaders = new List<String>();
     if (data.containsKey('uploaders')) {

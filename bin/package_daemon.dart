@@ -1,7 +1,7 @@
 import "dart:async";
 
-import 'package:logging/logging.dart';
 import 'package:args/args.dart';
+import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -73,11 +73,20 @@ void main(args) {
   }
 
   return;
-
-
 }
 
-void _initClient(String dartSdk, String package, String version) {
+void _initClient(String dartSdk, String packageName, String version) {
+  Logger.root.info("Starting build of ${packageName} ${version}");
+  Package package = new Package(packageName, [version]);
+  buildDocumentationCacheSync(package);
+  initPackageVersion(package, version);
+  buildDocumentationSync(package, version, dartSdk);
+  moveDocumentationPackages(package, version);
+  copyDocumentation(package, version);
+}
+
+// TODO: remove
+_oldCodeRemove(String dartSdk) {
   // TODO(adam): remove the fetching of packages.
   fetchPackages().then((PubPackages pubPackages) {
       return pubPackages.packages.map(fetchPackage).toList();
