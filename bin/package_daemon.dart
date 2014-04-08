@@ -22,7 +22,22 @@ class PubRequestService {
   }
 
   void _callback(Timer timer) {
-    print("callback ${timer.isActive}");
+    Logger.root.fine("callback ${timer.isActive}");
+    fetchPackages().then((PubPackages pubPackages) {
+      return pubPackages.packages.map(fetchPackage).toList();
+    }).then((List<Future<Package>> packages) {
+      return Future.wait(packages);
+    }).then((List<Package> packages) {
+      Logger.root.fine("All packages fetched");
+      // TODO: implement a package checker for cloud storage.
+
+      // As of now we should only check the latest version of the packages.
+      packages.forEach((Package p) {
+        p.versions = [p.versions.last];
+      });
+
+
+    });
   }
 }
 
