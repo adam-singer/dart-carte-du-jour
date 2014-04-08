@@ -1,9 +1,7 @@
-import "dart:io";
 import "dart:async";
 
 import 'package:args/args.dart';
 
-// TODO(adam): rename dart-carte-du-jour to dart_carte_du_jour
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 class PubRequestService {
@@ -27,19 +25,6 @@ class PubRequestService {
 }
 
 void main(args) {
-//  fetchPackages().then((PubPackages pubPackages) {
-//    return pubPackages.packages.map(fetchPackage).toList();
-//  }).then((List<Future<Package>> packages) {
-//    return Future.wait(packages);
-//  }).then((List<Package> packages) {
-//    packages.forEach((e) => print("name: ${e.name}"));
-//    return packages.map(buildDocumentationCache).toList();
-//  }).then((List<Future<int>> cacheResults) {
-//    return Future.wait(cacheResults);
-//  }).then((List<int> results) {
-//    print("results = ${results}");
-//  });
-
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
   if (results['help']) {
