@@ -4,6 +4,7 @@ import "dart:io";
 import "dart:async";
 import "dart:convert";
 
+import "package:logging/logging.dart";
 import "package:crypto/crypto.dart";
 import "package:path/path.dart";
 import 'package:http/http.dart' as http;
@@ -11,11 +12,13 @@ import 'package:http/http.dart' as http;
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://dartdocs.org/documentation";
 final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/dartdocs.org/documentation";
-final String BUILD_DOCUMENTATION_CACHE = "build_documentation_cache";
-final String BUILD_DOCUMENTATION_ROOT_PATH =
-"build_documentation_cache/hosted/pub.dartlang.org";
+
 final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 
+// TODO(adam): create a class object that has these as members.
+String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
+String BUILD_DOCUMENTATION_ROOT_PATH =
+"/tmp/build_documentation_cache/hosted/pub.dartlang.org";
 
 /**
  * Class prepresentation of `<package>.json` file.
@@ -278,6 +281,7 @@ int buildDocumentationSync(Package package, String version, String dartSdkPath) 
       workingDirectory: workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
   stderr.write(processResult.stderr);
+  Logger.root.fine("docgen exit code = ${processResult.exitCode}");
   return processResult.exitCode;
 }
 
