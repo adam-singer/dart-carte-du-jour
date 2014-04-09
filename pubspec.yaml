@@ -13,6 +13,6 @@ dependencies:
   meta: ">=0.8.8 <0.9.0"
   path: ">=1.1.0 <2.0.0"
   logging: ">=0.9.0 <0.10.0"
-  crypto: any
+  crypto: ">=0.9.0 <0.10.0"
 dev_dependencies:
   unittest: ">=0.10.1+2 <0.11.0"
