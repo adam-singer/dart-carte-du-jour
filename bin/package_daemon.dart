@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:io";
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
@@ -41,14 +42,19 @@ class PubRequestService {
   }
 }
 
+// TODO(adam): enum
+bool clientMode = false;
+bool serverMode = false;
+
 void main(args) {
+  Logger.root.onRecord.listen((LogRecord record) {
+    print(record.message);
+  });
+
   // TODO(adam): move arg parsing and command invoking to `unscripted`
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
-  if (results['help'] || results.rest.length == 0) {
-    _printUsage(parser);
-    return;
-  }
+
 
   String dartSdk;
   if (results['sdk'] == null) {
@@ -59,19 +65,7 @@ void main(args) {
     dartSdk = results['sdk'];
   }
 
-
-  if (results['daemon'] != null && results['client'] != null) {
-    print("You must choose `daemon` or `client` modes to run in. Cannot choose both.");
-    _printUsage(parser);
-    return;
-  }
-
-  Logger.root.onRecord.listen((LogRecord record) {
-    print(record.message);
-  });
-
-
-  if (results['client']) {
+  if (clientMode) {
     print("Running in client mode");
     String package = results['package'];
     String version = results['version'];
@@ -79,15 +73,15 @@ void main(args) {
     return;
   }
 
-  if (results['daemon']) {
+  if (serverMode) {
     print("Running in daemon mode");
-    String sleepInterval = results['sleepinterval'];
-    String maxClients = results['maxclients'];
+    String sleepInterval = results['sleep-interval'];
+    String maxClients = results['max-clients'];
     _initDaemon(sleepInterval, maxClients);
     return;
   }
 
-  return;
+
 }
 
 void _initClient(String dartSdk, String packageName, String version) {
@@ -148,11 +142,25 @@ _createArgsParser() {
     parser.addFlag('help',
         abbr: 'h',
         negatable: false,
-        help: 'show command help');
+        help: 'show command help',
+        callback: (help) {
+          if (help) {
+            _printUsage(parser);
+          }
+        });
+
+    parser.addFlag('verbose', abbr: 'v',
+        help: 'Output more logging information.', negatable: false,
+        callback: (verbose) {
+          if (verbose) {
+            Logger.root.level = Level.FINEST;
+          }
+        });
+
     parser.addOption(
         'sdk',
-        abbr: 's',
-        help: 'Path to the sdk. Required.');
+        help: 'Path to the sdk. Required.',
+        defaultsTo: null);
 
     // Should be run in one of two modes
     //
@@ -163,36 +171,48 @@ _createArgsParser() {
     // and publish them to pub.dartlang.org.
     parser.addFlag(
         'daemon',
-        abbr: 'd',
-        help: 'run in daemon mode');
+        help: 'run in daemon mode',
+        callback: (mode) {
+          serverMode = mode;
+          if (clientMode && serverMode) {
+            print("You must choose `daemon` or `client` modes to run in. Cannot choose both.");
+            _printUsage(parser);
+          }
+        });
+
     parser.addFlag(
         'client',
-        abbr: 'c',
-        help: 'run in client mode');
+        help: 'run in client mode',
+        callback: (mode) {
+          clientMode = mode;
+          if (clientMode && serverMode) {
+            print("You must choose `daemon` or `client` modes to run in. Cannot choose both.");
+            _printUsage(parser);
+          }
+        });
 
     //
     // Daemon options
     //
     parser.addOption(
-        'sleepinterval',
-        abbr: 'i',
-        help: 'Time requred to sleep in seconds before polling for new packages on pub.dartlang.org');
+        'sleep-interval',
+        help: 'Time requred to sleep in seconds before polling for new packages on pub.dartlang.org',
+        defaultsTo: null);
     parser.addOption(
-        'maxclients',
-        abbr: 'q',
-        help: 'Max number of possible client instances to fire up.');
+        'max-clients',
+        help: 'Max number of possible client instances to fire up.',
+        defaultsTo: null);
 
     //
     // Client options
     //
     parser.addOption(
         'package',
-        abbr: 'p',
-        help: 'Package to generate documentation for.');
+        help: 'Package to generate documentation for.', defaultsTo: null);
     parser.addOption( // TODO(adam): support possible version constraints for package generation.
         'version',
-        abbr: 'v',
-        help: 'Version of package to generate.');
+        help: 'Version of package to generate.', defaultsTo: null);
+
     return parser;
 }
 
@@ -201,4 +221,5 @@ void _printUsage(ArgParser parser) {
   print('');
   print('where <options> is one or more of:');
   print(parser.getUsage().replaceAll('\n\n', '\n'));
+  exit(1);
 }
