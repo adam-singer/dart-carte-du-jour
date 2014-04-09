@@ -170,7 +170,9 @@ _createArgsParser() {
         abbr: 'c',
         help: 'run in client mode');
 
+    //
     // Daemon options
+    //
     parser.addOption(
         'sleepinterval',
         abbr: 'i',
@@ -180,7 +182,9 @@ _createArgsParser() {
         abbr: 'q',
         help: 'Max number of possible client instances to fire up.');
 
+    //
     // Client options
+    //
     parser.addOption(
         'package',
         abbr: 'p',
