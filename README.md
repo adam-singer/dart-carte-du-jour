@@ -2,10 +2,31 @@ dart-carte-du-jour
 ==================
 
 Pub documentation generation system
-
 -- 
 
+Currently `bin/package_daemon.dart` has two modes to execute in (only
+client is implemented). Client mode execution takes parameters to
+generate documentation and upload it to cloud storage. In Daemon mode
+the dart program will poll the
 [http://pub.dartlang.org/packages.json](http://pub.dartlang.org/packages.json)
+url for new packages. 
+
+Example of running a client (only works on unix shell envionments as of
+now)
+
+```shell
+dart bin/package_daemon.dart --verbose --client --sdk
+/Applications/dart/dart-sdk --package unittest --version 0.10.1+1
+```
+
+Mac OSX has an issue where `gsutil` does not run in threaded mode cause of
+`ulimit` settings. One way around that is for the shell process running
+the script run the following commands `ulimit -S 1024 && ulimit -S -n
+1024`. The uploading portion to cloud storage should not take more then
+1 minute. If the upload takes 5 or more then `gsutil` is not running in
+multi threaded mode. 
+
+Example of [http://pub.dartlang.org/packages.json](http://pub.dartlang.org/packages.json) response.
 
 ```json
 {
@@ -67,7 +88,7 @@ Pub documentation generation system
 }
 ```
 
-- http://pub.dartlang.org/packages/angular_ui.json
+Example of [http://pub.dartlang.org/packages/angular_ui.json](http://pub.dartlang.org/packages/angular_ui.json) reponse.
 
 ```json
 {
@@ -91,14 +112,16 @@ Pub documentation generation system
 }
 ```
 
-- scripts/make_image/build_image.sh 
-Script used for creating the compute engine instance that has latest dart-sdk
+- `scripts/github_private_repo_pull` is the github scripts and keys to
+pull from a private repository. This would not be needed once the
+repository has been open sourced. 
+
+- `scripts/make_image/build_image.sh` is the script used for creating 
+the compute engine instance that has latest dart-sdk
+
+- `scripts/quick_launch/` is a collection of scripts for
+  launching, killing, ssh a test-instance, currently the scripts are 
+  hardcoded. 
 
 - [scope document](https://docs.google.com/document/d/1DYeca9T-FJTePXLksqNoSrOwp8eFlnbqbLs_qGfC99o/edit)
 
-If we fire and forget on f1-micro the cost per documentation generation would be 
-
-```
-; (0.013/60) * 10
-	~0.00216666666666666667
-```
