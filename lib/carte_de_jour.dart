@@ -287,8 +287,8 @@ int buildDocumentationSync(Package package, String version, String dartSdkPath, 
 
   args.addAll(dartFiles);
 
-  print("workingDirectory = ${workingDirectory}");
-  print("docgen ${args}");
+  Logger.root.finest("workingDirectory = ${workingDirectory}");
+  Logger.root.finest("docgen ${args}");
 
   ProcessResult processResult = Process.runSync('docgen', args,
       workingDirectory: workingDirectory, runInShell: true);
