@@ -81,7 +81,6 @@ void main(args) {
     return;
   }
 
-
 }
 
 void _initClient(String dartSdk, String packageName, String version) {

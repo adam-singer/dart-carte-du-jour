@@ -206,18 +206,21 @@ _buildHttpDocumentationPath(Package package, String version) {
 int copyDocumentation(Package package, String version) {
   String packageFolderPath = "${package.name}-${version}";
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-      DARTDOC_VIEWER_OUT);
-  String webPath = 'web';
+      DARTDOC_VIEWER_OUT, 'web');
   String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
-  List<String> args = ['cp', '-e', '-c', '-a', 'public-read', '-r', webPath,
+  List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read', '-r', '.',
                        cloudDocumentationPath];
 
   Logger.root.finest("workingDirectory: ${workingDirectory}");
   Logger.root.finest("gsutil ${args}");
+  Stopwatch watch = new Stopwatch();
+  watch.start();
   ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
       workingDirectory, runInShell: true);
+  watch.stop();
   stdout.write(processResult.stdout);
   stderr.write(processResult.stderr);
+  Logger.root.finest("Minutes: ${watch.elapsed.inMinutes}");
   return processResult.exitCode;
 }
 
