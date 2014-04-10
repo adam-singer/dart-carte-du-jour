@@ -87,7 +87,7 @@ void main(args) {
 void _initClient(String dartSdk, String packageName, String version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
-  buildDocumentationCacheSync(package);
+  buildDocumentationCacheSync(package, versionConstraint: version);
   initPackageVersion(package, version);
   buildDocumentationSync(package, version, dartSdk);
   moveDocumentationPackages(package, version);

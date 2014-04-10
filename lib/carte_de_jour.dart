@@ -146,16 +146,26 @@ Future<Package> fetchPackage(String packageJsonUri) {
  * Builds the cache for a package.
  */
 int buildDocumentationCacheSync(Package package, {Map additionalEnvironment:
-    null}) {
-  // TODO(adam): add version constraint parameter.
+    null, String versionConstraint: null, bool allVersions: true}) {
   Map environment = {};
   environment['PUB_CACHE'] = BUILD_DOCUMENTATION_CACHE;
   if (additionalEnvironment != null) {
     environment.addAll(additionalEnvironment);
   }
 
-  ProcessResult processResult = Process.runSync('pub', ['cache', 'add',
-      package.name, '--all'], environment: environment, runInShell: true);
+  List<String> args = ['cache', 'add', package.name];
+  if (versionConstraint != null) {
+    args.addAll(['--version', versionConstraint]);
+  }
+
+  if (allVersions) {
+    args.add('--all');
+  }
+
+  Logger.root.finest("pub ${args}");
+
+  ProcessResult processResult = Process.runSync('pub', args,
+      environment: environment, runInShell: true);
   stdout.write(processResult.stdout);
   stderr.write(processResult.stderr);
   return processResult.exitCode;
@@ -202,6 +212,8 @@ int copyDocumentation(Package package, String version) {
   List<String> args = ['cp', '-e', '-c', '-a', 'public-read', '-r', webPath,
                        cloudDocumentationPath];
 
+  Logger.root.finest("workingDirectory: ${workingDirectory}");
+  Logger.root.finest("gsutil ${args}");
   ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
       workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
