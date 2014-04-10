@@ -5,23 +5,6 @@ import 'package:unittest/unittest.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
-
-  group('pub spec', () {
-    test('create pub spec', () {
-      String packageName = "unittest";
-      String packageVersion = "0.10.0";
-      String mockPackageName = "mock_unittest";
-
-
-      String pubSpecFile = generatePubSpecFile(packageName, packageVersion, mockPackageName);
-      String pubSpecFileExpected = """name: mock_unittest
-dependencies:
-  unittest: '0.10.0'
-""";
-      expect(pubSpecFile, pubSpecFileExpected);
-    });
-  });
-
   group('models', () {
     test('Package.fromJson', () {
       String unittestPackageModel = """

@@ -142,34 +142,6 @@ Future<Package> fetchPackage(String packageJsonUri) {
   });
 }
 
-@deprecated
-String generatePubSpecFile(String packageName, String packageVersion, String
-    mockPackageName) {
-  StringBuffer pubSpecData = new StringBuffer()
-      ..writeln("name: $mockPackageName")
-      ..writeln("dependencies:")
-      ..writeln("  $packageName: '$packageVersion'");
-  return pubSpecData.toString();
-}
-
-@deprecated
-String generateStorageLocation(String packageName, String packageVersion) {
-  return "${PACKAGE_STORAGE_ROOT}/${packageName}/${packageVersion}";
-}
-
-@deprecated
-Future<int> buildDocumentationCache(Package package) {
-  // TODO(adam): make this run sync to avoid out of memory exceptions
-  return Process.run('pub', ['cache', 'add', package.name, '--all'],
-      environment: {
-    'PUB_CACHE': BUILD_DOCUMENTATION_CACHE
-  }).then((ProcessResult result) {
-    stdout.write(result.stdout);
-    stderr.write(result.stderr);
-    return result.exitCode;
-  });
-}
-
 /**
  * Builds the cache for a package.
  */
