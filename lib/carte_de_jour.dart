@@ -237,15 +237,39 @@ void moveDocumentationPackages(Package package, String version) {
   Directory webPackagesDirectory = new Directory(webPackagesPath);
   webPackagesDirectory.deleteSync();
 
-  // 2) move out/packages to out/web/packages
-  Directory outPackagesDirectory = new Directory(outPackagesPath);
-  outPackagesDirectory.renameSync(webPackagesPath);
+  // 2) only copy dartdoc_viewer specific packages
+  _moveDartDocViewerSpecificFiles(outPackagesPath, webPackagesPath);
+}
+
+void _moveDartDocViewerSpecificFiles(String outPackagesPath, String webPackagesPath) {
+  // mkdir web/packages
+  // copy -r packages/web_components web/packages/
+  // copy -r packages/polymer web/packages/
+
+  Directory webPackagesDirectory = new Directory(webPackagesPath);
+  webPackagesDirectory.createSync();
+
+  String outWebComponentsPath = join(outPackagesPath, "web_components");
+  String outPolymerPath = join(outPackagesPath, "polymer");
+  String outDartdocViewerPath = join(outPackagesPath, "dartdoc_viewer");
+
+  String webWebComponentsPath = join(webPackagesPath, "web_components");
+  String webPolymerPath = join(webPackagesPath, "polymer");
+  String webDartdocViewerPath = join(webPackagesPath, "dartdoc_viewer");
+
+  Directory outWebComponentsDirectory = new Directory(outWebComponentsPath);
+  Directory outPolymerDirectory = new Directory(outPolymerPath);
+  Directory outDartdocViewerDirectory = new Directory(outDartdocViewerPath);
+
+  outWebComponentsDirectory.renameSync(webWebComponentsPath);
+  outPolymerDirectory.renameSync(webPolymerPath);
+  outDartdocViewerDirectory.renameSync(webDartdocViewerPath);
 }
 
 /**
  * Builds documentation for a particular version of a package.
  */
-int buildDocumentationSync(Package package, String version, String dartSdkPath) {
+int buildDocumentationSync(Package package, String version, String dartSdkPath, {bool verbose: false}) {
   String outputFolder = 'docs';
   String packagesFolder = './packages'; // The pub installed packages
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH,
@@ -256,6 +280,11 @@ int buildDocumentationSync(Package package, String version, String dartSdkPath) 
   List<String> args = ['--compile', '--no-include-sdk', '--include-private',
                        '--out', outputFolder, '--sdk', dartSdkPath,
                        '--package-root', packagesFolder];
+
+  if (verbose) {
+    args.add('--verbose');
+  }
+
   args.addAll(dartFiles);
 
   print("workingDirectory = ${workingDirectory}");
