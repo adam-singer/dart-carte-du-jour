@@ -23,7 +23,7 @@ Mac OSX has an issue where `gsutil` does not run in threaded mode cause of
 `ulimit` settings. One way around that is for the shell process running
 the script run the following commands `ulimit -S 1024 && ulimit -S -n
 1024`. The uploading portion to cloud storage should not take more then
-1 minute. If the upload takes 5 or more then `gsutil` is not running in
+1-3 minutes. If the upload takes 5 or more then `gsutil` is not running in
 multi threaded mode. 
 
 Example of [http://pub.dartlang.org/packages.json](http://pub.dartlang.org/packages.json) response.
