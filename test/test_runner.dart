@@ -66,4 +66,18 @@ void main() {
       expect(libs.length, equals(3));
     });
   });
+
+  group('startup script', () {
+    test('buildStartupScript', () {
+      var startupScript =
+          buildStartupScript("packages/dart_carte_du_jour/startup_script.mustache");
+      expect(startupScript, equals("""#!/usr/bin/env bash
+set -x
+sed -i '1i Port 443' /etc/ssh/sshd_config 
+/etc/init.d/ssh restart
+sudo -H -u financeCoding bash -c 'gsutil cp -r gs://dart-carte-du-jour/configurations/github_private_repo_pull ~/ && cd ~/github_private_repo_pull && bash ./clone_project.sh'
+sudo -H -u financeCoding bash -c 'source /etc/profile && cd ~/github_private_repo_pull/dart-carte-du-jour && pub install && dart bin/package_daemon.dart'
+"""));
+    });
+  });
 }

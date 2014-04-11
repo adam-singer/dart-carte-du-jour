@@ -8,6 +8,7 @@ import "package:logging/logging.dart";
 import "package:crypto/crypto.dart";
 import "package:path/path.dart";
 import 'package:http/http.dart' as http;
+import 'package:mustache/mustache.dart' as mustache;
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://dartdocs.org/documentation";
@@ -325,9 +326,16 @@ List<String> findDartLibraryFiles(String libPath) {
 }
 
 // Build a startup script
-String buildStartupScript() {
-  // TODO(adam): add mustash templates
-  return "";
+// TODO(adam): make username and application entry parameters
+String buildStartupScript(String startupScriptTemplatePath) {
+  String startupScriptTemplate =
+      new File(startupScriptTemplatePath).readAsStringSync();
+  var template = mustache.parse(startupScriptTemplate);
+  var startupScript = template.renderString({
+    'user_name': 'financeCoding',
+    'dart_application': r'bin/package_daemon.dart'
+  }, htmlEscapeValues: false);
+  return startupScript;
 }
 
 String versionHash(String version) {
@@ -335,6 +343,7 @@ String versionHash(String version) {
   ..add(version.codeUnits);
   return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
 }
+
 // Call gcutil to deploy a node
 deployDocumentationBuilder(Package package, String version) {
   String service_version = "v1";
@@ -348,8 +357,8 @@ deployDocumentationBuilder(Package package, String version) {
   String image = "https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1"; // TODO(adam): parameterize this
   String persistentBootDisk = "true";
   String autoDeleteBootDisk = "true";
-  String startupScript = "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
-  String metadataFromFile = "startup-script:$startupScript";
+  String startupScript = buildStartupScript("packages/dart_carte_du_jour/startup_script.mustache"); // "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
+  String metadataFromFile = "startup-script:'$startupScript'";
 
   String workingDirectory = "/tmp/"; // TODO(adam): this might need to be the location where the startup-script.sh was generated..
   String metadataPackageName = package.name;

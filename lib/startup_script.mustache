@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -x
+sed -i '1i Port 443' /etc/ssh/sshd_config 
+/etc/init.d/ssh restart
+sudo -H -u {{user_name}} bash -c 'gsutil cp -r gs://dart-carte-du-jour/configurations/github_private_repo_pull ~/ && cd ~/github_private_repo_pull && bash ./clone_project.sh'
+sudo -H -u {{user_name}} bash -c 'source /etc/profile && cd ~/github_private_repo_pull/dart-carte-du-jour && pub install && dart {{dart_application}}'
