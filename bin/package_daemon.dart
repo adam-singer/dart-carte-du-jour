@@ -10,33 +10,54 @@ class PubRequestService {
   Duration _timeout;
   Timer _timer;
 
-  PubRequestService({int seconds: 3}) {
+  PubRequestService({int seconds: 1800}) {
     _timeout = new Duration(seconds: seconds);
   }
 
   start() {
-    _timer = new Timer.periodic(_timeout, _callback);
+    _timer = new Timer.periodic(_timeout, callback);
   }
 
   stop() {
     _timer.cancel();
   }
 
-  void _callback(Timer timer) {
-    Logger.root.fine("callback ${timer.isActive}");
+  void callback(Timer timer) {
+    // Logger.root.fine("callback ${timer.isActive}");
     fetchPackages().then((PubPackages pubPackages) {
+      Logger.root.fine("pub packages fetched");
       return pubPackages.packages.map(fetchPackage).toList();
     }).then((List<Future<Package>> packages) {
+      Logger.root.fine("Waiting for individual packages to be fetched");
       return Future.wait(packages);
     }).then((List<Package> packages) {
       Logger.root.fine("All packages fetched");
       // TODO: implement a package checker for cloud storage.
 
       // As of now we should only check the latest version of the packages.
+      Logger.root.warning("Only checking for the latest version of built packages");
       packages.forEach((Package p) {
         p.versions = [p.versions.last];
       });
 
+      return packages.map((p) => checkPackageIsBuilt(p, p.versions.last)).toList();
+    }).then((List<Future<PackageBuildInfo>> packageBuildInfos){
+      return Future.wait(packageBuildInfos);
+    }).then((List<PackageBuildInfo> packageBuildInfos) {
+      // TODO: refactor the model objects so its easy to map which package and what version of that
+      // package is built or not built.
+
+      packageBuildInfos.forEach((PackageBuildInfo p) {
+        Logger.root.fine("p = ${p.toString()}");
+      });
+
+      // Filter out the packages that are not built
+      packageBuildInfos = packageBuildInfos.where((PackageBuildInfo p) => p.isBuilt == false).toList();
+
+      packageBuildInfos.forEach((PackageBuildInfo p) {
+        Package package = new Package(p.name, [p.version]);
+        deployDocumentationBuilder(package, p.version);
+      });
 
     });
   }
@@ -51,19 +72,16 @@ void main(args) {
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
 
-
-  String dartSdk;
-  if (results['sdk'] == null) {
-    print("You must provide a value for 'sdk'.");
-    _printUsage(parser);
-    return;
-  } else {
-    dartSdk = results['sdk'];
-  }
-
-  // TODO: log finely all commandline parameters..
-
   if (results['mode'] == 'client') {
+    String dartSdk;
+    if (results['sdk'] == null) {
+      print("You must provide a value for 'sdk'.");
+      _printUsage(parser);
+      return;
+    } else {
+      dartSdk = results['sdk'];
+    }
+
     print("Running in client mode");
     String package = results['package'];
     String version = results['version'];
@@ -131,7 +149,8 @@ _oldCodeRemove(String dartSdk) {
 
 void _initDaemon(String sleepInterval, String maxClients) {
   PubRequestService pubRequestService = new PubRequestService();
-  pubRequestService.start();
+  // pubRequestService.start();
+  pubRequestService.callback(null);
 }
 
 _createArgsParser() {
