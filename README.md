@@ -15,7 +15,7 @@ Example of running a client (only works on unix shell envionments as of
 now)
 
 ```shell
-dart bin/package_daemon.dart --verbose --client --sdk
+dart bin/package_daemon.dart --verbose --mode client --sdk
 /Applications/dart/dart-sdk --package unittest --version 0.10.1+1
 ```
 
