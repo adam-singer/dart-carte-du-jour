@@ -42,10 +42,6 @@ class PubRequestService {
   }
 }
 
-// TODO(adam): enum
-bool clientMode = false;
-bool serverMode = false;
-
 void main(args) {
   Logger.root.onRecord.listen((LogRecord record) {
     print(record.message);
@@ -65,7 +61,9 @@ void main(args) {
     dartSdk = results['sdk'];
   }
 
-  if (clientMode) {
+  // TODO: log finely all commandline parameters..
+
+  if (results['mode'] == 'client') {
     print("Running in client mode");
     String package = results['package'];
     String version = results['version'];
@@ -73,7 +71,7 @@ void main(args) {
     return;
   }
 
-  if (serverMode) {
+  if (results['mode'] == 'daemon') {
     print("Running in daemon mode");
     String sleepInterval = results['sleep-interval'];
     String maxClients = results['max-clients'];
@@ -161,31 +159,23 @@ _createArgsParser() {
         help: 'Path to the sdk. Required.',
         defaultsTo: null);
 
-    // Should be run in one of two modes
     //
     // Daemon mode is the process where we scan for new packages and check
     // status of compute engine instances.
     //
     // Client mode is where we generate the actual documentation packages
     // and publish them to pub.dartlang.org.
-    parser.addFlag(
-        'daemon',
-        help: 'run in daemon mode',
-        callback: (mode) {
-          serverMode = mode;
-          if (clientMode && serverMode) {
-            print("You must choose `daemon` or `client` modes to run in. Cannot choose both.");
-            _printUsage(parser);
-          }
-        });
-
-    parser.addFlag(
-        'client',
-        help: 'run in client mode',
-        callback: (mode) {
-          clientMode = mode;
-          if (clientMode && serverMode) {
-            print("You must choose `daemon` or `client` modes to run in. Cannot choose both.");
+    parser.addOption(
+        'mode',
+        help: 'Path to the sdk. Required.',
+        allowed: ['client', 'daemon'],
+        allowedHelp: {
+          'client': 'run in client mode',
+          'daemon': 'run in daemon mode'
+        },
+        callback: (mode){
+          if (mode != "client" && mode != "daemon") {
+            print("You must choose `daemon` a `client` mode to run in.");
             _printUsage(parser);
           }
         });
