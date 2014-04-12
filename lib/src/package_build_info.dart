@@ -9,7 +9,7 @@ class PackageBuildInfo {
   String datetime;
   bool isBuilt;
 
-  PackageBuildInfo(this.name, this.version, this.datetime, bool isBuilt);
+  PackageBuildInfo(this.name, this.version, this.datetime, this.isBuilt);
 
   PackageBuildInfo.fromJson(Map data) {
     if (data.containsKey("name")) {
