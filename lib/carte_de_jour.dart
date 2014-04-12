@@ -10,9 +10,13 @@ import "package:path/path.dart";
 import 'package:http/http.dart' as http;
 import 'package:mustache/mustache.dart' as mustache;
 
+part 'src/package.dart';
+part 'src/package_build_info.dart';
+part 'src/pub_packages.dart';
+
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
-final String PACKAGE_STORAGE_ROOT = "gs://dartdocs.org/documentation";
-final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/dartdocs.org/documentation";
+final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
+final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/www.dartdocs.org/documentation";
 
 final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 
@@ -20,105 +24,6 @@ final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
 String BUILD_DOCUMENTATION_ROOT_PATH =
 "/tmp/build_documentation_cache/hosted/pub.dartlang.org";
-
-/**
- * Class prepresentation of `<package>.json` file.
- */
-class Package {
-  List<String> uploaders;
-  String name;
-  List<String> versions;
-
-  Package(this.name, this.versions, {this.uploaders});
-
-  Package.fromJson(Map data) {
-    uploaders = new List<String>();
-    if (data.containsKey('uploaders')) {
-      for (var u in data['uploaders']) {
-        uploaders.add(u);
-      }
-    }
-
-    if (data.containsKey('name')) {
-      name = data['name'];
-    }
-
-    versions = new List<String>();
-    if (data.containsKey('versions')) {
-      versions.addAll(data['versions'].toList());
-    }
-  }
-}
-
-/**
- * Class prepresentation of `packages.json` file.
- */
-class PubPackages {
-  String prev;
-  List<String> packages;
-  int pages;
-  String next;
-  PubPackages.fromJson(Map data) {
-    if (data.containsKey('prev')) {
-      prev = data['prev'];
-    }
-
-    if (data.containsKey('pages')) {
-      pages = data['pages'];
-    }
-
-    if (data.containsKey('next')) {
-      next = data['next'];
-    }
-
-    packages = new List<String>();
-    if (data.containsKey('packages')) {
-      for (var p in data['packages']) {
-        packages.add(p);
-      }
-    }
-  }
-}
-
-/**
- * Class representation of BUILD_VERSION file.
- */
-class PackageBuildInfo {
-  String name;
-  String version;
-  String datetime;
-  bool isBuilt;
-
-  PackageBuildInfo(this.name, this.version, this.datetime, bool isBuilt);
-
-  PackageBuildInfo.fromJson(Map data) {
-    if (data.containsKey("name")) {
-      name = data["name"];
-    }
-
-    if (data.containsKey("version")) {
-      version = data["version"];
-    }
-
-    if (data.containsKey("datetime")) {
-      datetime = data["datetime"];
-    }
-
-    if (data.containsKey("isBuilt")) {
-      // TODO(adam): if we decoded from json, this might not be needed... should be a type by then.
-      isBuilt = data['isBuilt'].toString().toLower() == 'true' ? true : false;
-    }
-  }
-
-  String toString() {
-    Map data = new Map<String, String>();
-    data["name"] = name;
-    data["version"] = version;
-    data["datetime"] = datetime;
-    data["isBuilt"] = isBuilt;
-    return JSON.encode(data);
-  }
-}
 
 /**
  * Fetch packages.json file and return PubPackages
