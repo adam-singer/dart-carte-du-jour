@@ -238,7 +238,7 @@ String buildStartupScript(String startupScriptTemplatePath) {
   var template = mustache.parse(startupScriptTemplate);
   var startupScript = template.renderString({
     'user_name': 'financeCoding',
-    'dart_application': r'bin/package_daemon.dart'
+    'dart_application': r'bin/package_daemon.dart --verbose --mode $MODE --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
   }, htmlEscapeValues: false);
   return startupScript;
 }
@@ -250,12 +250,12 @@ String versionHash(String version) {
 }
 
 // Call gcutil to deploy a node
-deployDocumentationBuilder(Package package, String version) {
+int deployDocumentationBuilder(Package package, String version) {
   String service_version = "v1";
   String project = "dart-carte-du-jour";
   String instanceName = "b-${package.name}-${versionHash(version)}";
   String zone = "us-central1-a";
-  String machineType = "f1-micro";
+  String machineType = "g1-small";
   String network = "default"; // TODO(adam): we should use the internal network
   String externalIpAddress = "ephemeral";
   String serviceAccountScopes = "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
@@ -263,27 +263,34 @@ deployDocumentationBuilder(Package package, String version) {
   String persistentBootDisk = "true";
   String autoDeleteBootDisk = "true";
   String startupScript = buildStartupScript("packages/dart_carte_du_jour/startup_script.mustache"); // "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
-  String metadataFromFile = "startup-script:'$startupScript'";
+  String metadataStartupScript = "startup-script:$startupScript";
 
   String workingDirectory = "/tmp/"; // TODO(adam): this might need to be the location where the startup-script.sh was generated..
-  String metadataPackageName = package.name;
-  String metadataPackageVersion = version;
+  String metadataPackageName = "package:${package.name}";
+  String metadataPackageVersion = "version:${version}";
+  String metadataDartsdkPath = "dartsdk:/dart-sdk";
+  String metadataMode = "mode:client";
 
-  List<String> args = ['--service_version="$service_version"',
-                       '--project="$project"',
+  List<String> args = ['--service_version=$service_version',
+                       '--project=$project',
                        'addinstance',
                        instanceName,
-                       '--zone="$zone"',
-                       '--machine_type="$machineType"',
-                       '--network="$network"',
-                       '--external_ip_address="$externalIpAddress"',
-                       '--service_account_scopes="$serviceAccountScopes"',
-                       '--image="$image"',
-                       '--persistent_boot_disk="$persistentBootDisk"',
-                       '--auto_delete_boot_disk="$autoDeleteBootDisk"',
-                       '--metadata="$metadataPackageName"',
-                       '--metadata="$metadataPackageVersion"',
-                       '--metadata_from_file=$metadataFromFile'];
+                       '--zone=$zone',
+                       '--machine_type=$machineType',
+                       '--network=$network',
+                       '--external_ip_address=$externalIpAddress',
+                       '--service_account_scopes=$serviceAccountScopes',
+                       '--image=$image',
+                       '--persistent_boot_disk=$persistentBootDisk',
+                       '--auto_delete_boot_disk=$autoDeleteBootDisk',
+                       '--metadata=$metadataPackageName',
+                       '--metadata=$metadataPackageVersion',
+                       '--metadata=$metadataDartsdkPath',
+                       '--metadata=$metadataMode',
+                       '--metadata=$metadataStartupScript'];
+
+//  Logger.root.finest("gcutil ${args}");
+  print("gcutil ${args}");
   ProcessResult processResult = Process.runSync('gcutil', args,
       workingDirectory: workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
