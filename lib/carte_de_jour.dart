@@ -294,15 +294,19 @@ int deployDocumentationBuilder(Package package, String version) {
                        '--metadata=$metadataStartupScript'];
 
   Logger.root.finest("gcutil ${args}");
-  if (_currentGceCpuUsed >= GCE_CPU_TOTAL) {
-    Logger.root.warning("All CPUs used");
-    return -1;
-  }
 
   ProcessResult processResult = Process.runSync('gcutil', args,
       workingDirectory: workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
   stderr.write(processResult.stderr);
+
+  if (_currentGceCpuUsed >= GCE_CPU_TOTAL) {
+    Logger.root.warning("All CPUs used");
+    return -1;
+  } else {
+    _currentGceCpuUsed++;
+  }
+
   return processResult.exitCode;
 }
 
