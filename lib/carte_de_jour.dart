@@ -14,11 +14,15 @@ part 'src/package.dart';
 part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
 
+// TODO(adam): query GCE for total instead of hard coding it.
+final int GCE_CPU_TOTAL = 24;
+int _currentGceCpuUsed = 0;
+
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
 final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/www.dartdocs.org/documentation";
-
 final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
+final String PACKAGE_BUILD_INFO_FILE_NAME = "package_build_info.json";
 
 // TODO(adam): create a class object that has these as members.
 String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
@@ -103,7 +107,7 @@ _buildCloudStorageDocumentationPath(Package package, String version) {
 }
 
 _buildHttpDocumentationPath(Package package, String version) {
-  return join(DOCUMENTATION_HTTP_ROOT, package.name, version);
+  return join(DOCUMENTATION_HTTP_ROOT, package.name, version, PACKAGE_BUILD_INFO_FILE_NAME);
 }
 
 /**
@@ -290,6 +294,11 @@ int deployDocumentationBuilder(Package package, String version) {
                        '--metadata=$metadataStartupScript'];
 
   Logger.root.finest("gcutil ${args}");
+  if (_currentGceCpuUsed >= GCE_CPU_TOTAL) {
+    Logger.root.warning("All CPUs used");
+    return -1;
+  }
+
   ProcessResult processResult = Process.runSync('gcutil', args,
       workingDirectory: workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
@@ -299,10 +308,86 @@ int deployDocumentationBuilder(Package package, String version) {
 
 Future<PackageBuildInfo> checkPackageIsBuilt(Package package, String version) {
   String docPath = _buildHttpDocumentationPath(package, version);
+
   // TODO: response / error handling.
   return http.get(docPath).then((response) {
+    // If we do not find a package build info file then return the package
+    // is not built.
+    if (response.statusCode != 200) {
+      return new PackageBuildInfo(package.name, version, "", false);
+    }
+
     var data = JSON.decode(response.body);
     PackageBuildInfo packageBuildInfo = new PackageBuildInfo.fromJson(data);
     return packageBuildInfo;
   });
+}
+
+void createVersionFile(Package package, String version) {
+  // TODO(adam): factor this out into a private method.
+  String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${package.name}-${version}",
+        DARTDOC_VIEWER_OUT);
+  String versionPath = join(out, 'web', 'VERSION');
+
+  File versionFile = new File(versionPath);
+  versionFile.writeAsStringSync(version, flush: true);
+}
+
+void createPackageBuildInfo(Package package, String version, bool successfullyBuilt) {
+  // TODO(adam): factor this out into a private method.
+  String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${package.name}-${version}",
+        DARTDOC_VIEWER_OUT);
+  String packageBuildInfoPath = join(out, 'web', PACKAGE_BUILD_INFO_FILE_NAME);
+  String now = new DateTime.now().toIso8601String();
+
+  PackageBuildInfo packageBuildInfo = new PackageBuildInfo(package.name,
+      version, now, successfullyBuilt);
+
+  File packageBuildInfoFile = new File(packageBuildInfoPath);
+  packageBuildInfoFile.writeAsStringSync(packageBuildInfo.toString());
+}
+
+int copyVersionFile(Package package, String version) {
+  String packageFolderPath = "${package.name}-${version}";
+  String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
+      DARTDOC_VIEWER_OUT, 'web');
+
+  String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
+
+  List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read', 'VERSION',
+                       cloudDocumentationPath];
+
+  Logger.root.finest("workingDirectory: ${workingDirectory}");
+  Logger.root.finest("gsutil ${args}");
+
+  // TODO(adam): factor out the runsync of all gsutils
+  ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
+      workingDirectory, runInShell: true);
+
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+
+  return processResult.exitCode;
+}
+
+int copyPackageBuildInfo(Package package, String version) {
+  String packageFolderPath = "${package.name}-${version}";
+  String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
+      DARTDOC_VIEWER_OUT, 'web');
+
+  String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
+
+  List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
+                       PACKAGE_BUILD_INFO_FILE_NAME, cloudDocumentationPath];
+
+  Logger.root.finest("workingDirectory: ${workingDirectory}");
+  Logger.root.finest("gsutil ${args}");
+
+  ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
+      workingDirectory, runInShell: true);
+
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+
+  return processResult.exitCode;
 }

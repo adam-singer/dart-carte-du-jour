@@ -107,6 +107,12 @@ void _initClient(String dartSdk, String packageName, String version) {
   buildDocumentationSync(package, version, dartSdk);
   moveDocumentationPackages(package, version);
   copyDocumentation(package, version);
+  createVersionFile(package, version);
+  copyVersionFile(package, version);
+  // Copy the package_build_info.json file, should only be copied if everything
+  // else was successful.
+  createPackageBuildInfo(package, version, true);
+  copyPackageBuildInfo(package, version);
 }
 
 // TODO: remove
