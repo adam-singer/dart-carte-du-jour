@@ -102,11 +102,11 @@ int pubInstall(String workingDirectory) {
   return processResult.exitCode;
 }
 
-_buildCloudStorageDocumentationPath(Package package, String version) {
+String _buildCloudStorageDocumentationPath(Package package, String version) {
   return join(PACKAGE_STORAGE_ROOT, package.name, version);
 }
 
-_buildHttpDocumentationPath(Package package, String version) {
+String _buildHttpDocumentationPath(Package package, String version) {
   return join(DOCUMENTATION_HTTP_ROOT, package.name, version, PACKAGE_BUILD_INFO_FILE_NAME);
 }
 
