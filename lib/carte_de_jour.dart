@@ -292,7 +292,7 @@ int deployDocumentationBuilder(Package package, String version) {
                        '--metadata=$metadataPackageVersion',
                        '--metadata=$metadataDartsdkPath',
                        '--metadata=$metadataMode',
-                       '--metadata=$metadataAutoShutdown'
+                       '--metadata=$metadataAutoShutdown',
                        '--metadata=$metadataStartupScript'];
 
   Logger.root.finest("gcutil ${args}");
