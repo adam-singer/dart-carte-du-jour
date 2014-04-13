@@ -29,17 +29,14 @@ function retry() {
 }
 
 function copy_startup_log () {
+	set -x
 	startup_script_log=gs://dart-carte-du-jour/build_logs/`hostname`-startupscript.log
-	gsutil cp /var/log/startupscript.log $startup_script_log
-	status=$?
-	
-	if [[ $status != 0 ]] ; then
-		echo "Failed to copy /var/log/startupscript.log $startup_script_log $status"
-	fi
+	retry_wrapper gsutil cp /var/log/startupscript.log $startup_script_log
 }
 
 # TODO(adam): move functionality into dart scripts instead of shell scripts. 
 function shutdown_instance () {
+	set -x
 	copy_startup_log
 
 	export AUTOSHUTDOWN=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/autoshutdown)
