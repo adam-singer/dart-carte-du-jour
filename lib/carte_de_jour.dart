@@ -356,9 +356,10 @@ void createPackageBuildInfo(Package package, String version, bool successfullyBu
 int copyVersionFile(Package package, String version) {
   String packageFolderPath = "${package.name}-${version}";
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-      DARTDOC_VIEWER_OUT, 'web', 'docs');
+      DARTDOC_VIEWER_OUT, 'web');
 
   String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
+  cloudDocumentationPath = join(cloudDocumentationPath, 'docs');
 
   List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read', 'VERSION',
                        cloudDocumentationPath];
