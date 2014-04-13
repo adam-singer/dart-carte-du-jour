@@ -274,6 +274,7 @@ int deployDocumentationBuilder(Package package, String version) {
   String metadataPackageVersion = "version:${version}";
   String metadataDartsdkPath = "dartsdk:/dart-sdk";
   String metadataMode = "mode:client";
+  String metadataAutoShutdown = "autoshutdown:1";
 
   List<String> args = ['--service_version=$service_version',
                        '--project=$project',
@@ -291,6 +292,7 @@ int deployDocumentationBuilder(Package package, String version) {
                        '--metadata=$metadataPackageVersion',
                        '--metadata=$metadataDartsdkPath',
                        '--metadata=$metadataMode',
+                       '--metadata=$metadataAutoShutdown'
                        '--metadata=$metadataStartupScript'];
 
   Logger.root.finest("gcutil ${args}");
@@ -354,7 +356,7 @@ void createPackageBuildInfo(Package package, String version, bool successfullyBu
 int copyVersionFile(Package package, String version) {
   String packageFolderPath = "${package.name}-${version}";
   String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-      DARTDOC_VIEWER_OUT, 'web');
+      DARTDOC_VIEWER_OUT, 'web', 'docs');
 
   String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
 
