@@ -25,8 +25,8 @@ final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 final String PACKAGE_BUILD_INFO_FILE_NAME = "package_build_info.json";
 
 // TODO(adam): create a class object that has these as members.
-String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
-String BUILD_DOCUMENTATION_ROOT_PATH =
+final String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
+final String BUILD_DOCUMENTATION_ROOT_PATH =
 "/tmp/build_documentation_cache/hosted/pub.dartlang.org";
 
 /**

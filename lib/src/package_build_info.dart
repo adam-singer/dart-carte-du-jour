@@ -1,7 +1,7 @@
 part of carte_de_jour;
 
 /**
- * Class representation of BUILD_VERSION file.
+ * Class representation of package_build_info.json file.
  */
 class PackageBuildInfo {
   String name;
@@ -25,7 +25,6 @@ class PackageBuildInfo {
     }
 
     if (data.containsKey("isBuilt")) {
-      // TODO(adam): if we decoded from json, this might not be needed... should be a type by then.
       isBuilt = data['isBuilt'];
     }
   }
