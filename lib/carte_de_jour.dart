@@ -253,11 +253,28 @@ String versionHash(String version) {
   return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
 }
 
+String buildGceName(String packageName, String version) {
+
+  RegExp invalidChars = new RegExp("[^-a-z0-9]");
+  RegExp validString = new RegExp("[a-z]([-a-z0-9]{0,61}[a-z0-9])?");
+  String prefix = "b-";
+  String postfix = "-${versionHash(version)}";
+
+  packageName = packageName.replaceAll(invalidChars, "");
+  int packageNameMaxLength = 32 - (prefix.length + postfix.length);
+  if (packageName.length > packageNameMaxLength) {
+    packageName = packageName.substring(0, packageNameMaxLength);
+  }
+
+  String gce_name = prefix+packageName+postfix;
+  return gce_name;
+}
+
 // Call gcutil to deploy a node
 int deployDocumentationBuilder(Package package, String version) {
   String service_version = "v1";
   String project = "dart-carte-du-jour";
-  String instanceName = "b-${package.name}-${versionHash(version)}";
+  String instanceName = buildGceName(package.name, version);
   String zone = "us-central1-a";
   String machineType = "g1-small";
   String network = "default"; // TODO(adam): we should use the internal network

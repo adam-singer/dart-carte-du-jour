@@ -26,12 +26,12 @@ class PackageBuildInfo {
 
     if (data.containsKey("isBuilt")) {
       // TODO(adam): if we decoded from json, this might not be needed... should be a type by then.
-      isBuilt = data['isBuilt'].toString().toLower() == 'true' ? true : false;
+      isBuilt = data['isBuilt'];
     }
   }
 
   String toString() {
-    Map data = new Map<String, String>();
+    Map data = new Map();
     data["name"] = name;
     data["version"] = version;
     data["datetime"] = datetime;

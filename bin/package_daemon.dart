@@ -23,7 +23,7 @@ class PubRequestService {
   }
 
   void callback(Timer timer) {
-    // Logger.root.fine("callback ${timer.isActive}");
+    Logger.root.fine("fetching pub packages");
     fetchPackages().then((PubPackages pubPackages) {
       Logger.root.fine("pub packages fetched");
       return pubPackages.packages.map(fetchPackage).toList();
@@ -32,7 +32,6 @@ class PubRequestService {
       return Future.wait(packages);
     }).then((List<Package> packages) {
       Logger.root.fine("All packages fetched");
-      // TODO: implement a package checker for cloud storage.
 
       // As of now we should only check the latest version of the packages.
       Logger.root.warning("Only checking for the latest version of built packages");
@@ -54,11 +53,15 @@ class PubRequestService {
       // Filter out the packages that are not built
       packageBuildInfos = packageBuildInfos.where((PackageBuildInfo p) => p.isBuilt == false).toList();
 
+      // TODO: queue packages instead of just taking the first 10
+      packageBuildInfos = packageBuildInfos.take(10).toList();
+
+      Logger.root.fine("Building following packages: ${packageBuildInfos}");
+
       packageBuildInfos.forEach((PackageBuildInfo p) {
         Package package = new Package(p.name, [p.version]);
         deployDocumentationBuilder(package, p.version);
       });
-
     });
   }
 }
@@ -113,44 +116,6 @@ void _initClient(String dartSdk, String packageName, String version) {
   // else was successful.
   createPackageBuildInfo(package, version, true);
   copyPackageBuildInfo(package, version);
-}
-
-// TODO: remove
-_oldCodeRemove(String dartSdk) {
-  // TODO(adam): remove the fetching of packages.
-  fetchPackages().then((PubPackages pubPackages) {
-      return pubPackages.packages.map(fetchPackage).toList();
-    }).then((List<Future<Package>> packages) {
-      return Future.wait(packages);
-    }).then((List<Package> packages) {
-      // TESTING
-      print("removing packages for testing");
-      packages = packages.getRange(0,1).toList();
-      packages.forEach((Package p) {
-        p.versions = [p.versions.last];
-      });
-
-      packages.forEach((e) => print("name: ${e.name}, versions: ${e.versions}"));
-
-      for (var p in packages) {
-        buildDocumentationCacheSync(p);
-      }
-
-      for (var p in packages) {
-        initPackageVersion(p, p.versions[0]);
-      }
-
-      for (var p in packages) {
-        buildDocumentationSync(p, p.versions[0], dartSdk);
-        moveDocumentationPackages(p, p.versions[0]);
-      }
-
-      for (var p in packages) {
-        copyDocumentation(p, p.versions[0]);
-      }
-
-      return packages;
-    });
 }
 
 void _initDaemon(String sleepInterval, String maxClients) {
