@@ -32,9 +32,9 @@ final String BUILD_DOCUMENTATION_ROOT_PATH =
 /**
  * Fetch packages.json file and return PubPackages
  */
-Future<PubPackages> fetchPackages([String page]) {
-  // TODO(adam): implement `page` so any page could be fetched.
-  return http.get(PACKAGES_DATA_URI).then((response) {
+Future<PubPackages> fetchPackages([int page]) {
+  String uri = PACKAGES_DATA_URI + (page != null ? "?page=${page}":"");
+  return http.get(uri).then((response) {
     var data = JSON.decode(response.body);
     PubPackages pubPackages = new PubPackages.fromJson(data);
     return pubPackages;
