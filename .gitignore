@@ -16,3 +16,7 @@ build_documentation_cache/
 pubspec.lock
 bin/packages
 test/packages
+test/dummyLibraries/allLibs/packages
+test/dummyLibraries/mixedLibs/packages
+test/dummyLibraries/noLibs/packages
+test/dummyLibraries/packages
