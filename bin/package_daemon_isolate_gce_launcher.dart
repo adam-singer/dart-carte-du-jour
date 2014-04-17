@@ -1,16 +1,27 @@
 import 'dart:isolate';
 
-ReceivePort port = new ReceivePort();
+class IsolateGceLauncher {
+  ReceivePort isolateQueueServiceReceivePort = new ReceivePort();
+
+  SendPort isolateQueueServiceSendPort;
+
+  IsolateGceLauncher(this.isolateQueueServiceSendPort) {
+    isolateQueueServiceReceivePort.listen((data) {
+      print("isolateQueueServiceReceivePort.listen = $data");
+
+      // Create command interface here.
+    });
+  }
+
+  start() {
+    isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
+  }
+}
 
 void main(List<String> args, SendPort replyTo) {
   print("starting gce launcher");
+  print("args = $args");
 
-  port.listen((data) {
-    print("port.listen = $data");
-
-    // Create command interface here.
-  });
-
-  // Send back a SendPort to communicate over.
-  replyTo.send(port.sendPort);
+  IsolateGceLauncher isolateGceLauncher = new IsolateGceLauncher(replyTo);
+  isolateGceLauncher.start();
 }

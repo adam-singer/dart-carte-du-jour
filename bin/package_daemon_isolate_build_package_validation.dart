@@ -1,16 +1,28 @@
 import 'dart:isolate';
 
-ReceivePort port = new ReceivePort();
+class IsolateBuildPackageValidation {
+  ReceivePort isolateQueueServiceReceivePort = new ReceivePort();
+
+  SendPort isolateQueueServiceSendPort;
+
+  IsolateBuildPackageValidation(this.isolateQueueServiceSendPort) {
+    isolateQueueServiceReceivePort.listen((data) {
+      print("isolateQueueServiceReceivePort.listen = $data");
+
+      // Create command interface here.
+    });
+
+  }
+
+  start() {
+    isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
+  }
+}
 
 void main(List<String> args, SendPort replyTo) {
   print("starting build package validation");
+  print("args = $args");
 
-  port.listen((data) {
-    print("port.listen = $data");
-
-    // Create command interface here.
-  });
-
-  // Send back a SendPort to communicate over.
-  replyTo.send(port.sendPort);
+  IsolateBuildPackageValidation isolateBuildPackageValidation = new IsolateBuildPackageValidation(replyTo);
+  isolateBuildPackageValidation.start();
 }
