@@ -1,11 +1,9 @@
 import "dart:async";
 import "dart:isolate";
 
-void main() {
-  print("main");
-  IsolateService isolateService = new IsolateService();
-  isolateService.start();
-}
+import 'package:logging/logging.dart';
+
+import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 class IsolateService {
   Duration _timeout;
@@ -14,7 +12,7 @@ class IsolateService {
   Isolate queueIsolate;
   SendPort queueSendPort;
 
-  IsolateService({int seconds: 1}) {
+  IsolateService({int seconds: 5}) {
     _timeout = new Duration(seconds: seconds);
 
     // listening on the port keeps the stream open.
@@ -46,9 +44,42 @@ class IsolateService {
   }
 
   void callback(Timer timer) {
-    print("callback ${timer}");
-    if (queueSendPort != null) {
-      queueSendPort.send({'add': {'package': {'name': 'unittest', 'version': '0.1.1'}}});
-    }
+    Logger.root.fine("callback ${timer}");
+    _fetchFirstPage().then((List<Package> packages){
+      if (queueSendPort != null) {
+        packages.forEach((Package package) =>
+            queueSendPort.send({ 'command': 'packageAdd', 'message': package.toJson()}));
+      }
+    });
   }
+
+  Future<List<Package>> _fetchFirstPage() {
+    return fetchPackages()
+    .then((PubPackages pubPackages) {
+      Logger.root.fine("Pub packages fetched");
+      return pubPackages.packages.map(fetchPackage).toList();
+    }).then((List<Future<Package>> packages) {
+      Logger.root.fine("Waiting for individual packages to be fetched");
+      return Future.wait(packages);
+    }).then((List<Package> packages) {
+      Logger.root.fine("All packages fetched");
+      // As of now we should only check the latest version of the packages.
+      Logger.root.warning("Only checking for the latest version of built packages");
+      packages.forEach((Package p) {
+        p.versions = [p.versions.last];
+      });
+      return packages;
+    });
+  }
+}
+
+void main() {
+  print("main");
+
+  Logger.root.onRecord.listen((LogRecord record) {
+    print(record.message);
+  });
+
+  IsolateService isolateService = new IsolateService();
+  isolateService.start();
 }

@@ -27,4 +27,14 @@ class Package {
       versions.addAll(data['versions'].toList());
     }
   }
+
+  Map toJson() {
+    Map map = {};
+    map['name'] = name;
+    map['versions'] = versions;
+    map['uploaders'] = uploaders;
+    return map;
+  }
+
+  String toString() => JSON.encode(toJson());
 }
