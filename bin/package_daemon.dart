@@ -1,70 +1,9 @@
-import "dart:async";
 import "dart:io";
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
-
-class PubRequestService {
-  Duration _timeout;
-  Timer _timer;
-
-  PubRequestService({int seconds: 1800}) {
-    _timeout = new Duration(seconds: seconds);
-  }
-
-  start() {
-    _timer = new Timer.periodic(_timeout, callback);
-  }
-
-  stop() {
-    _timer.cancel();
-  }
-
-  void callback(Timer timer) {
-    Logger.root.fine("fetching pub packages");
-    fetchPackages().then((PubPackages pubPackages) {
-      Logger.root.fine("pub packages fetched");
-      return pubPackages.packages.map(fetchPackage).toList();
-    }).then((List<Future<Package>> packages) {
-      Logger.root.fine("Waiting for individual packages to be fetched");
-      return Future.wait(packages);
-    }).then((List<Package> packages) {
-      Logger.root.fine("All packages fetched");
-
-      // As of now we should only check the latest version of the packages.
-      Logger.root.warning("Only checking for the latest version of built packages");
-      packages.forEach((Package p) {
-        p.versions = [p.versions.last];
-      });
-
-      return packages.map((p) => checkPackageIsBuilt(p, p.versions.last)).toList();
-    }).then((List<Future<PackageBuildInfo>> packageBuildInfos){
-      return Future.wait(packageBuildInfos);
-    }).then((List<PackageBuildInfo> packageBuildInfos) {
-      // TODO: refactor the model objects so its easy to map which package and what version of that
-      // package is built or not built.
-
-      packageBuildInfos.forEach((PackageBuildInfo p) {
-        Logger.root.fine("p = ${p.toString()}");
-      });
-
-      // Filter out the packages that are not built
-      packageBuildInfos = packageBuildInfos.where((PackageBuildInfo p) => p.isBuilt == false).toList();
-
-      // TODO: queue packages instead of just taking the first 10
-      packageBuildInfos = packageBuildInfos.take(10).toList();
-
-      Logger.root.fine("Building following packages: ${packageBuildInfos}");
-
-      packageBuildInfos.forEach((PackageBuildInfo p) {
-        Package package = new Package(p.name, [p.version]);
-        deployDocumentationBuilder(package, p.version);
-      });
-    });
-  }
-}
 
 void main(args) {
   Logger.root.onRecord.listen((LogRecord record) {
@@ -93,11 +32,7 @@ void main(args) {
   }
 
   if (results['mode'] == 'daemon') {
-    print("Running in daemon mode");
-    String sleepInterval = results['sleep-interval'];
-    String maxClients = results['max-clients'];
-    _initDaemon(sleepInterval, maxClients);
-    return;
+    throw new UnsupportedError("daemon mode has been removed.");
   }
 
 }
@@ -118,13 +53,7 @@ void _initClient(String dartSdk, String packageName, String version) {
   copyPackageBuildInfo(package, version);
 }
 
-void _initDaemon(String sleepInterval, String maxClients) {
-  PubRequestService pubRequestService = new PubRequestService();
-  // pubRequestService.start();
-  pubRequestService.callback(null);
-}
-
-_createArgsParser() {
+ArgParser _createArgsParser() {
   ArgParser parser = new ArgParser();
     parser.addFlag('help',
         abbr: 'h',
@@ -150,11 +79,9 @@ _createArgsParser() {
         defaultsTo: null);
 
     //
-    // Daemon mode is the process where we scan for new packages and check
-    // status of compute engine instances.
-    //
     // Client mode is where we generate the actual documentation packages
     // and publish them to pub.dartlang.org.
+    //
     parser.addOption(
         'mode',
         help: 'Path to the sdk. Required.',
@@ -169,18 +96,6 @@ _createArgsParser() {
             _printUsage(parser);
           }
         });
-
-    //
-    // Daemon options
-    //
-    parser.addOption(
-        'sleep-interval',
-        help: 'Time requred to sleep in seconds before polling for new packages on pub.dartlang.org',
-        defaultsTo: null);
-    parser.addOption(
-        'max-clients',
-        help: 'Max number of possible client instances to fire up.',
-        defaultsTo: null);
 
     //
     // Client options
