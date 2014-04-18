@@ -365,7 +365,7 @@ Future<PackageBuildInfo> checkPackageIsBuilt(Package package, String version) {
     // If we do not find a package build info file then return the package
     // is not built.
     if (response.statusCode != 200) {
-      return new PackageBuildInfo(package.name, version, "", false);
+      return null;
     }
 
     var data = JSON.decode(response.body);

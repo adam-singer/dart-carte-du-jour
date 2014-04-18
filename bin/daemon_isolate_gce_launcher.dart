@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-final int MAX_GCE_INSTANCES = 3;
+final int MAX_GCE_INSTANCES = 20;
 
 class IsolateGceLauncher {
   Duration _timeout = const Duration(seconds: 1);

@@ -14,7 +14,6 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 class IsolateQueueService {
   Queue<Package> packageInbox = new Queue<Package>();
   Queue<Package> packageOutbox = new Queue<Package>();
-  // Queue packageBuildCheck = new Queue();
 
   Isolate buildValidationIsolate;
   Isolate gceLauncherIsolate;

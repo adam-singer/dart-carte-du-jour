@@ -34,7 +34,6 @@ void main(args) {
   if (results['mode'] == 'daemon') {
     throw new UnsupportedError("daemon mode has been removed.");
   }
-
 }
 
 void _initClient(String dartSdk, String packageName, String version) {

@@ -25,16 +25,19 @@ class IsolateBuildPackageValidation {
         Package package = new Package.fromJson(data['message']);
         checkPackageIsBuilt(package, package.versions.last)
         .then((PackageBuildInfo packageBuildInfo) {
-          Map data = {'message': package.toJson()};
-          if (packageBuildInfo.isBuilt) {
-            // Remove it from the packageInbox
-            data['command'] = 'packageRemoveInbox';
-          } else {
+          if (packageBuildInfo == null) {
+            // Package has never been built.
+            Map data = {'message': package.toJson()};
             // Place it on the packageOutbox
             data['command'] = 'packageAddOutbox';
+            isolateQueueServiceSendPort.send(data);
           }
 
-          isolateQueueServiceSendPort.send(data);
+          if (!packageBuildInfo.isBuilt) {
+            // Package cannot be built. isBuilt == false is considered a
+            // blacklisted package.
+            Logger.root.fine("blacklisted: ${packageBuildInfo.toString()}");
+          }
         });
       }
     });
@@ -45,7 +48,6 @@ void main(List<String> args, SendPort replyTo) {
   Logger.root.onRecord.listen((LogRecord record) {
     print("build_package: ${record.message}");
   });
-
 
   Logger.root.finest("starting build package validation");
   Logger.root.finest("args = $args");
