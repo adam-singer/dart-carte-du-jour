@@ -30,7 +30,7 @@ class IsolateService {
 
   void start() {
     Logger.root.fine("starting server");
-    Isolate.spawnUri(Uri.parse('package_daemon_isolate_queue.dart'),
+    Isolate.spawnUri(Uri.parse('daemon_isolate_queue.dart'),
                          ['initQueue'], port.sendPort)
     .then((Isolate queueIsolate) {
       this.queueIsolate = queueIsolate;

@@ -31,13 +31,13 @@ class IsolateQueueService {
   IsolateQueueService(this.isolateServiceSendPort);
 
   void start() {
-    Isolate.spawnUri(Uri.parse('package_daemon_isolate_build_package_validation.dart'),
+    Isolate.spawnUri(Uri.parse('daemon_isolate_build_package_validation.dart'),
                              ['init'], buildValidationReceivePort.sendPort)
                              .then((Isolate buildValidationIsolate) {
       this.buildValidationIsolate = buildValidationIsolate;
       return;
     }).then((_) {
-      return Isolate.spawnUri(Uri.parse('package_daemon_isolate_gce_launcher.dart'),
+      return Isolate.spawnUri(Uri.parse('daemon_isolate_gce_launcher.dart'),
                                      ['init'], gceLauncherReceivePort.sendPort);
     }).then((Isolate gceLauncherIsolate) {
       this.gceLauncherIsolate = gceLauncherIsolate;
