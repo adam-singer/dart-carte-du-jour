@@ -68,6 +68,8 @@ class IsolateService {
 
       // Remove null packages.
       Logger.root.warning("Found ${packages.where((e) => e == null).length} null packages");
+      // packages is a fixed length list.
+      packages = packages.toList();
       packages.removeWhere((e) => e == null);
 
       // As of now we should only check the latest version of the packages.
