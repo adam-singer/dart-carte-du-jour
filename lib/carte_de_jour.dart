@@ -270,6 +270,33 @@ String buildGceName(String packageName, String version) {
   return gce_name;
 }
 
+bool documentationInstanceAlive(Package package, String version) {
+  String service_version = "v1";
+  String project = "dart-carte-du-jour";
+  String instanceName = buildGceName(package.name, version);
+  String zone = "us-central1-a";
+
+  // TODO: Use the dart client apis
+  // https://developers.google.com/compute/docs/instances#checkmachinestatus
+  List<String> args = ['--service_version=$service_version',
+                       '--project=$project',
+                       'getinstance',
+                       instanceName,
+                       '--zone=$zone'];
+
+  Logger.root.finest("gcutil ${args}");
+
+  ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true);
+  stdout.write(processResult.stdout);
+  stderr.write(processResult.stderr);
+
+  if (processResult.exitCode == 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 // Call gcutil to deploy a node
 int deployDocumentationBuilder(Package package, String version) {
   String service_version = "v1";
