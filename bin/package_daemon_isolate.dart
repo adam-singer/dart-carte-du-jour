@@ -74,10 +74,8 @@ class IsolateService {
 }
 
 void main() {
-  print("main");
-
   Logger.root.onRecord.listen((LogRecord record) {
-    print(record.message);
+    print("isolate_main: ${record.message}");
   });
 
   IsolateService isolateService = new IsolateService();

@@ -51,7 +51,8 @@ class IsolateQueueService {
 
   _initListeners() {
     isolateServiceReceivePort.listen((data) {
-      print("isolateServiceReceivePort.listen = $data");
+      // Logger.root.finest("isolateServiceReceivePort.listen = $data");
+
       // Create command interface here.
       if (data['command'] == 'packageAdd') {
         Package package = new Package.fromJson(data['message']);
@@ -62,7 +63,7 @@ class IsolateQueueService {
     });
 
     buildValidationReceivePort.listen((data) {
-      print("buildValidationReceivePort.listen = $data");
+      // Logger.root.finest("buildValidationReceivePort.listen = $data");
 
       if (data is SendPort) {
         buildValidationSendPort = data;
@@ -83,7 +84,7 @@ class IsolateQueueService {
     });
 
     gceLauncherReceivePort.listen((data) {
-      print("gceLauncherReceivePort.listen = $data");
+      // Logger.root.finest("gceLauncherReceivePort.listen = $data");
 
       if (data is SendPort) {
         gceLauncherSendPort = data;
@@ -101,8 +102,12 @@ class IsolateQueueService {
 }
 
 void main(List<String> args, SendPort replyTo) {
-  print("starting queue service");
-  print("args = $args");
+  Logger.root.onRecord.listen((LogRecord record) {
+    print("isolate_queue: ${record.message}");
+  });
+
+  Logger.root.finest("starting queue service");
+  Logger.root.finest("args = $args");
   IsolateQueueService isolateQueueService = new IsolateQueueService(replyTo);
   isolateQueueService.start();
 }

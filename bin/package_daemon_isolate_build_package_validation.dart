@@ -18,7 +18,7 @@ class IsolateBuildPackageValidation {
 
   _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
-      print("isolateQueueServiceReceivePort.listen = $data");
+      // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
 
       // Create command interface here.
       if (data['command'] == 'checkPackage') {
@@ -42,9 +42,14 @@ class IsolateBuildPackageValidation {
 }
 
 void main(List<String> args, SendPort replyTo) {
-  print("starting build package validation");
-  print("args = $args");
-  print("replyTo = $replyTo");
+  Logger.root.onRecord.listen((LogRecord record) {
+    print("build_package: ${record.message}");
+  });
+
+
+  Logger.root.finest("starting build package validation");
+  Logger.root.finest("args = $args");
+  Logger.root.finest("replyTo = $replyTo");
 
   IsolateBuildPackageValidation isolateBuildPackageValidation = new IsolateBuildPackageValidation(replyTo);
   isolateBuildPackageValidation.start();

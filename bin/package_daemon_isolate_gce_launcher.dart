@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'dart:collection';
 
 import 'package:quiver/collection.dart';
+import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -25,9 +26,6 @@ class IsolateGceLauncher {
   start() {
     isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
     _initListeners();
-//    _timeout = new Duration(seconds: 10);
-    // TODO: consider using Timer.run();
-//    _timer = new Timer.periodic(_timeout, callback);
     Timer.run(callback);
   }
 
@@ -38,13 +36,13 @@ class IsolateGceLauncher {
       Package package = buildQueue.removeFirst();
       buildingQueue.add(package);
 
-      print("buildingQueue.length = ${buildingQueue.length}");
+      Logger.root.finest("buildingQueue.length = ${buildingQueue.length}");
       // TODO: support builder version ranges
       deployDocumentationBuilder(package, package.versions.first);
 
     } else {
       // TODO: check the current number of build instances on gce
-      print("waiting till available gce instance or buildQueue is empty");
+      Logger.root.finest("waiting till available gce instance or buildQueue is empty");
     }
 
     // TODO: Might be better to check if the `package_build_info.json`
@@ -70,7 +68,7 @@ class IsolateGceLauncher {
 
   _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
-      print("isolateQueueServiceReceivePort.listen = $data");
+      // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
 
       // TODO: try out hashmaps of functions resolved by command string
       // Create command interface here.
@@ -83,16 +81,20 @@ class IsolateGceLauncher {
           buildQueue.add(package);
         }
 
-        print("buildQueue = ${buildQueue.toList()}");
-        print("buildQueue.length = ${buildQueue.length}");
+        Logger.root.finest("buildQueue = ${buildQueue.toList()}");
+        Logger.root.finest("buildQueue.length = ${buildQueue.length}");
       }
     });
   }
 }
 
 void main(List<String> args, SendPort replyTo) {
-  print("starting gce launcher");
-  print("args = $args");
+  Logger.root.onRecord.listen((LogRecord record) {
+    print("gce_launcher: ${record.message}");
+  });
+
+  Logger.root.finest("starting gce launcher");
+  Logger.root.finest("args = $args");
 
   IsolateGceLauncher isolateGceLauncher = new IsolateGceLauncher(replyTo);
   isolateGceLauncher.start();
