@@ -31,6 +31,7 @@ class IsolateBuildPackageValidation {
             // Place it on the packageOutbox
             data['command'] = 'packageAddOutbox';
             isolateQueueServiceSendPort.send(data);
+            return;
           }
 
           if (!packageBuildInfo.isBuilt) {
