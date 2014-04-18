@@ -242,7 +242,7 @@ String buildStartupScript(String startupScriptTemplatePath) {
   var template = mustache.parse(startupScriptTemplate);
   var startupScript = template.renderString({
     'user_name': 'financeCoding',
-    'dart_application': r'bin/package_daemon.dart --verbose --mode $MODE --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
+    'dart_application': r'bin/client_builder.dart --verbose --mode $MODE --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
   }, htmlEscapeValues: false);
   return startupScript;
 }

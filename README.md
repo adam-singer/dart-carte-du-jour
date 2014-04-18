@@ -4,7 +4,7 @@ dart-carte-du-jour
 Pub documentation generation system
 -- 
 
-Currently `bin/package_daemon.dart` has two modes to execute in (only
+Currently `bin/client_builder.dart` has two modes to execute in (only
 client is implemented). Client mode execution takes parameters to
 generate documentation and upload it to cloud storage. In Daemon mode
 the dart program will poll the
@@ -15,7 +15,7 @@ Example of running a client (only works on unix shell envionments as of
 now)
 
 ```shell
-dart bin/package_daemon.dart --verbose --mode client --sdk
+dart bin/client_builder.dart --verbose --mode client --sdk
 /Applications/dart/dart-sdk --package unittest --version 0.10.1+1
 ```
 

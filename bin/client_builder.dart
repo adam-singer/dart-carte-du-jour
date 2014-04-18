@@ -111,7 +111,7 @@ ArgParser _createArgsParser() {
 }
 
 void _printUsage(ArgParser parser) {
-  print('usage: dart bin/package_daemon <options>');
+  print('usage: dart bin/client_builder.dart <options>');
   print('');
   print('where <options> is one or more of:');
   print(parser.getUsage().replaceAll('\n\n', '\n'));
