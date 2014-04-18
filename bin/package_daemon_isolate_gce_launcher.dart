@@ -9,9 +9,6 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 final int MAX_GCE_INSTANCES = 3;
 
 class IsolateGceLauncher {
-
-  int _gceInstances = 0;
-
   Duration _timeout = const Duration(seconds: 1);
   Timer _timer;
 
@@ -36,13 +33,12 @@ class IsolateGceLauncher {
 
   void callback() {
 
-    if (_gceInstances < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
+    if (buildingQueue.length < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
       // TODO: query GCE instead of keeping local counter.
       Package package = buildQueue.removeFirst();
       buildingQueue.add(package);
 
-      _gceInstances++;
-      print("starting new gce instance, _gceInstances = ${_gceInstances}");
+      print("buildingQueue.length = ${buildingQueue.length}");
       // TODO: support builder version ranges
       deployDocumentationBuilder(package, package.versions.first);
 
@@ -59,9 +55,12 @@ class IsolateGceLauncher {
 
     while (completedQueue.isNotEmpty) {
       // TODO: only send what has been completed.
+      Package completedPackage = completedQueue.removeFirst();
+
       isolateQueueServiceSendPort.send({'command': 'packageBuildComplete',
-        'message': completedQueue.removeFirst().toJson() });
-      _gceInstances--;
+        'message': completedPackage.toJson() });
+      buildingQueue.removeWhere((p) => p.name == completedPackage.name
+          && listsEqual(p.versions, completedPackage.versions));
     }
 
     // Timer.run(callback);

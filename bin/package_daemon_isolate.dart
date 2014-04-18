@@ -12,7 +12,7 @@ class IsolateService {
   Isolate queueIsolate;
   SendPort queueSendPort;
 
-  IsolateService({int seconds: 5}) {
+  IsolateService({int seconds: 60}) {
     _timeout = new Duration(seconds: seconds);
 
     // listening on the port keeps the stream open.
