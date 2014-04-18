@@ -13,6 +13,7 @@ import 'package:mustache/mustache.dart' as mustache;
 part 'src/package.dart';
 part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
+part 'src/commands_enums.dart';
 
 // TODO(adam): query GCE for total instead of hard coding it.
 final int GCE_CPU_TOTAL = 24;
