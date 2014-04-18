@@ -15,7 +15,10 @@ class IsolateGceLauncher {
   Duration _timeout;
   Timer _timer;
 
-  Queue buildQueue = new Queue();
+  Queue<Package> buildQueue = new Queue<Package>();
+  Queue<Package> buildingQueue = new Queue<Package>();
+  Queue<Package> completedQueue = new Queue<Package>();
+
   ReceivePort isolateQueueServiceReceivePort = new ReceivePort();
 
   SendPort isolateQueueServiceSendPort;
@@ -34,26 +37,35 @@ class IsolateGceLauncher {
 
     if (_gceInstances < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
       // TODO: query GCE instead of keeping local counter.
+      buildingQueue.add(buildQueue.removeFirst());
       _gceInstances++;
       print("starting new gce instance, _gceInstances = ${_gceInstances}");
 
-      // Replace with deployDocumentationBuilder
-      new Future.delayed(new Duration(seconds:100), () {
+      // TODO: Replace with deployDocumentationBuilder
+      new Future.delayed(new Duration(seconds:1), () {
         print('a gce instance has completed, _gceInstances = ${_gceInstances}');
+        // documentationInstanceAlive();
+        completedQueue.add(buildingQueue.removeFirst());
         _gceInstances--;
-        // TODO: on complete isolateQueueServiceSendPort.send("completed package");
+
+
+        while (completedQueue.isNotEmpty) {
+          // TODO: only send what has been completed.
+          isolateQueueServiceSendPort.send({'command': 'packageBuildComplete',
+            'message': completedQueue.removeFirst().toJson() });
+        }
       });
     } else {
       // TODO: check the current number of build instances on gce
       print("waiting till available gce instance or buildQueue is empty");
     }
-
   }
 
   _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
       print("isolateQueueServiceReceivePort.listen = $data");
 
+      // TODO: try out hashmaps of functions resolved by command string
       // Create command interface here.
       if (data['command'] == 'buildPackage') {
         Package package = new Package.fromJson(data['message']);

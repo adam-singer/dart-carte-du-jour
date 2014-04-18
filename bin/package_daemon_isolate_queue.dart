@@ -51,49 +51,52 @@ class IsolateQueueService {
 
   _initListeners() {
     isolateServiceReceivePort.listen((data) {
-          print("isolateServiceReceivePort.listen = $data");
+      print("isolateServiceReceivePort.listen = $data");
+      // Create command interface here.
+      if (data['command'] == 'packageAdd') {
+        Package package = new Package.fromJson(data['message']);
+        packageInbox.add(package);
+        buildValidationSendPort.send({'command': 'checkPackage',
+          'message': package.toJson()});
+      }
+    });
 
-          // Create command interface here.
-          if (data['command'] == 'packageAdd') {
-            Package package = new Package.fromJson(data['message']);
-            packageInbox.add(package);
-            buildValidationSendPort.send({'command': 'checkPackage',
-              'message': package.toJson()});
-          }
-        });
+    buildValidationReceivePort.listen((data) {
+      print("buildValidationReceivePort.listen = $data");
 
-        buildValidationReceivePort.listen((data) {
-          print("buildValidationReceivePort.listen = $data");
+      if (data is SendPort) {
+        buildValidationSendPort = data;
+        return;
+      }
 
-          if (data is SendPort) {
-            buildValidationSendPort = data;
-            return;
-          }
+      // Create command interface here.
+      if (data['command'] == 'packageRemoveInbox') {
+        Package package = new Package.fromJson(data['message']);
+        packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
+      } else if (data['command'] == 'packageAddOutbox'){
+        Package package = new Package.fromJson(data['message']);
+        packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
+        packageOutbox.add(package);
+        gceLauncherSendPort.send({'command': 'buildPackage',
+                      'message': package.toJson()});
+      }
+    });
 
-          // Create command interface here.
-          if (data['command'] == 'packageRemoveInbox') {
-            Package package = new Package.fromJson(data['message']);
-            packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
-          } else if (data['command'] == 'packageAddOutbox'){
-            Package package = new Package.fromJson(data['message']);
-            packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
-            packageOutbox.add(package);
-            gceLauncherSendPort.send({'command': 'buildPackage',
-                          'message': package.toJson()});
-          }
+    gceLauncherReceivePort.listen((data) {
+      print("gceLauncherReceivePort.listen = $data");
 
-        });
+      if (data is SendPort) {
+        gceLauncherSendPort = data;
+        return;
+      }
 
-        gceLauncherReceivePort.listen((data) {
-          print("gceLauncherReceivePort.listen = $data");
-
-          if (data is SendPort) {
-            gceLauncherSendPort = data;
-            return;
-          }
-
-          // Create command interface here.
-        });
+      // Create command interface here.
+      if (data['command'] == 'packageBuildComplete') {
+        Package package = new Package.fromJson(data['message']);
+        packageOutbox.removeWhere((Package p) => p.name == package.name
+            && listsEqual(p.versions, package.versions));
+      }
+    });
   }
 }
 
