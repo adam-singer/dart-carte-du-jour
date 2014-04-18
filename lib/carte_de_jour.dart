@@ -36,6 +36,11 @@ final String BUILD_DOCUMENTATION_ROOT_PATH =
 Future<PubPackages> fetchPackages([int page]) {
   String uri = PACKAGES_DATA_URI + (page != null ? "?page=${page}":"");
   return http.get(uri).then((response) {
+    if (response.statusCode != 200) {
+      Logger.root.warning("Not able to fetch packages: ${response.statusCode}:${response.body}");
+      return null;
+    }
+
     var data = JSON.decode(response.body);
     PubPackages pubPackages = new PubPackages.fromJson(data);
     return pubPackages;
@@ -47,6 +52,11 @@ Future<PubPackages> fetchPackages([int page]) {
  */
 Future<Package> fetchPackage(String packageJsonUri) {
   return http.get(packageJsonUri).then((response) {
+    if (response.statusCode != 200) {
+      Logger.root.warning("Not able to fetch packages: ${response.statusCode}:${response.body}");
+      return null;
+    }
+
     var data = JSON.decode(response.body);
     Package package = new Package.fromJson(data);
     return package;
@@ -386,9 +396,8 @@ void createVersionFile(Package package, String version) {
 
 void createPackageBuildInfo(Package package, String version, bool successfullyBuilt) {
   // TODO(adam): factor this out into a private method.
-  String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${package.name}-${version}",
-        DARTDOC_VIEWER_OUT);
-  String packageBuildInfoPath = join(out, 'web', PACKAGE_BUILD_INFO_FILE_NAME);
+  String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${package.name}-${version}");
+  String packageBuildInfoPath = join(out, PACKAGE_BUILD_INFO_FILE_NAME);
   String now = new DateTime.now().toIso8601String();
 
   PackageBuildInfo packageBuildInfo = new PackageBuildInfo(package.name,
@@ -424,13 +433,12 @@ int copyVersionFile(Package package, String version) {
 
 int copyPackageBuildInfo(Package package, String version) {
   String packageFolderPath = "${package.name}-${version}";
-  String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-      DARTDOC_VIEWER_OUT, 'web');
+  String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath);
 
   String cloudDocumentationPath = _buildCloudStorageDocumentationPath(package, version);
 
   List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
-                       PACKAGE_BUILD_INFO_FILE_NAME, cloudDocumentationPath];
+                       PACKAGE_BUILD_INFO_FILE_NAME, join(cloudDocumentationPath, PACKAGE_BUILD_INFO_FILE_NAME)];
 
   Logger.root.finest("workingDirectory: ${workingDirectory}");
   Logger.root.finest("gsutil ${args}");

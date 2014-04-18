@@ -10,6 +10,8 @@ void main(args) {
     print(record.message);
   });
 
+  Logger.root.finest("args = ${args}");
+
   // TODO(adam): move arg parsing and command invoking to `unscripted`
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
@@ -39,17 +41,23 @@ void main(args) {
 void _initClient(String dartSdk, String packageName, String version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
-  buildDocumentationCacheSync(package, versionConstraint: version);
-  initPackageVersion(package, version);
-  buildDocumentationSync(package, version, dartSdk);
-  moveDocumentationPackages(package, version);
-  copyDocumentation(package, version);
-  createVersionFile(package, version);
-  copyVersionFile(package, version);
-  // Copy the package_build_info.json file, should only be copied if everything
-  // else was successful.
-  createPackageBuildInfo(package, version, true);
-  copyPackageBuildInfo(package, version);
+  try {
+    buildDocumentationCacheSync(package, versionConstraint: version);
+    initPackageVersion(package, version);
+    buildDocumentationSync(package, version, dartSdk);
+    moveDocumentationPackages(package, version);
+    copyDocumentation(package, version);
+    createVersionFile(package, version);
+    copyVersionFile(package, version);
+    // Copy the package_build_info.json file, should only be copied if everything
+    // else was successful.
+    createPackageBuildInfo(package, version, true);
+    copyPackageBuildInfo(package, version);
+  } catch (e) {
+    Logger.root.severe(("Not able to build ${package.toString()}"));
+    createPackageBuildInfo(package, version, false);
+    copyPackageBuildInfo(package, version);
+  }
 }
 
 ArgParser _createArgsParser() {
