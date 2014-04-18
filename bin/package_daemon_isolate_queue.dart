@@ -12,8 +12,8 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 ///
 
 class IsolateQueueService {
-  Queue packageInbox = new Queue();
-  Queue packageOutbox = new Queue();
+  Queue<Package> packageInbox = new Queue<Package>();
+  Queue<Package> packageOutbox = new Queue<Package>();
   // Queue packageBuildCheck = new Queue();
 
   Isolate buildValidationIsolate;
@@ -30,7 +30,7 @@ class IsolateQueueService {
 
   IsolateQueueService(this.isolateServiceSendPort);
 
-  start() {
+  void start() {
     Isolate.spawnUri(Uri.parse('package_daemon_isolate_build_package_validation.dart'),
                              ['init'], buildValidationReceivePort.sendPort)
                              .then((Isolate buildValidationIsolate) {
@@ -49,7 +49,7 @@ class IsolateQueueService {
     });
   }
 
-  _initListeners() {
+  void _initListeners() {
     isolateServiceReceivePort.listen((data) {
       // Logger.root.finest("isolateServiceReceivePort.listen = $data");
 

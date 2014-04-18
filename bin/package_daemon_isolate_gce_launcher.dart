@@ -23,7 +23,7 @@ class IsolateGceLauncher {
 
   IsolateGceLauncher(this.isolateQueueServiceSendPort);
 
-  start() {
+  void start() {
     isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
     _initListeners();
     Timer.run(callback);
@@ -66,7 +66,7 @@ class IsolateGceLauncher {
     new Timer(_timeout, callback);
   }
 
-  _initListeners() {
+  void _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
       // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
 

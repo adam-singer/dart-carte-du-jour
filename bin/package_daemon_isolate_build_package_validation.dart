@@ -11,12 +11,12 @@ class IsolateBuildPackageValidation {
 
   IsolateBuildPackageValidation(this.isolateQueueServiceSendPort);
 
-  start() {
+  void start() {
     isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
     _initListeners();
   }
 
-  _initListeners() {
+  void _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
       // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
 

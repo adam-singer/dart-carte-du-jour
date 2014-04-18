@@ -23,13 +23,13 @@ class IsolateService {
         queueSendPort = onData;
       } else if (onData is Map) {
         // If data is a map then expect its a command.
-        print("onData = ${onData}");
+        Logger.root.fine("onData = ${onData}");
       }
     });
   }
 
-  start() {
-    print("starting server");
+  void start() {
+    Logger.root.fine("starting server");
     Isolate.spawnUri(Uri.parse('package_daemon_isolate_queue.dart'),
                          ['initQueue'], port.sendPort)
     .then((Isolate queueIsolate) {
@@ -39,7 +39,7 @@ class IsolateService {
     });
   }
 
-  stop() {
+  void stop() {
     _timer.cancel();
   }
 
