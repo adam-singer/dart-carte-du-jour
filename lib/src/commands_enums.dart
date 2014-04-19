@@ -59,3 +59,5 @@ class MainIsolateCommand<String> extends Enum<String> {
 
 Map createMessage(Enum e, dynamic message) =>
     {'command': e.value, 'message': message.toJson() };
+
+bool isCommand(Enum e, Map data) => data['command'] == e.value;

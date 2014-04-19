@@ -74,7 +74,7 @@ class IsolateGceLauncher {
 
       // TODO: try out hashmaps of functions resolved by command string
       // Create command interface here.
-      if (data['command'] == 'buildPackage') {
+      if (isCommand(QueueCommand.BUILD_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
         bool isInQueue = buildQueue.any((Package p) =>
                   p.name == package.name && listsEqual(p.versions, package.versions));

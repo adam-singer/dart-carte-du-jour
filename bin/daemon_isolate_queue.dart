@@ -53,7 +53,7 @@ class IsolateQueueService {
       // Logger.root.finest("isolateServiceReceivePort.listen = $data");
 
       // Create command interface here.
-      if (data['command'] == 'packageAdd') {
+      if (isCommand(MainIsolateCommand.PACKAGE_ADD, data)) {
         Package package = new Package.fromJson(data['message']);
         packageInbox.add(package);
 
@@ -71,14 +71,13 @@ class IsolateQueueService {
       }
 
       // Create command interface here.
-      if (data['command'] == 'packageRemoveInbox') {
+      if (isCommand(PackageValidationCommand.PACKAGE_REMOVE_INBOX, data)) {
         Package package = new Package.fromJson(data['message']);
         packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
-      } else if (data['command'] == 'packageAddOutbox'){
+      } else if (isCommand(PackageValidationCommand.PACKAGE_ADD_OUTBOX, data)){
         Package package = new Package.fromJson(data['message']);
         packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
         packageOutbox.add(package);
-
         gceLauncherSendPort.send(createMessage(QueueCommand.BUILD_PACKAGE,
                                                package));
       }
@@ -93,7 +92,7 @@ class IsolateQueueService {
       }
 
       // Create command interface here.
-      if (data['command'] == 'packageBuildComplete') {
+      if (isCommand(GceLauncherCommand.PACKAGE_BUILD_COMPLETE, data)) {
         Package package = new Package.fromJson(data['message']);
         packageOutbox.removeWhere((Package p) => p.name == package.name
             && listsEqual(p.versions, package.versions));
