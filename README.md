@@ -119,8 +119,8 @@ repository has been open sourced.
 - `scripts/make_image/build_image.sh` is the script used for creating 
 the compute engine instance that has latest dart-sdk
 
-- `scripts/quick_launch/` is a collection of scripts for
-  launching, killing, ssh a test-instance, currently the scripts are 
+- `scripts/daemon_launch/` is a collection of scripts for
+  launching, killing, ssh a daemon-isolate, currently the scripts are 
   hardcoded. 
 
 - [scope document](https://docs.google.com/document/d/1DYeca9T-FJTePXLksqNoSrOwp8eFlnbqbLs_qGfC99o/edit)
