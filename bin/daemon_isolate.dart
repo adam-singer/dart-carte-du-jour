@@ -12,7 +12,8 @@ class IsolateService {
   Isolate queueIsolate;
   SendPort queueSendPort;
 
-  IsolateService({int seconds: 60}) {
+  IsolateService({int seconds: 600}) {
+    // Default 10 mins to check for new packages.
     _timeout = new Duration(seconds: seconds);
 
     // listening on the port keeps the stream open.

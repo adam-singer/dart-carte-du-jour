@@ -50,8 +50,6 @@ class IsolateQueueService {
 
   void _initListeners() {
     isolateServiceReceivePort.listen((data) {
-      // Logger.root.finest("isolateServiceReceivePort.listen = $data");
-
       // Create command interface here.
       if (isCommand(MainIsolateCommand.PACKAGE_ADD, data)) {
         Package package = new Package.fromJson(data['message']);
@@ -63,8 +61,6 @@ class IsolateQueueService {
     });
 
     buildValidationReceivePort.listen((data) {
-      // Logger.root.finest("buildValidationReceivePort.listen = $data");
-
       if (data is SendPort) {
         buildValidationSendPort = data;
         return;
@@ -84,8 +80,6 @@ class IsolateQueueService {
     });
 
     gceLauncherReceivePort.listen((data) {
-      // Logger.root.finest("gceLauncherReceivePort.listen = $data");
-
       if (data is SendPort) {
         gceLauncherSendPort = data;
         return;

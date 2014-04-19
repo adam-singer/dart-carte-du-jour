@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-final int MAX_GCE_INSTANCES = 3;
+final int MAX_GCE_INSTANCES = 15;
 
 class IsolateGceLauncher {
   Duration _timeout = const Duration(seconds: 1);
@@ -30,7 +30,6 @@ class IsolateGceLauncher {
   }
 
   void callback() {
-
     if (buildingQueue.length < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
       // TODO: query GCE instead of keeping local counter.
       Package package = buildQueue.removeFirst();
@@ -63,15 +62,11 @@ class IsolateGceLauncher {
           && listsEqual(p.versions, completedPackage.versions));
     }
 
-    // Timer.run(callback);
-    // Do not want periodic timer here.
     new Timer(_timeout, callback);
   }
 
   void _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
-      // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
-
       // TODO: try out hashmaps of functions resolved by command string
       // Create command interface here.
       if (isCommand(QueueCommand.BUILD_PACKAGE, data)) {

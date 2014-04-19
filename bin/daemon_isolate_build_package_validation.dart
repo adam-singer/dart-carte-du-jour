@@ -18,8 +18,6 @@ class IsolateBuildPackageValidation {
 
   void _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
-      // Logger.root.finest("isolateQueueServiceReceivePort.listen = $data");
-
       // Create command interface here.
       if (isCommand(QueueCommand.CHECK_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
