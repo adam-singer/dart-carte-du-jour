@@ -48,7 +48,7 @@ class IsolateService {
     _fetchFirstPage().then((List<Package> packages){
       if (queueSendPort != null) {
         packages.forEach((Package package) =>
-            queueSendPort.send({ 'command': 'packageAdd', 'message': package.toJson()}));
+            queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
       }
     }).catchError((error) {
       Logger.root.severe("fetching packages error: $error");

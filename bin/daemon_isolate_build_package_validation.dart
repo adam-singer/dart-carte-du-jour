@@ -27,10 +27,7 @@ class IsolateBuildPackageValidation {
         .then((PackageBuildInfo packageBuildInfo) {
           if (packageBuildInfo == null) {
             // Package has never been built.
-            Map data = {'message': package.toJson()};
-            // Place it on the packageOutbox
-            data['command'] = 'packageAddOutbox';
-            isolateQueueServiceSendPort.send(data);
+            isolateQueueServiceSendPort.send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX, package));
             return;
           }
 

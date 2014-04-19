@@ -55,8 +55,10 @@ class IsolateGceLauncher {
       // TODO: only send what has been completed.
       Package completedPackage = completedQueue.removeFirst();
 
-      isolateQueueServiceSendPort.send({'command': 'packageBuildComplete',
-        'message': completedPackage.toJson() });
+      isolateQueueServiceSendPort.send(
+          createMessage(GceLauncherCommand.PACKAGE_BUILD_COMPLETE,
+                        completedPackage));
+
       buildingQueue.removeWhere((p) => p.name == completedPackage.name
           && listsEqual(p.versions, completedPackage.versions));
     }

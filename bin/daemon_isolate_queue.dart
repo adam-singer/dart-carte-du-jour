@@ -56,8 +56,9 @@ class IsolateQueueService {
       if (data['command'] == 'packageAdd') {
         Package package = new Package.fromJson(data['message']);
         packageInbox.add(package);
-        buildValidationSendPort.send({'command': 'checkPackage',
-          'message': package.toJson()});
+
+        buildValidationSendPort.send(createMessage(QueueCommand.CHECK_PACKAGE,
+                                                   package));
       }
     });
 
@@ -77,8 +78,9 @@ class IsolateQueueService {
         Package package = new Package.fromJson(data['message']);
         packageInbox.removeWhere((Package p) => p.name == package.name && listsEqual(p.versions, package.versions));
         packageOutbox.add(package);
-        gceLauncherSendPort.send({'command': 'buildPackage',
-                      'message': package.toJson()});
+
+        gceLauncherSendPort.send(createMessage(QueueCommand.BUILD_PACKAGE,
+                                               package));
       }
     });
 

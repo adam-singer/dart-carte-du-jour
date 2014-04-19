@@ -33,7 +33,7 @@ class PackageValidationCommand<String> extends Enum<String> {
 
   static const PackageValidationCommand PACKAGE_REMOVE_INBOX =
       const PackageValidationCommand("packageRemoveInbox");
-  static const PackageValidationCommand PACKAGE_ADD_INBOX =
+  static const PackageValidationCommand PACKAGE_ADD_OUTBOX =
       const PackageValidationCommand("packageAddOutbox");
 }
 
