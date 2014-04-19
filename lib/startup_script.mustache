@@ -38,8 +38,15 @@ function shutdown_instance () {
     retry_wrapper gcutil deleteinstance -f --delete_boot_pd --zone us-central1-a $hostname
   fi 
 }
+function fetch_latest_dart_sdk () {
+  rm -rf /dart-sdk
+  wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+  unzip -d / /tmp/dartsdk-linux-x64-release.zip
+  chmod -R go+rx /dart-sdk
+}
 sed -i '1i Port 443' /etc/ssh/sshd_config 
 /etc/init.d/ssh restart
+fetch_latest_dart_sdk
 export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/dartsdk)
 export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
 export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)

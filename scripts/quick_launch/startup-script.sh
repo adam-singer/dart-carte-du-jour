@@ -48,6 +48,20 @@ function shutdown_instance () {
 	fi 
 }
 
+function fetch_latest_dart_sdk () {
+	# remove dartsdk
+	rm -rf /dart-sdk
+
+	# Download the latest dart sdk
+	wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+
+	# Unpack the dart sdk
+	unzip -d / /tmp/dartsdk-linux-x64-release.zip
+
+	# Make the sdk readable 
+	chmod -R go+rx /dart-sdk
+}
+
 # TODO(adam): hack for non ssh friendly firewalls. 
 # update the sshd_config to open port 443
 sed -i '1i Port 443' /etc/ssh/sshd_config 
@@ -55,14 +69,13 @@ sed -i '1i Port 443' /etc/ssh/sshd_config
 # restart sshd
 /etc/init.d/ssh restart
 
-export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/dartsdk)
-export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
-export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)
-export MODE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/mode)
+# upgrade dart sdk to latest
+fetch_latest_dart_sdk
 
-# gsutil cp -r gs://dart-carte-du-jour/configurations/github_private_repo_pull ~/
-# sudo -H -u financeCoding bash -c 'echo "I am $USER, with uid $UID"' 
+# clone project
 sudo -E -H -u financeCoding bash -c 'gsutil cp -r gs://dart-carte-du-jour/configurations/github_private_repo_pull ~/ && cd ~/github_private_repo_pull && bash ./clone_project.sh'
+
+# start service
 sudo -E -H -u financeCoding bash -c 'source /etc/profile && cd ~/github_private_repo_pull/dart-carte-du-jour && pub install && dart bin/daemon_isolate.dart'
 
 shutdown_instance
