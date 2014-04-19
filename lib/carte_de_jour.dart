@@ -15,10 +15,6 @@ part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
 part 'src/commands_enums.dart';
 
-// TODO(adam): query GCE for total instead of hard coding it.
-final int GCE_CPU_TOTAL = 24;
-int _currentGceCpuUsed = 0;
-
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
 final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/www.dartdocs.org/documentation";
@@ -356,13 +352,6 @@ int deployDocumentationBuilder(Package package, String version) {
       workingDirectory: workingDirectory, runInShell: true);
   stdout.write(processResult.stdout);
   stderr.write(processResult.stderr);
-
-  if (_currentGceCpuUsed >= GCE_CPU_TOTAL) {
-    Logger.root.warning("All CPUs used");
-    return -1;
-  } else {
-    _currentGceCpuUsed++;
-  }
 
   return processResult.exitCode;
 }
