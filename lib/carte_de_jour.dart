@@ -87,6 +87,35 @@ Future<Package> fetchPackage(String packageJsonUri) {
 }
 
 /**
+ * Fetches all the packages and puts them into `Package` objects
+ */
+Future<List<Package>> fetchAllPackage() {
+  return fetchAllPackages().then((List<PubPackages> pubPackages) {
+   Completer completer = new Completer();
+   List<String> packagesUris = new List<String>();
+   pubPackages.forEach((PubPackages pubPackages) =>
+       packagesUris.addAll(pubPackages.packages));
+
+   List<Package> packages = new List<Package>();
+   void callback() {
+     if (packagesUris.isEmpty) {
+       completer.complete(packages);
+       return;
+     }
+
+     print("fetching ${packagesUris.last}");
+     fetchPackage(packagesUris.removeLast()).then((Package package) {
+       packages.add(package);
+       Timer.run(callback);
+     });
+   }
+
+   Timer.run(callback);
+   return completer.future;
+  });
+}
+
+/**
  * Builds the cache for a package.
  */
 int buildDocumentationCacheSync(Package package, {Map additionalEnvironment:
