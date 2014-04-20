@@ -49,7 +49,20 @@ class IsolateService {
     var duration = new Duration(seconds: 10);
     fetchAllPackage().then((List<Package> packages) {
       void callback() {
+
         if (queueSendPort != null) {
+           // Remove null packages.
+           Logger.root.warning("Found ${packages.where((e) => e == null).length} null packages");
+           // packages is a fixed length list.
+           packages = packages.toList();
+           packages.removeWhere((e) => e == null);
+
+           // As of now we should only check the latest version of the packages.
+           Logger.root.warning("Only checking for the latest version of built packages");
+           packages.forEach((Package p) {
+              p.versions = [p.versions.last];
+           });
+
            packages.forEach((Package package) =>
                queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
            return;
