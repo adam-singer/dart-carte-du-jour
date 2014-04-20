@@ -37,11 +37,29 @@ class IsolateService {
       this.queueIsolate = queueIsolate;
       // setup timer now...
       _timer = new Timer.periodic(_timeout, callback);
+      _oneTimeFetchAll();
     });
   }
 
   void stop() {
     _timer.cancel();
+  }
+
+  void _oneTimeFetchAll() {
+    var duration = new Duration(seconds: 10);
+    fetchAllPackage().then((List<Package> packages) {
+      void callback() {
+        if (queueSendPort != null) {
+           packages.forEach((Package package) =>
+               queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
+           return;
+         }
+
+        new Future.delayed(duration, callback);
+      }
+
+      callback();
+    });
   }
 
   void callback(Timer timer) {
