@@ -28,6 +28,9 @@ abstract class Enum<T> {
   T get value => _value;
 }
 
+/**
+ * Commands sent from a package validation isolate.
+ */
 class PackageValidationCommand<String> extends Enum<String> {
   const PackageValidationCommand(String val) : super (val);
 
@@ -37,12 +40,18 @@ class PackageValidationCommand<String> extends Enum<String> {
       const PackageValidationCommand("packageAddOutbox");
 }
 
+/**
+ * Commands sent from a gce launcher isolate.
+ */
 class GceLauncherCommand<String> extends Enum<String> {
   const GceLauncherCommand(String val) : super (val);
   static const GceLauncherCommand PACKAGE_BUILD_COMPLETE =
       const GceLauncherCommand("packageBuildComplete");
 }
 
+/**
+ * Commands sent from a queue isolate.
+ */
 class QueueCommand<String> extends Enum<String> {
   const QueueCommand(String val) : super (val);
   static const QueueCommand CHECK_PACKAGE =
@@ -51,13 +60,22 @@ class QueueCommand<String> extends Enum<String> {
       const QueueCommand("buildPackage");
 }
 
+/**
+ * Commands sent from a main isolate.
+ */
 class MainIsolateCommand<String> extends Enum<String> {
   const MainIsolateCommand(String val) : super (val);
   static const MainIsolateCommand PACKAGE_ADD =
       const MainIsolateCommand("packageAdd");
 }
 
+/**
+ * Creates a message object to be sent over a `SendPort`
+ */
 Map createMessage(Enum e, dynamic message) =>
     {'command': e.value, 'message': message.toJson() };
 
+/**
+ * Check data is a `Enum` command.
+ */
 bool isCommand(Enum e, Map data) => data['command'] == e.value;
