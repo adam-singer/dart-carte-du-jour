@@ -44,6 +44,33 @@ Future<PubPackages> fetchPackages([int page]) {
 }
 
 /**
+ * Fetch all pages of packages.json file and return as `List` of
+ * `PubPackages` objects.
+ */
+Future<List<PubPackages>> fetchAllPackages() {
+  Completer completer = new Completer();
+  List pubPackages = [];
+  int pageCount = 1;
+
+  void callback() {
+    fetchPackages(pageCount).then((PubPackages p) {
+      Logger.root.finest("pageCount = ${pageCount}");
+      if (p.packages.length == 0) {
+        completer.complete(pubPackages);
+        return;
+      }
+
+      pageCount++;
+      pubPackages.add(p);
+      Timer.run(callback);
+    });
+  }
+
+  Timer.run(callback);
+  return completer.future;
+}
+
+/**
  * Fetch a particular `<package>.json` file and return `Package`
  */
 Future<Package> fetchPackage(String packageJsonUri) {
