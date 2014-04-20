@@ -51,6 +51,6 @@ export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attribute
 export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
 export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)
 export MODE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/mode)
-sudo -E -H -u {{user_name}} bash -c 'git clone https://github.com/financeCoding/dart-carte-du-jour.git'
-sudo -E -H -u {{user_name}} bash -c 'source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart {{dart_application}}'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart {{dart_application}}'
 shutdown_instance

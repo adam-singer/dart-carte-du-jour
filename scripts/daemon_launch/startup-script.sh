@@ -73,9 +73,9 @@ sed -i '1i Port 443' /etc/ssh/sshd_config
 fetch_latest_dart_sdk
 
 # clone project
-sudo -E -H -u financeCoding bash -c 'git clone https://github.com/financeCoding/dart-carte-du-jour.git'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
 
 # start service
-sudo -E -H -u financeCoding bash -c 'source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/daemon_isolate.dart'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/.pub-cache/; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/daemon_isolate.dart'
 
 shutdown_instance
