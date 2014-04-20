@@ -37,7 +37,7 @@ class IsolateGceLauncher {
 
       Logger.root.finest("buildingQueue.length = ${buildingQueue.length}");
       // TODO: support builder version ranges
-      deployDocumentationBuilder(package, package.versions.first);
+      package.deployDocumentationBuilder(package.versions.first);
 
     } else {
       // TODO: check the current number of build instances on gce
@@ -47,7 +47,7 @@ class IsolateGceLauncher {
     // TODO: Might be better to check if the `package_build_info.json`
     // file was uploaded.
     completedQueue.addAll(buildingQueue
-        .where((p) => !documentationInstanceAlive(p, p.versions.first)).toList());
+        .where((p) => !p.documentationInstanceAlive(p.versions.first)).toList());
 
 
     while (completedQueue.isNotEmpty) {

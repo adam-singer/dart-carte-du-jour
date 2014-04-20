@@ -42,21 +42,21 @@ void _initClient(String dartSdk, String packageName, String version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
   try {
-    buildDocumentationCacheSync(package, versionConstraint: version);
-    initPackageVersion(package, version);
-    buildDocumentationSync(package, version, dartSdk);
-    moveDocumentationPackages(package, version);
-    copyDocumentation(package, version);
-    createVersionFile(package, version);
-    copyVersionFile(package, version);
+    package.buildDocumentationCacheSync(versionConstraint: version);
+    package.initPackageVersion(version);
+    package.buildDocumentationSync(version, dartSdk);
+    package.moveDocumentationPackages(version);
+    package.copyDocumentation(version);
+    package.createVersionFile(version);
+    package.copyVersionFile(version);
     // Copy the package_build_info.json file, should only be copied if everything
     // else was successful.
-    createPackageBuildInfo(package, version, true);
-    copyPackageBuildInfo(package, version);
+    package.createPackageBuildInfo(version, true);
+    package.copyPackageBuildInfo(version);
   } catch (e) {
     Logger.root.severe(("Not able to build ${package.toString()}"));
-    createPackageBuildInfo(package, version, false);
-    copyPackageBuildInfo(package, version);
+    package.createPackageBuildInfo(version, false);
+    package.copyPackageBuildInfo(version);
   }
 }
 
