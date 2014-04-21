@@ -115,9 +115,6 @@ Future<List<Package>> fetchAllPackage() {
   });
 }
 
-
-
-
 /**
  * Execute `pub install` at the `workingDirectory`
  */
