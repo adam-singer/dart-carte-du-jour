@@ -9,11 +9,17 @@ import "package:crypto/crypto.dart";
 import "package:path/path.dart";
 import 'package:http/http.dart' as http;
 import 'package:mustache/mustache.dart' as mustache;
+import "package:google_oauth2_client/google_oauth2_console.dart";
+import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_client.dart"
+    as client;
+import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_console.dart"
+    as console;
 
 part 'src/package.dart';
 part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
 part 'src/commands_enums.dart';
+part 'src/package_build_info_data_store.dart';
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";

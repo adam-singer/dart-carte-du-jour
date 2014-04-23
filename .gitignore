@@ -5,6 +5,10 @@ packages/
 
 build_documentation_cache/
 
+# ignore private key files 
+privatekey.p12
+rsa_private_key.pem
+
 # Or the files created by dart2js.
 *.dart.js
 *.dart.precompiled.js
