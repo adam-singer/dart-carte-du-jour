@@ -22,7 +22,7 @@ int copyDartDocsIndexHtml(String dartDocsIndexPath) {
 
 String bqIsBuiltQuery() {
   List<String> args = ['--format=json', '--quiet', 'query', '--max_rows=1000000',
-                       'SELECT name, version FROM [test_dummy_data_set.my_table]'
+                       'SELECT name, version FROM [dart-carte-du-jour:test_dummy_data_set.my_table]'
                        ' WHERE isBuilt = true LIMIT 10000'];
   ProcessResult processResult = Process.runSync('bq', args, runInShell: true);
   stdout.write(processResult.stdout);
