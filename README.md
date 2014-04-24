@@ -11,7 +11,7 @@ can be run locally from DartEditor for functional testing.
 Example:
 
 ```shell
-dart bin/client_builder.dart --verbose --mode client --sdk
+dart bin/client_builder.dart --verbose --sdk
 /Applications/dart/dart-sdk --package unittest --version 0.10.1+1
 ```
 

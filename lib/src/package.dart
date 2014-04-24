@@ -225,7 +225,6 @@ class Package {
     String metadataPackageName = "package:${name}";
     String metadataPackageVersion = "version:${version}";
     String metadataDartsdkPath = "dartsdk:/dart-sdk";
-    String metadataMode = "mode:client";
     String metadataAutoShutdown = "autoshutdown:1";
 
     List<String> args = ['--service_version=$service_version',
@@ -243,7 +242,6 @@ class Package {
                          '--metadata=$metadataPackageName',
                          '--metadata=$metadataPackageVersion',
                          '--metadata=$metadataDartsdkPath',
-                         '--metadata=$metadataMode',
                          '--metadata=$metadataAutoShutdown',
                          '--metadata=$metadataStartupScript'];
 

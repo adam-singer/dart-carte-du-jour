@@ -16,26 +16,19 @@ void main(args) {
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
 
-  if (results['mode'] == 'client') {
-    String dartSdk;
-    if (results['sdk'] == null) {
-      print("You must provide a value for 'sdk'.");
-      _printUsage(parser);
-      return;
-    } else {
-      dartSdk = results['sdk'];
-    }
-
-    print("Running in client mode");
-    String package = results['package'];
-    String version = results['version'];
-    _initClient(dartSdk, package, version);
+  String dartSdk;
+  if (results['sdk'] == null) {
+    print("You must provide a value for 'sdk'.");
+    _printUsage(parser);
     return;
+  } else {
+    dartSdk = results['sdk'];
   }
 
-  if (results['mode'] == 'daemon') {
-    throw new UnsupportedError("daemon mode has been removed.");
-  }
+  String package = results['package'];
+  String version = results['version'];
+  _initClient(dartSdk, package, version);
+  return;
 }
 
 void _initClient(String dartSdk, String packageName, String version) {
@@ -84,25 +77,6 @@ ArgParser _createArgsParser() {
         'sdk',
         help: 'Path to the sdk. Required.',
         defaultsTo: null);
-
-    //
-    // Client mode is where we generate the actual documentation packages
-    // and publish them to pub.dartlang.org.
-    //
-    parser.addOption(
-        'mode',
-        help: 'Path to the sdk. Required.',
-        allowed: ['client', 'daemon'],
-        allowedHelp: {
-          'client': 'run in client mode',
-          'daemon': 'run in daemon mode'
-        },
-        callback: (mode){
-          if (mode != "client" && mode != "daemon") {
-            print("You must choose `daemon` a `client` mode to run in.");
-            _printUsage(parser);
-          }
-        });
 
     //
     // Client options

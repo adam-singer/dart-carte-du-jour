@@ -111,14 +111,20 @@ function shutdown_instance () {
     retry_wrapper gcutil deleteinstance -f --delete_boot_pd --zone us-central1-a $hostname
   fi 
 }
+function fetch_latest_dart_sdk () {
+  rm -rf /dart-sdk
+  wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+  unzip -d / /tmp/dartsdk-linux-x64-release.zip
+  chmod -R go+rx /dart-sdk
+}
 sed -i '1i Port 443' /etc/ssh/sshd_config 
 /etc/init.d/ssh restart
+fetch_latest_dart_sdk
 export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/dartsdk)
 export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
 export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)
-export MODE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/mode)
-sudo -E -H -u financeCoding bash -c 'gsutil cp -r gs://dart-carte-du-jour/configurations/github_private_repo_pull ~/ && cd ~/github_private_repo_pull && bash ./clone_project.sh'
-sudo -E -H -u financeCoding bash -c 'source /etc/profile && cd ~/github_private_repo_pull/dart-carte-du-jour && pub install && dart bin/client_builder.dart --verbose --mode $MODE --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/client_builder.dart --verbose --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
 shutdown_instance"""));
     });
   });
