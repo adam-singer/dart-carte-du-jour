@@ -109,7 +109,7 @@ class PackageBuildInfoDataStore {
 
       property = new client.Property.fromJson({});
       property.dateTimeValue = packageBuildInfo.datetime;
-      property.indexed = false;
+      property.indexed = true;
       entity.properties['lastBuild'] = property;
 
       property = new client.Property.fromJson({});
