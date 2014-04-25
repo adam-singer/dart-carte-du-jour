@@ -1,4 +1,5 @@
 import "dart:io";
+import "dart:convert";
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
@@ -25,15 +26,34 @@ void main(args) {
     dartSdk = results['sdk'];
   }
 
+  String configPath;
+  if (results['config'] == null) {
+    print("You must provide a value for 'config'.");
+    _printUsage(parser);
+    return;
+  } else {
+    configPath = results['config'];
+  }
+
   String package = results['package'];
   Version version = new Version.parse(results['version']);
-  _initClient(dartSdk, package, version);
+  _initClient(dartSdk, configPath, package, version);
   return;
 }
 
-void _initClient(String dartSdk, String packageName, Version version) {
+void _initClient(String dartSdk, String configPath, String packageName,
+                 Version version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
+  String configFile = new File(configPath).readAsStringSync();
+  Map config = JSON.decode(configFile);
+  String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
+  GoogleComputeEngineConfig googleComputeEngineConfig =
+  new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
+      config["serviceAccountEmail"], rsaPrivateKey);
+  PackageBuildInfoDataStore packageBuildInfoDataStore
+    = new PackageBuildInfoDataStore(googleComputeEngineConfig);
+
   try {
     package.buildDocumentationCacheSync(versionConstraint: version);
     package.initPackageVersion(version);
@@ -46,10 +66,28 @@ void _initClient(String dartSdk, String packageName, Version version) {
     // else was successful.
     package.createPackageBuildInfo(version, true);
     package.copyPackageBuildInfo(version);
+
+    // TODO: Factor out into Package class
+    // all time stamps need to be in UTC/Iso8601 format.
+    var now = new DateTime.now().toUtc().toIso8601String();
+    PackageBuildInfo packageBuildInfo =
+        new PackageBuildInfo(package.name, version, now, true);
+    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
+      Logger.root.info("r = $r");
+    });
   } catch (e) {
     Logger.root.severe(("Not able to build ${package.toString()}"));
     package.createPackageBuildInfo(version, false);
     package.copyPackageBuildInfo(version);
+
+    // TODO: Factor out into Package class
+    // all time stamps need to be in UTC/Iso8601 format.
+    var now = new DateTime.now().toUtc().toIso8601String();
+    PackageBuildInfo packageBuildInfo =
+        new PackageBuildInfo(package.name, version, now, false);
+    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
+      Logger.root.info("r = $r");
+    });
   }
 }
 
@@ -73,9 +111,15 @@ ArgParser _createArgsParser() {
           }
         });
 
+    // TODO: move to config.json
     parser.addOption(
         'sdk',
         help: 'Path to the sdk. Required.',
+        defaultsTo: null);
+
+    parser.addOption(
+        'config',
+        help: 'Path to the config. Required.',
         defaultsTo: null);
 
     //

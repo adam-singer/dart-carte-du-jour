@@ -31,7 +31,7 @@ class Package {
   Map toJson() {
     Map map = {};
     map['name'] = name;
-    map['versions'] = versions;
+    map['versions'] = versions.map((e)=>e.toString()).toList();
     map['uploaders'] = uploaders;
     return map;
   }

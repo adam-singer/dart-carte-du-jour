@@ -24,3 +24,4 @@ test/dummyLibraries/allLibs/packages
 test/dummyLibraries/mixedLibs/packages
 test/dummyLibraries/noLibs/packages
 test/dummyLibraries/packages
+config.json

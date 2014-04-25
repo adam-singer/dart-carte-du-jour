@@ -50,6 +50,8 @@ fetch_latest_dart_sdk
 export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/dartsdk)
 export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
 export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)
-sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/{{user_name}}/dart-carte-du-jour.git'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/rsa_private_key.pem ~/dart-carte-du-jour/bin/rsa_private_key.pem'
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart {{dart_application}}'
 shutdown_instance
