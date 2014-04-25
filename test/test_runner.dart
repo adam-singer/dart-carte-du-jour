@@ -172,7 +172,9 @@ export DARTSDK=$(curl http://metadata/computeMetadata/v1beta1/instance/attribute
 export PACKAGE=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/package)
 export VERSION=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/version)
 sudo -E -H -u financeCoding bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
-sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/client_builder.dart --verbose --sdk  $DARTSDK --package $PACKAGE --version $VERSION'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/rsa_private_key.pem ~/dart-carte-du-jour/bin/rsa_private_key.pem'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/client_builder.dart --verbose --sdk  $DARTSDK --config bin/config.json --package $PACKAGE --version $VERSION'
 shutdown_instance"""));
     });
   });
