@@ -5,7 +5,7 @@ part of carte_de_jour;
  */
 class PackageBuildInfo {
   String name;
-  String version;
+  Version version;
   String datetime;
   bool isBuilt;
 
@@ -17,7 +17,7 @@ class PackageBuildInfo {
     }
 
     if (data.containsKey("version")) {
-      version = data["version"];
+      version = new Version.parse(data["version"]);
     }
 
     if (data.containsKey("datetime")) {
@@ -32,7 +32,7 @@ class PackageBuildInfo {
   String toString() {
     Map data = new Map();
     data["name"] = name;
-    data["version"] = version;
+    data["version"] = version.toString();
     data["datetime"] = datetime;
     data["isBuilt"] = isBuilt;
     return JSON.encode(data);

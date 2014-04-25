@@ -98,7 +98,7 @@ class PackageBuildInfoDataStore {
       entity.properties['name'] = property;
 
       property = new client.Property.fromJson({});
-      property.stringValue = packageBuildInfo.version;
+      property.stringValue = packageBuildInfo.version.toString();
       property.indexed = false;
       entity.properties['version'] = property;
 
@@ -126,7 +126,7 @@ class PackageBuildInfoDataStore {
     });
   }
 
-  Future<PackageBuildInfo> fetch(String name, String version) {
+  Future<PackageBuildInfo> fetch(String name, Version version) {
     client.Key key;
     String transaction;
     var beginTransactionRequest = new client.BeginTransactionRequest.fromJson({});
@@ -172,7 +172,7 @@ class PackageBuildInfoDataStore {
       client.Entity entity = lookupResponse.found.first.entity;
 
       String name = entity.properties['name'].stringValue;
-      String version = entity.properties['version'].stringValue;
+      Version version = new Version.parse(entity.properties['version'].stringValue);
       String datetime = entity.properties['lastBuild'].dateTimeValue;
       bool isBuilt = entity.properties['isBuilt'].booleanValue;
       return new PackageBuildInfo(name, version, datetime, isBuilt);

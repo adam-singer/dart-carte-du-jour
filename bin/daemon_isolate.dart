@@ -60,6 +60,7 @@ class IsolateService {
            // As of now we should only check the latest version of the packages.
            Logger.root.warning("Only checking for the latest version of built packages");
            packages.forEach((Package p) {
+              p.versions.sort();
               p.versions = [p.versions.last];
            });
 
@@ -107,6 +108,7 @@ class IsolateService {
       // As of now we should only check the latest version of the packages.
       Logger.root.warning("Only checking for the latest version of built packages");
       packages.forEach((Package p) {
+        p.versions.sort();
         p.versions = [p.versions.last];
       });
       return packages;

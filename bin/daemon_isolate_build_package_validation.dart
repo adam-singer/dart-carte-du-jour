@@ -21,6 +21,7 @@ class IsolateBuildPackageValidation {
       // Create command interface here.
       if (isCommand(QueueCommand.CHECK_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
+        package.versions.sort();
         package.checkPackageIsBuilt(package.versions.last)
         .then((PackageBuildInfo packageBuildInfo) {
           if (packageBuildInfo == null) {

@@ -6,7 +6,7 @@ part of carte_de_jour;
 class Package {
   List<String> uploaders;
   String name;
-  List<String> versions;
+  List<Version> versions;
 
   Package(this.name, this.versions, {this.uploaders});
 
@@ -22,9 +22,9 @@ class Package {
       name = data['name'];
     }
 
-    versions = new List<String>();
+    versions = new List<Version>();
     if (data.containsKey('versions')) {
-      versions.addAll(data['versions'].toList());
+      versions.addAll(data['versions'].map((v)=>new Version.parse(v)).toList());
     }
   }
 
@@ -41,8 +41,9 @@ class Package {
   /**
    * Builds the cache for a package.
    */
+  // TODO: use VersionConstraint object
   int buildDocumentationCacheSync({Map additionalEnvironment:
-      null, String versionConstraint: null, bool allVersions: true}) {
+      null, Version versionConstraint: null, bool allVersions: true}) {
     Map environment = {};
     environment['PUB_CACHE'] = BUILD_DOCUMENTATION_CACHE;
     if (additionalEnvironment != null) {
@@ -51,7 +52,7 @@ class Package {
 
     List<String> args = ['cache', 'add', name];
     if (versionConstraint != null) {
-      args.addAll(['--version', versionConstraint]);
+      args.addAll(['--version', versionConstraint.toString()]);
     }
 
     if (allVersions) {
@@ -70,7 +71,7 @@ class Package {
   /**
    * Bootstrap a version of a package.
    */
-  int initPackageVersion(String version) {
+  int initPackageVersion(Version version) {
     String path = join(BUILD_DOCUMENTATION_ROOT_PATH,
         "${name}-${version}");
     return pubInstall(path);
@@ -79,7 +80,7 @@ class Package {
   /**
    * Copy generated documentation package and version to cloud storage.
    */
-  int copyDocumentation(String version) {
+  int copyDocumentation(Version version) {
     String packageFolderPath = "${name}-${version}";
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
         DARTDOC_VIEWER_OUT, 'web');
@@ -105,7 +106,7 @@ class Package {
    * change in the future versions dartdoc-viewer.
    *
    */
-  void moveDocumentationPackages(String version) {
+  void moveDocumentationPackages(Version version) {
     String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
         DARTDOC_VIEWER_OUT);
     String webPath = join(out, 'web');
@@ -148,7 +149,7 @@ class Package {
   /**
    * Builds documentation for a particular version of a package.
    */
-  int buildDocumentationSync(String version, String dartSdkPath, {bool verbose: false}) {
+  int buildDocumentationSync(Version version, String dartSdkPath, {bool verbose: false}) {
     String outputFolder = 'docs';
     String packagesFolder = './packages'; // The pub installed packages
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH,
@@ -177,7 +178,7 @@ class Package {
     return processResult.exitCode;
   }
 
-  bool documentationInstanceAlive(String version) {
+  bool documentationInstanceAlive(Version version) {
     String service_version = "v1";
     String project = "dart-carte-du-jour";
     String instanceName = buildGceName(name, version);
@@ -206,7 +207,7 @@ class Package {
 
 
   // Call gcutil to deploy a node
-  int deployDocumentationBuilder(String version) {
+  int deployDocumentationBuilder(Version version) {
     String service_version = "v1";
     String project = "dart-carte-du-jour";
     String instanceName = buildGceName(name, version);
@@ -256,7 +257,7 @@ class Package {
   }
 
 
-  Future<PackageBuildInfo> checkPackageIsBuilt(String version) {
+  Future<PackageBuildInfo> checkPackageIsBuilt(Version version) {
     String docPath = _buildHttpDocumentationPath(this, version);
 
     // TODO: response / error handling.
@@ -273,17 +274,17 @@ class Package {
     });
   }
 
-  void createVersionFile(String version) {
+  void createVersionFile(Version version) {
     // TODO(adam): factor this out into a private method.
     String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
           DARTDOC_VIEWER_OUT);
     String versionPath = join(out, 'web', 'VERSION');
 
     File versionFile = new File(versionPath);
-    versionFile.writeAsStringSync(version, flush: true);
+    versionFile.writeAsStringSync(version.toString(), flush: true);
   }
 
-  void createPackageBuildInfo(String version, bool successfullyBuilt) {
+  void createPackageBuildInfo(Version version, bool successfullyBuilt) {
     // TODO(adam): factor this out into a private method.
     String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}");
     String packageBuildInfoPath = join(out, PACKAGE_BUILD_INFO_FILE_NAME);
@@ -296,7 +297,7 @@ class Package {
     packageBuildInfoFile.writeAsStringSync(packageBuildInfo.toString());
   }
 
-  int copyVersionFile(String version) {
+  int copyVersionFile(Version version) {
     String packageFolderPath = "${name}-${version}";
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
         DARTDOC_VIEWER_OUT, 'web');
@@ -320,7 +321,7 @@ class Package {
     return processResult.exitCode;
   }
 
-  int copyPackageBuildInfo(String version) {
+  int copyPackageBuildInfo(Version version) {
     String packageFolderPath = "${name}-${version}";
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath);
 

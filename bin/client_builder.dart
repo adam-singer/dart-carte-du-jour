@@ -26,12 +26,12 @@ void main(args) {
   }
 
   String package = results['package'];
-  String version = results['version'];
+  Version version = new Version.parse(results['version']);
   _initClient(dartSdk, package, version);
   return;
 }
 
-void _initClient(String dartSdk, String packageName, String version) {
+void _initClient(String dartSdk, String packageName, Version version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
   try {

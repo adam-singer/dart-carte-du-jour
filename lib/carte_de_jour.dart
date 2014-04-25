@@ -15,6 +15,9 @@ import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_client.dart"
 import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_console.dart"
     as console;
 
+import 'src/version.dart' show Version, VersionConstraint, VersionRange;
+export 'src/version.dart' show Version, VersionConstraint, VersionRange;
+
 part 'src/package.dart';
 part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
@@ -133,12 +136,12 @@ int pubInstall(String workingDirectory) {
   return processResult.exitCode;
 }
 
-String _buildCloudStorageDocumentationPath(Package package, String version) {
-  return join(PACKAGE_STORAGE_ROOT, package.name, version);
+String _buildCloudStorageDocumentationPath(Package package, Version version) {
+  return join(PACKAGE_STORAGE_ROOT, package.name, version.toString());
 }
 
-String _buildHttpDocumentationPath(Package package, String version) {
-  return join(DOCUMENTATION_HTTP_ROOT, package.name, version, PACKAGE_BUILD_INFO_FILE_NAME);
+String _buildHttpDocumentationPath(Package package, Version version) {
+  return join(DOCUMENTATION_HTTP_ROOT, package.name, version.toString(), PACKAGE_BUILD_INFO_FILE_NAME);
 }
 
 /**
@@ -177,13 +180,13 @@ String buildStartupScript(String startupScriptTemplatePath) {
   return startupScript;
 }
 
-String versionHash(String version) {
+String versionHash(Version version) {
   SHA1 versionHash = new SHA1()
-  ..add(version.codeUnits);
+  ..add(version.toString().codeUnits);
   return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
 }
 
-String buildGceName(String packageName, String version) {
+String buildGceName(String packageName, Version version) {
 
   RegExp invalidChars = new RegExp("[^-a-z0-9]");
   RegExp validString = new RegExp("[a-z]([-a-z0-9]{0,61}[a-z0-9])?");

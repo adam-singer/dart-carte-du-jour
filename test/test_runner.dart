@@ -5,6 +5,54 @@ import 'package:unittest/unittest.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
+  group('versions', () {
+    test('toString', () {
+      Version version = new Version.parse("0.10.0");
+      expect(version.toString(), equals("0.10.0"));
+    });
+
+    test('compare', () {
+      Version version0 = new Version.parse("0.10.0");
+      expect(version0.toString(), equals("0.10.0"));
+
+      Version version1 = new Version.parse("0.10.1");
+      expect(version1.toString(), equals("0.10.1"));
+
+      expect(version0 > version1, isFalse);
+      expect(version0 < version1, isTrue);
+      expect(version0 == version1, isFalse);
+
+      Version version2 = new Version.parse("0.10.1-pre");
+      expect(version2.isPreRelease, isTrue);
+      expect(version0.isPreRelease, isFalse);
+      print(version2);
+
+      String metadataVersion = "version:${version2}";
+      expect(metadataVersion, equals("version:0.10.1-pre"));
+    });
+
+    test('sort', () {
+      Version version_0_0_1_pre = new Version.parse("0.0.1-pre");
+      Version version_0_0_1 = new Version.parse("0.0.1");
+      Version version_0_0_2 = new Version.parse("0.0.2");
+      Version version_0_0_3 = new Version.parse("0.0.3");
+      Version version_0_1_3 = new Version.parse("0.1.3");
+      Version version_0_1_3_pre = new Version.parse("0.1.3-pre");
+      Version version_0_1_4 = new Version.parse("0.1.4");
+      Version version_1_0_3 = new Version.parse("1.0.3");
+      Version version_1_0_3_pre = new Version.parse("1.0.3-pre");
+      Version version_1_0_4_pre = new Version.parse("1.0.4-pre");
+      List<Version> versions = [version_0_0_1_pre, version_0_0_1, version_0_0_2,
+                                version_0_0_3, version_0_1_3, version_0_1_3_pre,
+                                version_0_1_4, version_1_0_3, version_1_0_3_pre,
+                                version_1_0_4_pre];
+      versions.sort();
+      expect(versions.last, equals(version_1_0_4_pre));
+      expect(versions.toString(), equals("[0.0.1-pre, 0.0.1, 0.0.2, 0.0.3, "
+          "0.1.3-pre, 0.1.3, 0.1.4, 1.0.3-pre, 1.0.3, 1.0.4-pre]"));
+    });
+  });
+
   group('models', () {
     test('Package.fromJson', () {
       String unittestPackageModel = """
@@ -23,7 +71,7 @@ void main() {
       Package package = new Package.fromJson(JSON.decode(unittestPackageModel));
       expect(package.name, equals("unittest"));
       expect(package.versions.length, equals(3));
-      expect(package.versions.contains('0.10.0'), isTrue);
+      expect(package.versions.contains(new Version.parse('0.10.0')), isTrue);
       expect(package.uploaders.length, equals(2));
       expect(package.uploaders.contains('dgrove@google.com'), isTrue);
 
@@ -132,7 +180,7 @@ shutdown_instance"""));
   group('gce instance name', () {
     test('scrub instance name', () {
       String packageName = "database_reverse_engineer";
-      String gce_name = buildGceName(packageName, "0.0.1");
+      String gce_name = buildGceName(packageName,  new Version.parse("0.0.1"));
       print(gce_name);
       print(gce_name.length);
       expect(gce_name, equals("b-databasereverseengi-2b5a2f1b52"));
@@ -141,7 +189,7 @@ shutdown_instance"""));
     test('scrub long instance name', () {
       String packageName = "database_reverse_engineer_baam_baam_waam_package_awesome_balm_wam_slam_jam";
 
-      String gce_name = buildGceName(packageName, "0.0.1");
+      String gce_name = buildGceName(packageName, new Version.parse("0.0.1"));
       print(gce_name);
       print(gce_name.length);
       expect(gce_name, equals("b-databasereverseengi-2b5a2f1b52"));
