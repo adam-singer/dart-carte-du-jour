@@ -5,6 +5,7 @@ import 'dart:collection';
 import "dart:convert";
 
 import 'package:logging/logging.dart';
+import 'package:path/path.dart';
 import 'package:mustache/mustache.dart' as mustache;
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
@@ -33,7 +34,8 @@ class IsolateBuildIndex {
     // TODO: remove hard coded config
     String configFile = new File("config.json").readAsStringSync();
     Map config = JSON.decode(configFile);
-    String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
+    // TODO: remove this hack for something better.
+    String rsaPrivateKey = new File(join("..", config["rsaPrivateKey"])).readAsStringSync();
     _googleComputeEngineConfig =
       new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
           config["serviceAccountEmail"], rsaPrivateKey);
