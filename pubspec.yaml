@@ -1,5 +1,5 @@
 name: dart_carte_du_jour
-version: 0.0.2
+version: 0.0.2-dev
 authors:
 - Adam Singer <financeCoding@gmail.com>
 description: Service that generates package documentation for pub.dartlang.org
