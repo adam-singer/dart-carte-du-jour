@@ -186,7 +186,9 @@ class Package {
 
     // TODO: Use the dart client apis
     // https://developers.google.com/compute/docs/instances#checkmachinestatus
-    List<String> args = ['--service_version=$service_version',
+    List<String> args = ['--format',
+                         'json',
+                         '--service_version=$service_version',
                          '--project=$project',
                          'getinstance',
                          instanceName,
@@ -195,6 +197,7 @@ class Package {
     Logger.root.finest("gcutil ${args}");
 
     ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true);
+    // TODO: read stdout into json object and check status
     stdout.write(processResult.stdout);
     stderr.write(processResult.stderr);
 
@@ -228,7 +231,9 @@ class Package {
     String metadataDartsdkPath = "dartsdk:/dart-sdk";
     String metadataAutoShutdown = "autoshutdown:1";
 
-    List<String> args = ['--service_version=$service_version',
+    List<String> args = ['--format',
+                         'json',
+                         '--service_version=$service_version',
                          '--project=$project',
                          'addinstance',
                          instanceName,
