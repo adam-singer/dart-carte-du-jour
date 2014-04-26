@@ -178,4 +178,34 @@ class PackageBuildInfoDataStore {
       return new PackageBuildInfo(name, version, datetime, isBuilt);
     });
   }
+
+  Future<List<PackageBuildInfo>> fetchBuilt([bool isBuilt = true]) {
+    client.Query query = new client.Query.fromJson({
+      "kinds": [{ "name": 'PackageBuildInfo' }],
+      "filter": {
+        "propertyFilter": {
+          "property": { "name": 'isBuilt' },
+          "operator": 'EQUAL',
+          "value": { "booleanValue": isBuilt }
+        }
+      }
+    });
+
+    client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
+    runQueryRequest.query = query;
+
+    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+    .then((client.RunQueryResponse runQueryResponse) {
+      List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
+      runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
+        String name = entityResult.entity.properties["name"].stringValue;
+        Version version = new Version.parse(entityResult.entity.properties["version"].stringValue);
+        bool isBuilt = entityResult.entity.properties["isBuilt"].booleanValue;
+        String datetime = entityResult.entity.properties["lastBuild"].dateTimeValue;
+        String buildLog = entityResult.entity.properties["lastBuildLog"].stringValue;
+        packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt));
+      });
+      return packageBuildInfos;
+    });
+  }
 }
