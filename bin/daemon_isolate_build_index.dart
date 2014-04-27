@@ -95,7 +95,7 @@ class IsolateBuildIndex {
 
   // TODO: move to library
   String _buildDartDocsIndexHtml(Map renderData, {String dartDocsTemplate:
-                                  "dartdocs_index.html.mustache"}) {
+                                  "bin/dartdocs_index.html.mustache"}) {
     String indexTemplate = new File(dartDocsTemplate).readAsStringSync();
     var template = mustache.parse(indexTemplate);
     var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
