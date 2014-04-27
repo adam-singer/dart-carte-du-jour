@@ -203,7 +203,7 @@ class PackageBuildInfoDataStore {
         bool isBuilt = entityResult.entity.properties["isBuilt"].booleanValue;
         String datetime = entityResult.entity.properties["lastBuild"].dateTimeValue;
         String buildLog = entityResult.entity.properties["lastBuildLog"].stringValue;
-        packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt));
+        packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
       });
       return packageBuildInfos;
     });

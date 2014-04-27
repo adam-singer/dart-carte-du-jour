@@ -133,8 +133,8 @@ int pubInstall(String workingDirectory) {
   List<String> args = ['install'];
   ProcessResult processResult = Process.runSync('pub', args, workingDirectory:
       workingDirectory, runInShell: true);
-  stdout.write(processResult.stdout);
-  stderr.write(processResult.stderr);
+  Logger.root.finest(processResult.stdout);
+  Logger.root.severe(processResult.stderr);
   return processResult.exitCode;
 }
 

@@ -73,7 +73,7 @@ void _initClient(String dartSdk, String configPath, String packageName,
     PackageBuildInfo packageBuildInfo =
         new PackageBuildInfo(package.name, version, now, true, buildLogStorePath());
     packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
-      Logger.root.info("r = $r");
+      Logger.root.info("packageBuildInfoDataStore = ${r}");
     });
   } catch (e) {
     Logger.root.severe(("Not able to build ${package.toString()}"));
@@ -86,7 +86,7 @@ void _initClient(String dartSdk, String configPath, String packageName,
     PackageBuildInfo packageBuildInfo =
         new PackageBuildInfo(package.name, version, now, false, buildLogStorePath());
     packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
-      Logger.root.info("r = $r");
+      Logger.root.info("packageBuildInfoDataStore = ${r}");
     });
   }
 }

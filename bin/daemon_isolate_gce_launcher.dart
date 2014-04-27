@@ -39,6 +39,10 @@ class IsolateGceLauncher {
     });
   }
 
+  void stop() {
+    _timer.cancel();
+  }
+
   void callback() {
     if (buildingQueue.length < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
       // TODO: query GCE instead of keeping local counter.
@@ -58,7 +62,6 @@ class IsolateGceLauncher {
     // file was uploaded.
     completedQueue.addAll(buildingQueue
         .where((p) => !p.documentationInstanceAlive(p.versions.first)).toList());
-
 
     while (completedQueue.isNotEmpty) {
       // TODO: only send what has been completed.

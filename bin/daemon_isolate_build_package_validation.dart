@@ -16,6 +16,10 @@ class IsolateBuildPackageValidation {
     _initListeners();
   }
 
+  void stop() {
+    // TODO: clean up lisenters and close ports.
+  }
+
   void _initListeners() {
     isolateQueueServiceReceivePort.listen((data) {
       // Create command interface here.

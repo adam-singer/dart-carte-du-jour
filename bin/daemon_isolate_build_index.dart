@@ -30,6 +30,10 @@ class IsolateBuildIndex {
     Timer.run(callback);
   }
 
+  void stop() {
+    _timer.cancel();
+  }
+
   void _initDatastore() {
     // TODO: remove hard coded config
     String configFile = new File("config.json").readAsStringSync();
@@ -99,8 +103,8 @@ class IsolateBuildIndex {
     List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
                          dartDocsIndexPath, "gs://www.dartdocs.org/index.html"];
     ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
     return processResult.exitCode;
   }
 }
