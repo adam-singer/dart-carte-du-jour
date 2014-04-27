@@ -63,8 +63,8 @@ class Package {
 
     ProcessResult processResult = Process.runSync('pub', args,
         environment: environment, runInShell: true);
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
     return processResult.exitCode;
   }
 
@@ -95,8 +95,8 @@ class Package {
     ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
         workingDirectory, runInShell: true);
     watch.stop();
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
     Logger.root.finest("Minutes: ${watch.elapsed.inMinutes}");
     return processResult.exitCode;
   }
@@ -172,8 +172,8 @@ class Package {
 
     ProcessResult processResult = Process.runSync('docgen', args,
         workingDirectory: workingDirectory, runInShell: true);
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
     Logger.root.fine("docgen exit code = ${processResult.exitCode}");
     return processResult.exitCode;
   }
@@ -198,8 +198,8 @@ class Package {
 
     ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true);
     // TODO: read stdout into json object and check status
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
 
     if (processResult.exitCode == 0) {
       return true;
@@ -255,8 +255,8 @@ class Package {
 
     ProcessResult processResult = Process.runSync('gcutil', args,
         workingDirectory: workingDirectory, runInShell: true);
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
 
     return processResult.exitCode;
   }
@@ -320,8 +320,8 @@ class Package {
     ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
         workingDirectory, runInShell: true);
 
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
 
     return processResult.exitCode;
   }
@@ -343,8 +343,8 @@ class Package {
     ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
         workingDirectory, runInShell: true);
 
-    stdout.write(processResult.stdout);
-    stderr.write(processResult.stderr);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
 
     return processResult.exitCode;
   }
