@@ -75,6 +75,12 @@ fetch_latest_dart_sdk
 # clone project
 sudo -E -H -u financeCoding bash -c 'cd ~/ && git clone https://github.com/financeCoding/dart-carte-du-jour.git'
 
+# get config file
+sudo -E -H -u financeCoding bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'
+
+# get private key
+sudo -E -H -u financeCoding bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/rsa_private_key.pem ~/dart-carte-du-jour/bin/rsa_private_key.pem'
+
 # start service
 sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/.pub-cache/; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/daemon_isolate.dart'
 
