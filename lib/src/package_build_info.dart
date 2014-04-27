@@ -8,8 +8,9 @@ class PackageBuildInfo {
   Version version;
   String datetime;
   bool isBuilt;
+  String buildLog;
 
-  PackageBuildInfo(this.name, this.version, this.datetime, this.isBuilt);
+  PackageBuildInfo(this.name, this.version, this.datetime, this.isBuilt, [this.buildLog = ""]);
 
   PackageBuildInfo.fromJson(Map data) {
     if (data.containsKey("name")) {
@@ -27,14 +28,21 @@ class PackageBuildInfo {
     if (data.containsKey("isBuilt")) {
       isBuilt = data['isBuilt'];
     }
+
+    if (data.containsKey("buildLog")) {
+      buildLog = data["buildLog"];
+    }
   }
 
-  String toString() {
+  String toString() => JSON.encode(toJson());
+
+  Map toJson() {
     Map data = new Map();
     data["name"] = name;
     data["version"] = version.toString();
     data["datetime"] = datetime;
     data["isBuilt"] = isBuilt;
-    return JSON.encode(data);
+    data["buildLog"] = buildLog;
+    return data;
   }
 }

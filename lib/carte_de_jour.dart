@@ -35,6 +35,8 @@ final String BUILD_DOCUMENTATION_CACHE = "/tmp/build_documentation_cache";
 final String BUILD_DOCUMENTATION_ROOT_PATH =
 "/tmp/build_documentation_cache/hosted/pub.dartlang.org";
 
+final String BUILD_LOGS_ROOT = "gs://dart-carte-du-jour/build_logs/";
+
 /**
  * Fetch packages.json file and return PubPackages
  */
@@ -201,4 +203,8 @@ String buildGceName(String packageName, Version version) {
 
   String gce_name = prefix+packageName+postfix;
   return gce_name;
+}
+
+String buildLogStorePath() {
+  return join(BUILD_LOGS_ROOT, "${Platform.localHostname}-startupscript.log");
 }

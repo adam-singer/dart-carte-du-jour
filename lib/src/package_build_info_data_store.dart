@@ -113,7 +113,7 @@ class PackageBuildInfoDataStore {
       entity.properties['lastBuild'] = property;
 
       property = new client.Property.fromJson({});
-      property.stringValue = "gs://";
+      property.stringValue = packageBuildInfo.buildLog;
       property.indexed = false;
       entity.properties['lastBuildLog'] = property;
 

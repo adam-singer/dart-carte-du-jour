@@ -71,7 +71,7 @@ void _initClient(String dartSdk, String configPath, String packageName,
     // all time stamps need to be in UTC/Iso8601 format.
     var now = new DateTime.now().toUtc().toIso8601String();
     PackageBuildInfo packageBuildInfo =
-        new PackageBuildInfo(package.name, version, now, true);
+        new PackageBuildInfo(package.name, version, now, true, buildLogStorePath());
     packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
       Logger.root.info("r = $r");
     });
@@ -84,7 +84,7 @@ void _initClient(String dartSdk, String configPath, String packageName,
     // all time stamps need to be in UTC/Iso8601 format.
     var now = new DateTime.now().toUtc().toIso8601String();
     PackageBuildInfo packageBuildInfo =
-        new PackageBuildInfo(package.name, version, now, false);
+        new PackageBuildInfo(package.name, version, now, false, buildLogStorePath());
     packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
       Logger.root.info("r = $r");
     });
