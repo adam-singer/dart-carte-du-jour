@@ -36,10 +36,13 @@ class IsolateBuildIndex {
 
   void _initDatastore() {
     // TODO: remove hard coded config
-    String configFile = new File("config.json").readAsStringSync();
+    String configFile = new File("bin/config.json").readAsStringSync();
     Map config = JSON.decode(configFile);
     // TODO: remove this hack for something better.
-    String rsaPrivateKey = new File(join("..", config["rsaPrivateKey"])).readAsStringSync();
+    String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
+    assert(rsaPrivateKey != null);
+    assert(rsaPrivateKey.isNotEmpty);
+
     _googleComputeEngineConfig =
       new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
           config["serviceAccountEmail"], rsaPrivateKey);
