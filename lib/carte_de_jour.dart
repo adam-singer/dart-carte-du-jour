@@ -14,6 +14,7 @@ import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_client.dart"
     as client;
 import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_console.dart"
     as console;
+import 'package:uuid/uuid_server.dart';
 
 import 'src/version.dart' show Version, VersionConstraint, VersionRange;
 export 'src/version.dart' show Version, VersionConstraint, VersionRange;
@@ -23,6 +24,7 @@ part 'src/package_build_info.dart';
 part 'src/pub_packages.dart';
 part 'src/commands_enums.dart';
 part 'src/package_build_info_data_store.dart';
+part 'src/client_builder_config.dart';
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
@@ -36,6 +38,9 @@ final String BUILD_DOCUMENTATION_ROOT_PATH =
 "/tmp/build_documentation_cache/hosted/pub.dartlang.org";
 
 final String BUILD_LOGS_ROOT = "gs://dart-carte-du-jour/build_logs/";
+final String CLIENT_BUILDER_CONFIG_FILES_ROOT = "gs://dart-carte-du-jour/client_builder_configurations/";
+
+final Uuid uuid_generator = new Uuid();
 
 /**
  * Fetch packages.json file and return PubPackages
