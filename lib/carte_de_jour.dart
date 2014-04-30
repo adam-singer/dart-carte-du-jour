@@ -25,6 +25,7 @@ part 'src/pub_packages.dart';
 part 'src/commands_enums.dart';
 part 'src/package_build_info_data_store.dart';
 part 'src/client_builder_config.dart';
+part 'src/google_compute_engine_config.dart';
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
