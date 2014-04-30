@@ -1,6 +1,8 @@
 dart-carte-du-jour 
 ==================
 
+[![Build Status](https://drone.io/github.com/financeCoding/dart-carte-du-jour/status.png)](https://drone.io/github.com/financeCoding/dart-carte-du-jour/latest)
+
 Pub documentation generation system
 -- 
 
