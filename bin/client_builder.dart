@@ -17,6 +17,17 @@ void main(args) {
   ArgParser parser = _createArgsParser();
   ArgResults results = parser.parse(args);
 
+  if (results['clientConfig'] != null) {
+    // TODO: move to parser callback
+    String clientConfig = new File(results['clientConfig']).readAsStringSync();
+    var data = JSON.decode(clientConfig);
+    ClientBuilderConfig clientBuilderConfig =
+        new ClientBuilderConfig.fromJson(data);
+
+    startClient(clientBuilderConfig);
+    return;
+  }
+
   String dartSdk;
   if (results['sdk'] == null) {
     print("You must provide a value for 'sdk'.");
@@ -41,6 +52,64 @@ void main(args) {
   return;
 }
 
+void startClient(ClientBuilderConfig clientBuilderConfig) {
+  clientBuilderConfig.packages.forEach((Package package) {
+    package.versions.forEach((Version version) {
+      buildVersion(package.name, version, clientBuilderConfig);
+    });
+  });
+}
+
+// TODO: move to carte_de_jour.dart
+void buildVersion(String packageName,
+                 Version version, ClientBuilderConfig clientBuilderConfig) {
+  Logger.root.info("Starting build of ${packageName} ${version}");
+  Package package = new Package(packageName, [version]);
+  String dartSdk = clientBuilderConfig.sdkPath;
+
+  GoogleComputeEngineConfig googleComputeEngineConfig =
+      clientBuilderConfig.googleComputeEngineConfig;
+  PackageBuildInfoDataStore packageBuildInfoDataStore
+      = new PackageBuildInfoDataStore(googleComputeEngineConfig);
+
+  try {
+    package.buildDocumentationCacheSync(versionConstraint: version);
+    package.initPackageVersion(version);
+    package.buildDocumentationSync(version, dartSdk);
+    package.moveDocumentationPackages(version);
+    package.copyDocumentation(version);
+    package.createVersionFile(version);
+    package.copyVersionFile(version);
+    // Copy the package_build_info.json file, should only be copied if everything
+    // else was successful.
+    package.createPackageBuildInfo(version, true);
+    package.copyPackageBuildInfo(version);
+
+    // TODO: Factor out into Package class
+    // all time stamps need to be in UTC/Iso8601 format.
+    var now = new DateTime.now().toUtc().toIso8601String();
+    PackageBuildInfo packageBuildInfo =
+        new PackageBuildInfo(package.name, version, now, true, buildLogStorePath());
+    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
+      Logger.root.info("packageBuildInfoDataStore success:${r}");
+    });
+  } catch (e) {
+    Logger.root.severe(("Not able to build ${package.toString()}"));
+    package.createPackageBuildInfo(version, false);
+    package.copyPackageBuildInfo(version);
+
+    // TODO: Factor out into Package class
+    // all time stamps need to be in UTC/Iso8601 format.
+    var now = new DateTime.now().toUtc().toIso8601String();
+    PackageBuildInfo packageBuildInfo =
+        new PackageBuildInfo(package.name, version, now, false, buildLogStorePath());
+    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
+      Logger.root.info("packageBuildInfoDataStore failed:${r}");
+    });
+  }
+}
+
+@deprecated
 void _initClient(String dartSdk, String configPath, String packageName,
                  Version version) {
   Logger.root.info("Starting build of ${packageName} ${version}");
@@ -111,16 +180,24 @@ ArgParser _createArgsParser() {
           }
         });
 
-    // TODO: move to config.json
+    // TODO: remove when <uuid>.json config is implemented
     parser.addOption(
         'sdk',
         help: 'Path to the sdk. Required.',
         defaultsTo: null);
 
+    // TODO: remove when <uuid>.json config is implemented
     parser.addOption(
         'config',
         help: 'Path to the config. Required.',
         defaultsTo: null);
+
+    // TODO: rename option to `--config`
+    parser.addOption(
+        'clientConfig',
+        help: 'Path to the config. Required.',
+        defaultsTo: null);
+
 
     //
     // Client options
