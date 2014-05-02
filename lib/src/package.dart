@@ -159,7 +159,7 @@ class Package {
         dartFiles.map((e) => basename(e)).map((e) => join("lib", e)).toList();
     List<String> args = ['--compile', '--no-include-sdk', '--include-private',
                          '--out', outputFolder, '--sdk', dartSdkPath,
-                         '--package-root', packagesFolder];
+                         '--package-root', packagesFolder, '--start-page=${name}'];
 
     if (verbose) {
       args.add('--verbose');
