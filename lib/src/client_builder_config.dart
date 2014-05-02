@@ -9,7 +9,8 @@ class ClientBuilderConfig {
   ClientBuilderConfig._(this.id, this.sdkPath, this.googleComputeEngineConfig,
       this.packages);
 
-  factory ClientBuilderConfig(sdkPath, googleComputeEngineConfig, packages) {
+  factory ClientBuilderConfig(String sdkPath,
+      GoogleComputeEngineConfig googleComputeEngineConfig, List<Package> packages) {
 
     return new ClientBuilderConfig._(uuid_generator.v4(), sdkPath,
         googleComputeEngineConfig, packages);
@@ -30,8 +31,7 @@ class ClientBuilderConfig {
     }
 
     if (data.containsKey("googleComputeEngineConfig")) {
-      _googleComputeEngineConfig = data["googleComputeEngineConfig"]
-      .map((e) => new GoogleComputeEngineConfig.fromJson(e));
+      _googleComputeEngineConfig = new GoogleComputeEngineConfig.fromJson(data["googleComputeEngineConfig"]);
     }
 
     if (data.containsKey("packages")) {
@@ -46,17 +46,26 @@ class ClientBuilderConfig {
     Map map = {};
     map['id'] = id;
     map['sdkPath'] = sdkPath;
-    map['googleComputeEngineConfig'] = googleComputeEngineConfig;
-    map['packages'] = packages;
+    map['googleComputeEngineConfig'] = googleComputeEngineConfig.toJson();
+    map['packages'] = packages.map((e) => e.toJson()).toList();
     return map;
   }
 
   String toString() => JSON.encode(toJson());
 
-  storeConfigSync() {
-    // TODO: store configuration on cloud storage.
-    // return the location of the configuration file stored.
-    throw new UnimplementedError();
+  int storeConfigSync() {
+    Directory tempDir = Directory.systemTemp.createTempSync();
+    String configFileName = "${id}.json";
+    File configFile = new File(join(tempDir.path, configFileName));
+    configFile.writeAsStringSync(toString());
+
+    List<String> args = ['-m', 'cp', configFile.path,
+                         join(CLIENT_BUILDER_CONFIG_FILES_ROOT, configFileName)];
+
+    ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
+    Logger.root.finest(processResult.stdout);
+    Logger.root.severe(processResult.stderr);
+    return processResult.exitCode;
   }
 }
 
