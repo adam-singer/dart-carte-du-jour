@@ -5,8 +5,8 @@ import 'package:unittest/unittest.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
-  group('startup script', () {
-    test('buildStartupScript', () {
+  group('buildStartupScript', () {
+    test('startup_script.mustache', () {
       var startupScript =
           buildStartupScript("packages/dart_carte_du_jour/startup_script.mustache");
       expect(startupScript, equals(r"""#!/usr/bin/env bash

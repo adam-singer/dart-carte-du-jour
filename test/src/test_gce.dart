@@ -5,7 +5,7 @@ import 'package:unittest/unittest.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
-  group('gce instance name', () {
+  group('buildGceName', () {
     test('scrub instance name', () {
       String packageName = "database_reverse_engineer";
       String gce_name = buildGceName(packageName,  new Version.parse("0.0.1"));

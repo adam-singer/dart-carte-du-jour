@@ -6,9 +6,9 @@ import 'package:unittest/unittest.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-void main() {
-  group('models', () {
-    test('Package.fromJson', () {
+void testPackage() {
+  group('Package', () {
+    test('fromJson', () {
       String unittestPackageModel = """
       {
     "name": "unittest",
@@ -31,7 +31,12 @@ void main() {
 
     });
 
-    test('PubPackages.fromJson', () {
+  });
+}
+
+void testPubPackages() {
+  group('PubPackages', () {
+    test('fromJson', () {
       String packages = """
       {
     "next": "http://pub.dartlang.org/packages.json?page=2",
@@ -52,4 +57,9 @@ void main() {
       expect(pubPackages.packages[0], equals("http://pub.dartlang.org/packages/tags.json"));
     });
   });
+}
+
+void main() {
+  testPackage();
+  testPubPackages();
 }

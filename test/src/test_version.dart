@@ -5,7 +5,7 @@ import 'package:unittest/unittest.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 void main() {
-  group('versions', () {
+  group('Version', () {
     test('toString', () {
       Version version = new Version.parse("0.10.0");
       expect(version.toString(), equals("0.10.0"));
