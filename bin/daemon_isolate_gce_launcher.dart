@@ -1,6 +1,8 @@
+import 'dart:io';
 import "dart:async";
 import 'dart:isolate';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:quiver/collection.dart';
 import 'package:logging/logging.dart';
@@ -12,6 +14,8 @@ final int MAX_GCE_INSTANCES = 15;
 class IsolateGceLauncher {
   Duration _timeout = const Duration(seconds: 1);
   Timer _timer;
+  GoogleComputeEngineConfig _googleComputeEngineConfig;
+  String _sdkPath;
 
   Queue<Package> buildQueue = new Queue<Package>();
   Queue<Package> buildingQueue = new Queue<Package>();
@@ -34,6 +38,7 @@ class IsolateGceLauncher {
       return;
     }).then((_) {
       isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
+      _initConfig();
       _initListeners();
       Timer.run(callback);
     });
@@ -50,6 +55,15 @@ class IsolateGceLauncher {
       buildingQueue.add(package);
 
       Logger.root.finest("buildingQueue.length = ${buildingQueue.length}");
+
+      ClientBuilderConfig clientBuilderConfig =
+          new ClientBuilderConfig(_sdkPath, _googleComputeEngineConfig, [package]);
+      int result = clientBuilderConfig.storeConfigSync();
+      if (result != 0) {
+        // Some error happened
+        Logger.root.severe("storeConfigSync failed = $result");
+      }
+
       // TODO: support builder version ranges
       package.deployDocumentationBuilder(package.versions.first);
 
@@ -82,6 +96,22 @@ class IsolateGceLauncher {
     }
 
     new Timer(_timeout, callback);
+  }
+
+  void _initConfig() {
+    // TODO: remove hard coded config
+    String configFile = new File("bin/config.json").readAsStringSync();
+    Map config = JSON.decode(configFile);
+    // TODO: remove this hack for something better.
+    String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
+    assert(rsaPrivateKey != null);
+    assert(rsaPrivateKey.isNotEmpty);
+
+    _googleComputeEngineConfig =
+      new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
+          config["serviceAccountEmail"], rsaPrivateKey);
+
+    _sdkPath = config["sdkPath"];
   }
 
   void _initListeners() {
