@@ -12,8 +12,8 @@ class ClientBuilderConfig {
   factory ClientBuilderConfig(String sdkPath,
       GoogleComputeEngineConfig googleComputeEngineConfig, List<Package> packages) {
 
-    return new ClientBuilderConfig._(uuid_generator.v4(), sdkPath,
-        googleComputeEngineConfig, packages);
+    return new ClientBuilderConfig._(uuid_generator.v4().replaceAll('-',''),
+        sdkPath, googleComputeEngineConfig, packages);
   }
 
   factory ClientBuilderConfig.fromJson(Map data) {
