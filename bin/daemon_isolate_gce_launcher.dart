@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import 'package:quiver/collection.dart';
 import 'package:logging/logging.dart';
+import 'package:route/server.dart';
+import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -40,6 +42,7 @@ class IsolateGceLauncher {
       isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
       _initConfig();
       _initListeners();
+      _initServer();
       Timer.run(callback);
     });
   }
@@ -136,6 +139,35 @@ class IsolateGceLauncher {
       if (data is SendPort) {
         isolateBuildIndexSendPort = data;
       }
+    });
+  }
+
+  void _initServer() {
+    final buildUrl = new UrlPattern(r'/build/(.*)\/(.*)');
+
+    void build(req) {
+      List<String> args = buildUrl.parse(req.uri.path);
+      var packageName = args[0];
+      var packageVersion = args[1];
+      Version version = new Version.parse(packageVersion);
+      Package package = new Package(packageName, [version], uploaders: []);
+      buildQueue.add(package);
+      req.response.write('queue $packageName $packageVersion');
+      req.response.close();
+    }
+
+// Callback to handle illegal urls.
+    void serveNotFound(req) {
+      req.response.statusCode = HttpStatus.NOT_FOUND;
+      req.response.write('Not found');
+      req.response.close();
+    }
+
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8888).then((server) {
+      var router = new Router(server)
+        // Associate callbacks with URLs.
+        ..serve(buildUrl, method: 'GET').listen(build)
+        ..defaultStream.listen(serveNotFound);
     });
   }
 }
