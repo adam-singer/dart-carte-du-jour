@@ -12,8 +12,10 @@ class ClientBuilderConfig {
   factory ClientBuilderConfig(String sdkPath,
       GoogleComputeEngineConfig googleComputeEngineConfig, List<Package> packages) {
 
-    return new ClientBuilderConfig._(uuid_generator.v4().replaceAll('-',''),
-        sdkPath, googleComputeEngineConfig, packages);
+    String _id = uuid_generator.v4().replaceAll('-','');
+    _id = "b-" + _id.substring(3);
+    return new ClientBuilderConfig._(_id, sdkPath, googleComputeEngineConfig,
+        packages);
   }
 
   factory ClientBuilderConfig.fromJson(Map data) {
@@ -53,14 +55,15 @@ class ClientBuilderConfig {
 
   String toString() => JSON.encode(toJson());
 
+  String storeFileName() => "${id}.json";
+
   int storeConfigSync() {
     Directory tempDir = Directory.systemTemp.createTempSync();
-    String configFileName = "${id}.json";
-    File configFile = new File(join(tempDir.path, configFileName));
+    File configFile = new File(join(tempDir.path, storeFileName()));
     configFile.writeAsStringSync(toString());
 
     List<String> args = ['-m', 'cp', configFile.path,
-                         join(CLIENT_BUILDER_CONFIG_FILES_ROOT, configFileName)];
+                         join(CLIENT_BUILDER_CONFIG_FILES_ROOT, storeFileName())];
 
     ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
     Logger.root.finest(processResult.stdout);
