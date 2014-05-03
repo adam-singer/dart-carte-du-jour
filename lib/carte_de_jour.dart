@@ -156,6 +156,7 @@ String _buildHttpDocumentationPath(Package package, Version version) {
  * Finds all possible dart library files by excluding `.dart` files that have
  * a `part of id;` string.
  */
+@deprecated
 List<String> findDartLibraryFiles(String libPath) {
   RegExp partOf = new RegExp(r'^part\Wof\W[a-zA-Z]([a-zA-Z0-9_-]*);$');
   Directory libraryDirectory = new Directory(libPath);

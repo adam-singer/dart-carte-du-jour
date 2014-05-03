@@ -154,18 +154,20 @@ class Package {
     String packagesFolder = './packages'; // The pub installed packages
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH,
         "${name}-${version}");
-    List<String> dartFiles = findDartLibraryFiles(join(workingDirectory, "lib"));
-    dartFiles =
-        dartFiles.map((e) => basename(e)).map((e) => join("lib", e)).toList();
-    List<String> args = ['--compile', '--no-include-sdk', '--include-private',
-                         '--out', outputFolder, '--sdk', dartSdkPath,
-                         '--package-root', packagesFolder, '--start-page=${name}'];
+
+    List<String> args = ['--compile',
+                         '--no-include-sdk',
+                         '--no-include-dependent-packages',
+                         '--include-private',
+                         '--out', outputFolder,
+                         '--sdk', dartSdkPath,
+                         '--package-root', packagesFolder];
 
     if (verbose) {
       args.add('--verbose');
     }
 
-    args.addAll(dartFiles);
+    args.add('.');
 
     Logger.root.finest("workingDirectory = ${workingDirectory}");
     Logger.root.finest("docgen ${args}");
