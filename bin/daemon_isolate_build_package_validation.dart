@@ -25,21 +25,38 @@ class IsolateBuildPackageValidation {
       // Create command interface here.
       if (isCommand(QueueCommand.CHECK_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
-        package.versions.sort();
-        package.checkPackageIsBuilt(package.versions.last)
-        .then((PackageBuildInfo packageBuildInfo) {
-          if (packageBuildInfo == null) {
-            // Package has never been built.
-            isolateQueueServiceSendPort.send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX, package));
-            return;
+        Package packageBuild = new Package(package.name, <Version>[], uploaders: []);
+        package.checkAllPackageVersionsIsBuilt()
+        .listen((Map m) {
+          if (m['build']) {
+            packageBuild.versions.add(m['version']);
           }
+        }, onError: (error) {
+          Logger.root.severe("QueueCommand.CHECK_PACKAGE stream error $error");
+        }, onDone: () {
+          if (packageBuild.versions.isNotEmpty) {
+            isolateQueueServiceSendPort
+            .send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX,
+                                packageBuild));
+          }
+        }, cancelOnError: true);
 
-          if (!packageBuildInfo.isBuilt) {
-            // Package cannot be built. isBuilt == false is considered a
-            // blacklisted package.
-            Logger.root.fine("blacklisted: ${packageBuildInfo.toString()}");
-          }
-        });
+        // TODO: Add ability to only build latest version.
+//        package.versions.sort();
+//        package.checkPackageIsBuilt(package.versions.last)
+//        .then((PackageBuildInfo packageBuildInfo) {
+//          if (packageBuildInfo == null) {
+//            // Package has never been built.
+//            isolateQueueServiceSendPort.send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX, package));
+//            return;
+//          }
+//
+//          if (!packageBuildInfo.isBuilt) {
+//            // Package cannot be built. isBuilt == false is considered a
+//            // blacklisted package.
+//            Logger.root.fine("blacklisted: ${packageBuildInfo.toString()}");
+//          }
+//        });
       }
     });
   }
