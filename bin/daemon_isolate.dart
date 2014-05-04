@@ -1,7 +1,10 @@
+import 'dart:io';
 import "dart:async";
 import "dart:isolate";
 
 import 'package:logging/logging.dart';
+import 'package:route/server.dart';
+import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -37,12 +40,71 @@ class IsolateService {
       this.queueIsolate = queueIsolate;
       // setup timer now...
       _timer = new Timer.periodic(_timeout, callback);
-      _oneTimeFetchAll();
+      // _oneTimeFetchAll();
+      _oneTimeBuildAllVersions();
+      _initServer();
     });
   }
 
   void stop() {
     _timer.cancel();
+  }
+
+  void _initServer() {
+    final buildUrl = new UrlPattern(r'/build/(.*)');
+
+    void build(req) {
+      List<String> args = buildUrl.parse(req.uri.path);
+      var packageName = args[0];
+      fetchPackage("http://pub.dartlang.org/packages/${packageName}.json")
+      .then((Package package) {
+        queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package));
+        req.response.write('queue ${package.toString()}');
+        req.response.close();
+      }).catchError((error) => req.response.close());
+    }
+
+    // Callback to handle illegal urls.
+    void serveNotFound(req) {
+      req.response.statusCode = HttpStatus.NOT_FOUND;
+      req.response.write('Not found');
+      req.response.close();
+    }
+
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8889).then((server) {
+      var router = new Router(server)
+        // Associate callbacks with URLs.
+        ..serve(buildUrl, method: 'GET').listen(build)
+        ..defaultStream.listen(serveNotFound);
+    });
+  }
+
+  void _oneTimeBuildAllVersions() {
+    var duration = new Duration(seconds: 10);
+    fetchAllPackage().then((List<Package> packages) {
+      void callback() {
+
+        if (queueSendPort != null) {
+           // Remove null packages.
+           Logger.root.warning("Found ${packages.where((e) => e == null).length} null packages");
+           // packages is a fixed length list.
+           packages = packages.toList();
+           packages.removeWhere((e) => e == null);
+
+           // Queue all versions
+           Logger.root.warning("Sorting all versions");
+           packages.forEach((Package p) => p.versions.sort());
+
+           packages.forEach((Package package) =>
+               queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
+           return;
+         }
+
+        new Future.delayed(duration, callback);
+      }
+
+      callback();
+    });
   }
 
   void _oneTimeFetchAll() {
@@ -80,8 +142,11 @@ class IsolateService {
     Logger.root.fine("callback ${timer}");
     _fetchFirstPage().then((List<Package> packages){
       if (queueSendPort != null) {
-        packages.forEach((Package package) =>
-            queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
+        packages.forEach((Package package) {
+          package.versions.sort();
+          package.versions = [package.versions.last];
+          queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package));
+        });
       }
     }).catchError((error) {
       Logger.root.severe("fetching packages error: $error");
