@@ -237,7 +237,7 @@ int deployMultiDocumentationBuilder(ClientBuilderConfig clientBuilderConfig) {
   String project = "dart-carte-du-jour";
   String instanceName = clientBuilderConfig.id;
   String zone = "us-central1-a";
-  String machineType = "g1-small";
+  String machineType = "n1-standard-1"; // "g1-small";
   String network = "default"; // TODO(adam): we should use the internal network
   String externalIpAddress = "ephemeral";
   String serviceAccountScopes = "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
