@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -x
+declare -r maxretry=10
+declare -r waittime=5
+declare retrycounter=0
+function retry_wrapper() {
+  local cmd=$1 ; shift
+  retry $cmd "$@"
+  local s=$?
+  retrycounter=0
+  return $s
+}
+function retry() {
+  set +o errexit
+  local cmd=$1 ; shift
+  $cmd "$@"
+  local s=$?
+  if [ $s -ne 0 -a $retrycounter -lt $maxretry ] ; then
+    retrycounter=$(($retrycounter+1))
+    echo "Retrying"
+    sleep $((1+$retrycounter*$retrycounter*$waittime))
+    retry $cmd "$@"
+  fi
+  return $s
+}
+function copy_startup_log () {
+  set -x
+  startup_script_log=gs://www.dartdocs.org/buildlogs/`hostname`-startupscript.log
+  retry_wrapper gsutil cp /var/log/startupscript.log $startup_script_log
+}
+function shutdown_instance () {
+  set -x
+  copy_startup_log
+  export AUTOSHUTDOWN=$(curl http://metadata/computeMetadata/v1beta1/instance/attributes/autoshutdown) 
+  if [[ $AUTOSHUTDOWN -eq "1" ]]; then
+    hostname=`uname -n`
+    echo "Deleting instance ......... $hostname"
+    retry_wrapper gcutil deleteinstance -f --delete_boot_pd --zone us-central1-a $hostname
+  fi 
+}
+function fetch_latest_dart_sdk () {
+  rm -rf /dart-sdk
+  wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+  unzip -d / /tmp/dartsdk-linux-x64-release.zip
+  chmod -R go+rx /dart-sdk
+}
+sed -i '1i Port 443' /etc/ssh/sshd_config 
+/etc/init.d/ssh restart
+fetch_latest_dart_sdk
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/{{user_name}}/dart-carte-du-jour.git'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/rsa_private_key.pem ~/dart-carte-du-jour/bin/rsa_private_key.pem'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/client_builder_configurations/{{client_config_file}} ~/dart-carte-du-jour/bin/{{client_config_file}}'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart {{dart_application}}'
+shutdown_instance

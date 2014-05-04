@@ -180,6 +180,7 @@ class Package {
     return processResult.exitCode;
   }
 
+  @deprecated
   bool documentationInstanceAlive(Version version) {
     String service_version = "v1";
     String project = "dart-carte-du-jour";
@@ -212,6 +213,7 @@ class Package {
 
 
   // Call gcutil to deploy a node
+  @deprecated
   int deployDocumentationBuilder(Version version) {
     String service_version = "v1";
     String project = "dart-carte-du-jour";

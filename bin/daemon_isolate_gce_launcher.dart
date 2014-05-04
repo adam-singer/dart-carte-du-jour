@@ -20,7 +20,7 @@ class IsolateGceLauncher {
   String _sdkPath;
 
   Queue<Package> buildQueue = new Queue<Package>();
-  Queue<Package> buildingQueue = new Queue<Package>();
+  Queue<ClientBuilderConfig> buildingQueue = new Queue<ClientBuilderConfig>();
   Queue<Package> completedQueue = new Queue<Package>();
 
   Isolate buildIndexIsolate;
@@ -55,7 +55,6 @@ class IsolateGceLauncher {
     if (buildingQueue.length < MAX_GCE_INSTANCES && buildQueue.isNotEmpty) {
       // TODO: query GCE instead of keeping local counter.
       Package package = buildQueue.removeFirst();
-      buildingQueue.add(package);
 
       Logger.root.finest("buildingQueue.length = ${buildingQueue.length}");
 
@@ -67,8 +66,13 @@ class IsolateGceLauncher {
         Logger.root.severe("storeConfigSync failed = $result");
       }
 
-      // TODO: support builder version ranges
-      package.deployDocumentationBuilder(package.versions.first);
+      buildingQueue.add(clientBuilderConfig);
+
+      result = deployMultiDocumentationBuilder(clientBuilderConfig);
+      if (result != 0) {
+        // Some error happened
+        Logger.root.severe("deployNewDocumentationBuilder failed = $result");
+      }
 
     } else {
       // TODO: check the current number of build instances on gce
@@ -77,8 +81,16 @@ class IsolateGceLauncher {
 
     // TODO: Might be better to check if the `package_build_info.json`
     // file was uploaded.
-    completedQueue.addAll(buildingQueue
-        .where((p) => !p.documentationInstanceAlive(p.versions.first)).toList());
+    List<ClientBuilderConfig> completed = buildingQueue
+    .where((b) => !multiDocumentationInstanceAlive(b)).toList();
+
+    completed.forEach((b) {
+      completedQueue.addAll(b.packages);
+    });
+
+
+    buildingQueue.removeWhere((ClientBuilderConfig b) =>
+      completed.any((e) => e.id == b.id));
 
     while (completedQueue.isNotEmpty) {
       // TODO: only send what has been completed.
@@ -94,8 +106,6 @@ class IsolateGceLauncher {
                                 completedPackage));
       }
 
-      buildingQueue.removeWhere((p) => p.name == completedPackage.name
-          && listsEqual(p.versions, completedPackage.versions));
     }
 
     new Timer(_timeout, callback);

@@ -5,6 +5,7 @@ part of carte_de_jour;
  *
  * Example:
  *
+ * ```
  * class Meter<int> extends Enum<int> {
  *
  *  const Meter(int val) : super (val);
@@ -18,6 +19,7 @@ part of carte_de_jour;
  *
  * assert (Meter.HIGH, 100);
  * assert (Meter.HIGH is Meter);
+ * ```
  */
 abstract class Enum<T> {
 
