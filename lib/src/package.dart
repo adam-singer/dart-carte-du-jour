@@ -283,6 +283,63 @@ class Package {
     });
   }
 
+  Stream<Map> checkAllPackageVersionsIsBuilt() {
+    StreamController<Map> controller;
+    var _versions = this.versions.toList();
+    var running = false;
+
+    void callback() {
+      if (running == false) {
+        return;
+      }
+
+
+      if (_versions.isEmpty) {
+        controller.close();
+        return;
+      }
+
+      var _version = _versions.removeLast();
+      String docPath = _buildHttpDocumentationPath(this, _version);
+      http.get(docPath).then((response) {
+        if (response.statusCode != 200) {
+          // Build package since no package build info was found
+          // TODO: make class out of this.
+          controller.add({'name': this.name, 'build': true, 'version': _version});
+        } else {
+          // Do not build a package if we found it.
+          var data = JSON.decode(response.body);
+          PackageBuildInfo packageBuildInfo = new PackageBuildInfo.fromJson(data);
+          controller.add({'name': packageBuildInfo.name,
+            'build': false,
+            'version': packageBuildInfo.version});
+        }
+      }).then((_) => callback())
+      .catchError((error) {
+        Logger.root.severe("failed checkAllPackageVersionsIsBuilt http.get $docPath");
+        //callback();
+      });
+
+    }
+
+    void startStream() {
+      running = true;
+      callback();
+    }
+
+    void stopStream() {
+      running = false;
+    }
+
+    controller = new StreamController<Map>(
+        onListen: startStream,
+        onPause: stopStream,
+        onResume: startStream,
+        onCancel: stopStream);
+
+    return controller.stream;
+  }
+
   void createVersionFile(Version version) {
     // TODO(adam): factor this out into a private method.
     String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
