@@ -103,7 +103,11 @@ class IsolateBuildIndex {
   }
 
   int _copyDartDocsIndexHtml(String dartDocsIndexPath) {
-    List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
                          dartDocsIndexPath, "gs://www.dartdocs.org/index.html"];
     ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
     Logger.root.finest(processResult.stdout);

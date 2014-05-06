@@ -14,7 +14,11 @@ String buildDartDocsIndexHtml(Map renderData, {String dartDocsTemplate:
 }
 
 int copyDartDocsIndexHtml(String dartDocsIndexPath) {
-  List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
+  List<String> args = ['-m', 'cp',
+                       '-e',
+                       '-c',
+                       '-z', COMPRESS_FILE_TYPES,
+                       '-a', 'public-read',
                        dartDocsIndexPath, "gs://www.dartdocs.org/index.html"];
   ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
   stdout.write(processResult.stdout);

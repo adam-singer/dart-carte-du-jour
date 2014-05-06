@@ -43,6 +43,8 @@ final String CLIENT_BUILDER_CONFIG_FILES_ROOT = "gs://dart-carte-du-jour/client_
 
 final Uuid uuid_generator = new Uuid();
 
+final String COMPRESS_FILE_TYPES = "json,css,html,xml,js,dart,map,txt";
+
 /**
  * Fetch packages.json file and return PubPackages
  */

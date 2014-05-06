@@ -85,7 +85,12 @@ class Package {
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
         DARTDOC_VIEWER_OUT, 'web');
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
-    List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read', '-r', '.',
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
+                         '-r', '.',
                          cloudDocumentationPath];
 
     Logger.root.finest("workingDirectory: ${workingDirectory}");
@@ -371,8 +376,12 @@ class Package {
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
     cloudDocumentationPath = join(cloudDocumentationPath, 'docs');
 
-    List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read', 'VERSION',
-                         cloudDocumentationPath];
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
+                         'VERSION', cloudDocumentationPath];
 
     Logger.root.finest("workingDirectory: ${workingDirectory}");
     Logger.root.finest("gsutil ${args}");
@@ -393,7 +402,10 @@ class Package {
 
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
 
-    List<String> args = ['-m', 'cp', '-e', '-c', '-a', 'public-read',
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-a', 'public-read',
                          PACKAGE_BUILD_INFO_FILE_NAME,
                          join(cloudDocumentationPath,
                              PACKAGE_BUILD_INFO_FILE_NAME)];
