@@ -1,5 +1,12 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.5 2014-05-06 (SDK 1.4.0-dev.5.1 r35677)
+
+- Increased max gce nodes to 75
+- Added local rest interface for building and rebuilding packages
+- Checking datastore as the single point of record
+- Updated shell scripts
+
 ### 0.0.4 2014-05-03 (SDK 1.4.0-dev.4.0 r35362)
 
 - Restructed tests
