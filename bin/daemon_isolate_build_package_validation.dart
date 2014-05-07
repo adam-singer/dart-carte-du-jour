@@ -64,23 +64,10 @@ class IsolateBuildPackageValidation {
                                 packageBuild));
           }
         }, cancelOnError: true);
-
-        // TODO: Add ability to only build latest version.
-//        package.versions.sort();
-//        package.checkPackageIsBuilt(package.versions.last)
-//        .then((PackageBuildInfo packageBuildInfo) {
-//          if (packageBuildInfo == null) {
-//            // Package has never been built.
-//            isolateQueueServiceSendPort.send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX, package));
-//            return;
-//          }
-//
-//          if (!packageBuildInfo.isBuilt) {
-//            // Package cannot be built. isBuilt == false is considered a
-//            // blacklisted package.
-//            Logger.root.fine("blacklisted: ${packageBuildInfo.toString()}");
-//          }
-//        });
+      } else if (isCommand(QueueCommand.FORCE_PACKAGE, data)) {
+        Package package = new Package.fromJson(data['message']);
+        isolateQueueServiceSendPort
+         .send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX, package));
       }
     });
   }

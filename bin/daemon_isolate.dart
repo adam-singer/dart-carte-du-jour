@@ -52,7 +52,9 @@ class IsolateService {
 
   void _initServer() {
     final buildUrl = new UrlPattern(r'/build/(.*)');
+    final rebuildUrl = new UrlPattern(r'/rebuild/(.*)');
     final buildAllUrl = new UrlPattern(r'/buildAll');
+    final rebuildAllUrl = new UrlPattern(r'/rebuildAll');
 
     void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
@@ -65,9 +67,28 @@ class IsolateService {
       }).catchError((error) => req.response.close());
     }
 
+    // Does not check datastore if package is build. Just rebuild the package.
+    void rebuild(HttpRequest req) {
+      // TODO: dup code, factor out.
+      List<String> args = buildUrl.parse(req.uri.path);
+      var packageName = args[0];
+      fetchPackage("http://pub.dartlang.org/packages/${packageName}.json")
+      .then((Package package) {
+        queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_REBUILD, package));
+        req.response.write('rebuild ${package.toString()}');
+        req.response.close();
+      }).catchError((error) => req.response.close());
+    }
+
     void buildAll(HttpRequest req) {
       _oneTimeBuildAllVersions();
       req.response.write("Queueing all packages and versions");
+      req.response.close();
+    }
+
+    void rebuildAll(HttpRequest req) {
+      _oneTimeBuildAllVersions(rebuild: true);
+      req.response.write("Rebuilding all packages and versions");
       req.response.close();
     }
 
@@ -82,12 +103,14 @@ class IsolateService {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
+        ..serve(rebuildUrl, method: 'GET').listen(rebuild)
         ..serve(buildAllUrl, method: 'GET').listen(buildAll)
+        ..serve(rebuildAllUrl, method: 'GET').listen(rebuildAll)
         ..defaultStream.listen(serveNotFound);
     });
   }
 
-  void _oneTimeBuildAllVersions() {
+  void _oneTimeBuildAllVersions({bool rebuild: false}) {
     var duration = new Duration(seconds: 10);
     fetchAllPackage().then((List<Package> packages) {
       void callback() {
@@ -103,8 +126,13 @@ class IsolateService {
            Logger.root.warning("Sorting all versions");
            packages.forEach((Package p) => p.versions.sort());
 
-           packages.forEach((Package package) =>
-               queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package)));
+           packages.forEach((Package package) {
+             if (rebuild) {
+               queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_REBUILD, package));
+             } else {
+               queueSendPort.send(createMessage(MainIsolateCommand.PACKAGE_ADD, package));
+             }
+           });
            return;
          }
 

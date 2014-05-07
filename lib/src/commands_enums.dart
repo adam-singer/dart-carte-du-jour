@@ -54,12 +54,16 @@ class GceLauncherCommand<String> extends Enum<String> {
 /**
  * Commands sent from a queue isolate.
  */
+// TODO: rename to "package<Action>"
 class QueueCommand<String> extends Enum<String> {
   const QueueCommand(String val) : super (val);
   static const QueueCommand CHECK_PACKAGE =
       const QueueCommand("checkPackage");
   static const QueueCommand BUILD_PACKAGE =
       const QueueCommand("buildPackage");
+  // force the package into outbox
+  static const QueueCommand FORCE_PACKAGE =
+      const QueueCommand("forcePackage");
 }
 
 /**
@@ -69,6 +73,8 @@ class MainIsolateCommand<String> extends Enum<String> {
   const MainIsolateCommand(String val) : super (val);
   static const MainIsolateCommand PACKAGE_ADD =
       const MainIsolateCommand("packageAdd");
+  static const MainIsolateCommand PACKAGE_REBUILD =
+      const MainIsolateCommand("packageRebuild");
 }
 
 /**

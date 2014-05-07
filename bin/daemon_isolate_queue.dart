@@ -61,6 +61,11 @@ class IsolateQueueService {
 
         buildValidationSendPort.send(createMessage(QueueCommand.CHECK_PACKAGE,
                                                    package));
+      } else if (isCommand(MainIsolateCommand.PACKAGE_REBUILD, data)) {
+        Package package = new Package.fromJson(data['message']);
+        packageInbox.add(package);
+        buildValidationSendPort.send(createMessage(QueueCommand.FORCE_PACKAGE,
+                                                   package));
       }
     });
 
