@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'dart:isolate';
+import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 class IsolateBuildPackageValidation {
+  GoogleComputeEngineConfig _googleComputeEngineConfig;
+
   ReceivePort isolateQueueServiceReceivePort = new ReceivePort();
 
   SendPort isolateQueueServiceSendPort;
@@ -13,11 +17,27 @@ class IsolateBuildPackageValidation {
 
   void start() {
     isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
+    _initConfig();
     _initListeners();
   }
 
   void stop() {
     // TODO: clean up lisenters and close ports.
+  }
+
+  void _initConfig() {
+    // TODO: duplicate code from daemon_isolate_gce_launcher.dart
+    // TODO: remove hard coded config
+    String configFile = new File("bin/config.json").readAsStringSync();
+    Map config = JSON.decode(configFile);
+    // TODO: remove this hack for something better.
+    String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
+    assert(rsaPrivateKey != null);
+    assert(rsaPrivateKey.isNotEmpty);
+
+    _googleComputeEngineConfig =
+      new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
+          config["serviceAccountEmail"], rsaPrivateKey);
   }
 
   void _initListeners() {
@@ -26,10 +46,14 @@ class IsolateBuildPackageValidation {
       if (isCommand(QueueCommand.CHECK_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
         Package packageBuild = new Package(package.name, <Version>[], uploaders: []);
-        package.checkAllPackageVersionsIsBuilt()
-        .listen((Map m) {
-          if (m['build']) {
-            packageBuild.versions.add(m['version']);
+
+        // TODO: might be very wasteful to create a new PackageBuildInfoDataStore
+        // on each CHECK_PACKAGE
+        package.checkVersionBuilds(new PackageBuildInfoDataStore(_googleComputeEngineConfig))
+        .listen((VersionBuild versionBuild) {
+          Logger.root.finest("versionBuild = [${versionBuild.name}, ${versionBuild.version}, ${versionBuild.build}]");
+          if (versionBuild.build) {
+            packageBuild.versions.add(versionBuild.version);
           }
         }, onError: (error) {
           Logger.root.severe("QueueCommand.CHECK_PACKAGE stream error $error");
