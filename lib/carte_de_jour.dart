@@ -300,7 +300,8 @@ bool multiDocumentationInstanceAlive(ClientBuilderConfig clientBuilderConfig) {
   ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true);
   // TODO: read stdout into json object and check status
   Logger.root.finest(processResult.stdout);
-  Logger.root.severe(processResult.stderr);
+  // To much stderr printed out
+  // Logger.root.severe(processResult.stderr);
 
   if (processResult.exitCode == 0) {
     return true;
