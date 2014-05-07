@@ -70,7 +70,7 @@ class IsolateService {
     // Does not check datastore if package is build. Just rebuild the package.
     void rebuild(HttpRequest req) {
       // TODO: dup code, factor out.
-      List<String> args = buildUrl.parse(req.uri.path);
+      List<String> args = rebuildUrl.parse(req.uri.path);
       var packageName = args[0];
       fetchPackage("http://pub.dartlang.org/packages/${packageName}.json")
       .then((Package package) {
