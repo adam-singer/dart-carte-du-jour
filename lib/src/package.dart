@@ -1,5 +1,17 @@
 part of carte_de_jour;
 
+class VersionBuild {
+  final String name;
+  final Version version;
+  final bool build;
+  final PackageBuildInfo packageBuildInfo;
+  VersionBuild._(this.name, this.version, this.build, this.packageBuildInfo);
+  factory VersionBuild(String name, Version version, bool build,
+      {PackageBuildInfo packageBuildInfo: null}) {
+    return new VersionBuild._(name, version, build, packageBuildInfo);
+  }
+}
+
 /**
  * Class prepresentation of `<package>.json` file.
  */
@@ -288,6 +300,62 @@ class Package {
     });
   }
 
+  Stream<VersionBuild> checkVersionBuilds(PackageBuildInfoDataStore packageBuildInfoDataStore) {
+    StreamController<VersionBuild> controller;
+    var _versions = this.versions.toList();
+    var running = false;
+
+    void callback() {
+      if (running == false) {
+        return;
+      }
+
+      if (_versions.isEmpty) {
+        controller.close();
+        return;
+      }
+
+      var _version = _versions.removeLast();
+
+      packageBuildInfoDataStore.fetch(this.name, _version)
+      .then((PackageBuildInfo packageBuildInfo) {
+        VersionBuild versionBuild;
+
+        if (packageBuildInfo != null) {
+          // Do not rebuild package since it already exists.
+          // TODO: make better with an option to force rebuilds.
+          versionBuild = new VersionBuild(this.name, _version, false, packageBuildInfo: packageBuildInfo);
+        } else {
+          // Build package for the first time
+          versionBuild = new VersionBuild(this.name, _version, true);
+        }
+
+        controller.add(versionBuild);
+      }).then((_) => callback())
+      .catchError((error){
+        Logger.root.severe("failed checkVersionBuilds ${name} ${_version.toString()}");
+      });
+    }
+
+    void startStream() {
+      running = true;
+      callback();
+    }
+
+    void stopStream() {
+      running = false;
+    }
+
+    controller = new StreamController<VersionBuild>(
+        onListen: startStream,
+        onPause: stopStream,
+        onResume: startStream,
+        onCancel: stopStream);
+
+    return controller.stream;
+  }
+
+  @deprecated
   Stream<Map> checkAllPackageVersionsIsBuilt() {
     StreamController<Map> controller;
     var _versions = this.versions.toList();
@@ -305,6 +373,8 @@ class Package {
       }
 
       var _version = _versions.removeLast();
+
+
       String docPath = _buildHttpDocumentationPath(this, _version);
       http.get(docPath).then((response) {
         if (response.statusCode != 200) {
@@ -322,9 +392,7 @@ class Package {
       }).then((_) => callback())
       .catchError((error) {
         Logger.root.severe("failed checkAllPackageVersionsIsBuilt http.get $docPath");
-        //callback();
       });
-
     }
 
     void startStream() {
