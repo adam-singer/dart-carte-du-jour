@@ -41,7 +41,7 @@ class IsolateService {
       // setup timer now...
       _timer = new Timer.periodic(_timeout, callback);
       // _oneTimeFetchAll();
-      _oneTimeBuildAllVersions();
+      // _oneTimeBuildAllVersions();
       _initServer();
     });
   }
@@ -52,8 +52,9 @@ class IsolateService {
 
   void _initServer() {
     final buildUrl = new UrlPattern(r'/build/(.*)');
+    final buildAllUrl = new UrlPattern(r'/buildAll');
 
-    void build(req) {
+    void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
       var packageName = args[0];
       fetchPackage("http://pub.dartlang.org/packages/${packageName}.json")
@@ -64,8 +65,14 @@ class IsolateService {
       }).catchError((error) => req.response.close());
     }
 
+    void buildAll(HttpRequest req) {
+      _oneTimeBuildAllVersions();
+      req.response.write("Queueing all packages and versions");
+      req.response.close();
+    }
+
     // Callback to handle illegal urls.
-    void serveNotFound(req) {
+    void serveNotFound(HttpRequest req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
       req.response.write('Not found');
       req.response.close();
@@ -75,6 +82,7 @@ class IsolateService {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
+        ..serve(buildAllUrl, method: 'GET').listen(buildAll)
         ..defaultStream.listen(serveNotFound);
     });
   }
