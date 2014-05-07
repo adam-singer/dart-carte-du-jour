@@ -5,14 +5,16 @@ import 'dart:collection';
 import "dart:convert";
 
 import 'package:logging/logging.dart';
-import 'package:path/path.dart';
+
 import 'package:mustache/mustache.dart' as mustache;
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
+const int TIMEOUT_CALLBACK_SECONDS = 60;
+
 class IsolateBuildIndex {
-  Duration _timeout = const Duration(seconds: 10);
-  Timer _timer;
+  Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
+
   PackageBuildInfoDataStore _packageBuildInfoDataStore;
   GoogleComputeEngineConfig _googleComputeEngineConfig;
 
@@ -31,7 +33,7 @@ class IsolateBuildIndex {
   }
 
   void stop() {
-    _timer.cancel();
+
   }
 
   void _initDatastore() {
@@ -63,7 +65,6 @@ class IsolateBuildIndex {
 
   void callback() {
     if (isBuiltQueue.isNotEmpty) {
-      //TODO: Build new index.
       isBuiltQueue.clear();
       _fetchAndBuild().then((_) => new Timer(_timeout, callback));
     } else {

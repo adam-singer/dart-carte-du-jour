@@ -11,11 +11,11 @@ import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-final int MAX_GCE_INSTANCES = 15;
+final int MAX_GCE_INSTANCES = 75;
+const int TIMEOUT_CALLBACK_SECONDS = 60;
 
 class IsolateGceLauncher {
-  Duration _timeout = const Duration(seconds: 1);
-  Timer _timer;
+  final Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
   GoogleComputeEngineConfig _googleComputeEngineConfig;
   String _sdkPath;
 
@@ -48,7 +48,7 @@ class IsolateGceLauncher {
   }
 
   void stop() {
-    _timer.cancel();
+
   }
 
   void callback() {
