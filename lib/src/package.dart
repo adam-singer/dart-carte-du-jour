@@ -97,7 +97,8 @@ class Package {
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
         DARTDOC_VIEWER_OUT, 'web');
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
-    List<String> args = ['-m', 'cp',
+    List<String> args = ['-h', CACHE_CONTROL,
+                         '-m', 'cp',
                          '-e',
                          '-c',
                          '-z', COMPRESS_FILE_TYPES,
@@ -444,7 +445,8 @@ class Package {
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
     cloudDocumentationPath = join(cloudDocumentationPath, 'docs');
 
-    List<String> args = ['-m', 'cp',
+    List<String> args = ['-h', CACHE_CONTROL,
+                         '-m', 'cp',
                          '-e',
                          '-c',
                          '-z', COMPRESS_FILE_TYPES,
@@ -470,7 +472,8 @@ class Package {
 
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
 
-    List<String> args = ['-m', 'cp',
+    List<String> args = ['-h', CACHE_CONTROL,
+                         '-m', 'cp',
                          '-e',
                          '-c',
                          '-a', 'public-read',

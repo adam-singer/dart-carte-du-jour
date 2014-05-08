@@ -43,6 +43,7 @@ final String CLIENT_BUILDER_CONFIG_FILES_ROOT = "gs://dart-carte-du-jour/client_
 
 final Uuid uuid_generator = new Uuid();
 
+final String CACHE_CONTROL = "Cache-Control:public,max-age=3600";
 final String COMPRESS_FILE_TYPES = "json,css,html,xml,js,dart,map,txt";
 
 /**
