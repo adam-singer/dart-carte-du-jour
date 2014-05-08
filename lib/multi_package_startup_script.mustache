@@ -26,7 +26,7 @@ function retry() {
 function copy_startup_log () {
   set -x
   startup_script_log=gs://www.dartdocs.org/buildlogs/`hostname`-startupscript.log
-  retry_wrapper gsutil -h 'Content-Type:text/plain' cp -a public-read /var/log/startupscript.log $startup_script_log
+  retry_wrapper gsutil -h 'Content-Type:text/plain' cp -z 'log' -a public-read /var/log/startupscript.log $startup_script_log
 }
 function shutdown_instance () {
   set -x
