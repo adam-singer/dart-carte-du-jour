@@ -12,7 +12,7 @@ import 'package:route/url_pattern.dart';
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 final int MAX_GCE_INSTANCES = 75;
-const int TIMEOUT_CALLBACK_SECONDS = 60;
+const int TIMEOUT_CALLBACK_SECONDS = 10;
 
 class IsolateGceLauncher {
   final Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
