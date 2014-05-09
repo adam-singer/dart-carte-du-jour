@@ -24,14 +24,3 @@ indexes:
     - name: lastbuild
       direction: asc
 
-
-# - kind: PackageBuildInfo
-
-
-#- kind: PackageBuildInfo
-#- kind: PackageBuildInfo
-#- kind: PackageBuildInfo
-#- kind: PackageBuildInfo
-#- kind: PackageBuildInfo
-
-
