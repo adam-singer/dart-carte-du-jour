@@ -5,7 +5,8 @@ import 'dart:collection';
 import "dart:convert";
 
 import 'package:logging/logging.dart';
-
+import 'package:route/server.dart';
+import 'package:route/url_pattern.dart';
 import 'package:mustache/mustache.dart' as mustache;
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
@@ -29,6 +30,7 @@ class IsolateBuildIndex {
     isolateGceLauncherSendPort.send(isolateGceLauncherReceivePort.sendPort);
     _initListeners();
     _initDatastore();
+    _initServer();
     Timer.run(callback);
   }
 
@@ -91,7 +93,56 @@ class IsolateBuildIndex {
       dartDocsIndex.writeAsStringSync(_buildDartDocsIndexHtml(renderData));
       _copyDartDocsIndexHtml("dartdocs_index.html");
       dartDocsIndex.deleteSync();
+      return _packageBuildInfoDataStore.fetchBuilt(false);
+    }).then((List<PackageBuildInfo> packageBuildInfos) {
+      // TODO: DRY
+      Map renderData = {'docsUrls': []};
+      renderData['docsUrls'].addAll(packageBuildInfos.map((packageBuildInfo) {
+        Uri httpBuildLog;
+
+        if (packageBuildInfo.buildLog != null && packageBuildInfo.buildLog.isNotEmpty) {
+          Uri gsBuildLog = Uri.parse(packageBuildInfo.buildLog);
+          httpBuildLog = new Uri.http(gsBuildLog.host, gsBuildLog.path);
+        } else {
+          httpBuildLog = new Uri.http("www.dartdocs.org", "/failed/notfound.html");
+        }
+
+
+        return {
+          "name": packageBuildInfo.name,
+          "version": packageBuildInfo.version,
+          "url": httpBuildLog.toString()
+        };
+      }).toList());
+
+      File dartDocsIndex = new File("dartdocs_failed_index.html");
+      dartDocsIndex.writeAsStringSync(_buildDartDocsFailedIndexHtml(renderData));
+      _copyDartDocsFailedIndexHtml("dartdocs_failed_index.html");
+      dartDocsIndex.deleteSync();
     });
+  }
+
+  // TODO: DRY
+  String _buildDartDocsFailedIndexHtml(Map renderData, {String dartDocsTemplate:
+                                  "bin/dartdocs_failed_index.html.mustache"}) {
+    String indexTemplate = new File(dartDocsTemplate).readAsStringSync();
+    var template = mustache.parse(indexTemplate);
+    var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
+    return indexHtml;
+  }
+
+  // TODO: DRY
+  int _copyDartDocsFailedIndexHtml(String dartDocsIndexPath) {
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
+                         dartDocsIndexPath, "gs://www.dartdocs.org/failed/index.html"];
+    ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
+    stdout.write(processResult.stdout);
+    stderr.write(processResult.stderr);
+    return processResult.exitCode;
   }
 
   // TODO: move to library
@@ -114,6 +165,30 @@ class IsolateBuildIndex {
     Logger.root.finest(processResult.stdout);
     Logger.root.severe(processResult.stderr);
     return processResult.exitCode;
+  }
+
+  void _initServer() {
+    final buildIndexHtmlUrl = new UrlPattern(r'/buildIndexHtml');
+
+    void buildIndexHtml(req) {
+      _fetchAndBuild();
+      req.response.write('Rebuilding index html');
+      req.response.close();
+    }
+
+    // Callback to handle illegal urls.
+    void serveNotFound(req) {
+      req.response.statusCode = HttpStatus.NOT_FOUND;
+      req.response.write('Not found');
+      req.response.close();
+    }
+
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8887).then((server) {
+      var router = new Router(server)
+        // Associate callbacks with URLs.
+        ..serve(buildIndexHtmlUrl, method: 'GET').listen(buildIndexHtml)
+        ..defaultStream.listen(serveNotFound);
+    });
   }
 }
 
