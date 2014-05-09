@@ -1,0 +1,37 @@
+indexes:
+
+- kind: PackageBuildInfo
+  properties:
+    - name: name
+    - name: isbuilt
+    - name: lastbuild
+      direction: asc
+
+- kind: PackageBuildInfo
+  properties:
+    - name: name
+    - name: isbuilt
+      direction: desc
+    - name: lastbuild
+      direction: asc
+
+
+- kind: PackageBuildInfo
+  properties:
+    - name: name
+    - name: isbuilt
+      direction: asc
+    - name: lastbuild
+      direction: asc
+
+
+# - kind: PackageBuildInfo
+
+
+#- kind: PackageBuildInfo
+#- kind: PackageBuildInfo
+#- kind: PackageBuildInfo
+#- kind: PackageBuildInfo
+#- kind: PackageBuildInfo
+
+
