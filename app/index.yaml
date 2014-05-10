@@ -3,24 +3,36 @@ indexes:
 - kind: PackageBuildInfo
   properties:
     - name: name
-    - name: isbuilt
-    - name: lastbuild
+    - name: isBuilt
+    - name: lastBuild
       direction: asc
 
 - kind: PackageBuildInfo
   properties:
     - name: name
-    - name: isbuilt
+    - name: isBuilt
       direction: desc
-    - name: lastbuild
+    - name: lastBuild
       direction: asc
 
 
 - kind: PackageBuildInfo
   properties:
     - name: name
-    - name: isbuilt
+    - name: isBuilt
       direction: asc
-    - name: lastbuild
+    - name: lastBuild
       direction: asc
+
+- kind: PackageBuildInfo
+  properties:
+    - name: isBuilt
+    - name: lastBuild
+      direction: asc
+
+- kind: PackageBuildInfo
+  properties:
+    - name: isBuilt
+    - name: lastBuild
+      direction: desc
 
