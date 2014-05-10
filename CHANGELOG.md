@@ -1,5 +1,17 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.6 2014-05-10 (SDK 1.4.0-dev.6.2 r35890)
+
+- Added explicit setting for file cache on cloud storage
+- Content type changed so log files are not downloaded by default
+- Gzip log files
+- Decreased callback to 10 seconds
+- Added script ro rebuild all packages
+- Added datastore indexes
+- Reduced max instances to 20
+- Added more error handling
+- Added verbose option to `daemon_isolate`
+
 ### 0.0.5 2014-05-06 (SDK 1.4.0-dev.5.1 r35677)
 
 - Increased max gce nodes to 75
