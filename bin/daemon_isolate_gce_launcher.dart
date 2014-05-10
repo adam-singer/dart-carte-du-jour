@@ -11,7 +11,8 @@ import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-final int MAX_GCE_INSTANCES = 75;
+// TODO: increase to 75 once internal networking is being used.
+final int MAX_GCE_INSTANCES = 20;
 const int TIMEOUT_CALLBACK_SECONDS = 10;
 
 class IsolateGceLauncher {
