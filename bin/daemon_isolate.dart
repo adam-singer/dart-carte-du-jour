@@ -41,8 +41,6 @@ class IsolateService {
       this.queueIsolate = queueIsolate;
       // setup timer now...
       _timer = new Timer.periodic(_timeout, callback);
-      // _oneTimeFetchAll();
-      // _oneTimeBuildAllVersions();
       _initServer();
     });
   }
@@ -152,6 +150,8 @@ class IsolateService {
       }
 
       callback();
+    }).catchError((error) {
+      Logger.root.severe("one time build of all packages error: $error");
     });
   }
 
@@ -183,6 +183,8 @@ class IsolateService {
       }
 
       callback();
+    }).catchError((error) {
+      Logger.root.severe("one time fetch all packages error: $error");
     });
   }
 
@@ -262,7 +264,7 @@ ArgParser _createArgsParser() {
 
 void main(args) {
   Logger.root.onRecord.listen((LogRecord record) {
-    print("isolate_main: ${record.message}");
+    print("daemon_isolate: ${record.message}");
   });
 
   ArgParser parser = _createArgsParser();
