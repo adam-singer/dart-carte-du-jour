@@ -55,6 +55,7 @@ class IsolateService {
     final rebuildUrl = new UrlPattern(r'/rebuild/(.*)');
     final buildAllUrl = new UrlPattern(r'/buildAll');
     final rebuildAllUrl = new UrlPattern(r'/rebuildAll');
+    final buildFirstPageUrl = new UrlPattern(r'/buildFirstPage');
 
     void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
@@ -80,15 +81,24 @@ class IsolateService {
       }).catchError((error) => req.response.close());
     }
 
+    // queue all packages for building, if build already exists do not rebuild.
     void buildAll(HttpRequest req) {
       _oneTimeBuildAllVersions();
       req.response.write("Queueing all packages and versions");
       req.response.close();
     }
 
+    // force rebuild of all packages
     void rebuildAll(HttpRequest req) {
       _oneTimeBuildAllVersions(rebuild: true);
       req.response.write("Rebuilding all packages and versions");
+      req.response.close();
+    }
+
+    // builds the latest versions of the first page
+    void buildFirstPage(HttpRequest req) {
+      callback(null);
+      req.response.write("Building first page");
       req.response.close();
     }
 
@@ -106,6 +116,7 @@ class IsolateService {
         ..serve(rebuildUrl, method: 'GET').listen(rebuild)
         ..serve(buildAllUrl, method: 'GET').listen(buildAll)
         ..serve(rebuildAllUrl, method: 'GET').listen(rebuildAll)
+        ..serve(buildFirstPageUrl, method: 'GET').listen(buildFirstPage)
         ..defaultStream.listen(serveNotFound);
     });
   }
@@ -174,8 +185,8 @@ class IsolateService {
     });
   }
 
-  void callback(Timer timer) {
-    Logger.root.fine("callback ${timer}");
+  void callback(Timer _) {
+    Logger.root.fine("fetching first page");
     _fetchFirstPage().then((List<Package> packages){
       if (queueSendPort != null) {
         packages.forEach((Package package) {
