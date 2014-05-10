@@ -36,3 +36,17 @@ the compute engine instance that has latest dart-sdk
 
 - [scope document](https://docs.google.com/document/d/1DYeca9T-FJTePXLksqNoSrOwp8eFlnbqbLs_qGfC99o/edit)
 
+Configuration settings
+--
+
+TODO
+
+Starting and stopping documentation service
+--
+
+TODO
+
+Monitoring service
+--
+
+TODO
