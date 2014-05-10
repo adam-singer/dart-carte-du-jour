@@ -5,6 +5,7 @@ import "dart:isolate";
 import 'package:logging/logging.dart';
 import 'package:route/server.dart';
 import 'package:route/url_pattern.dart';
+import 'package:args/args.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -228,10 +229,44 @@ class IsolateService {
   }
 }
 
-void main() {
+void _printUsage(ArgParser parser) {
+  print('usage: dart bin/daemon_isolate.dart <options>');
+  print('');
+  print('where <options> is one or more of:');
+  print(parser.getUsage().replaceAll('\n\n', '\n'));
+  exit(1);
+}
+
+ArgParser _createArgsParser() {
+  ArgParser parser = new ArgParser();
+    parser.addFlag('help',
+        abbr: 'h',
+        negatable: false,
+        help: 'show command help',
+        callback: (help) {
+          if (help) {
+            _printUsage(parser);
+          }
+        });
+
+    parser.addFlag('verbose', abbr: 'v',
+        help: 'Output more logging information.', negatable: false,
+        callback: (verbose) {
+          if (verbose) {
+            Logger.root.level = Level.FINEST;
+          }
+        });
+
+    return parser;
+}
+
+void main(args) {
   Logger.root.onRecord.listen((LogRecord record) {
     print("isolate_main: ${record.message}");
   });
+
+  ArgParser parser = _createArgsParser();
+  ArgResults results = parser.parse(args);
 
   IsolateService isolateService = new IsolateService();
   isolateService.start();
