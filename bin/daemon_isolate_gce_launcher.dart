@@ -167,7 +167,7 @@ class IsolateGceLauncher {
       req.response.close();
     }
 
-// Callback to handle illegal urls.
+    // Callback to handle illegal urls.
     void serveNotFound(req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
       req.response.write('Not found');

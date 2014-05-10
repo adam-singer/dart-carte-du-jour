@@ -107,7 +107,6 @@ class IsolateBuildIndex {
           httpBuildLog = new Uri.http("www.dartdocs.org", "/failed/notfound.html");
         }
 
-
         return {
           "name": packageBuildInfo.name,
           "version": packageBuildInfo.version,
@@ -119,7 +118,8 @@ class IsolateBuildIndex {
       dartDocsIndex.writeAsStringSync(_buildDartDocsFailedIndexHtml(renderData));
       _copyDartDocsFailedIndexHtml("dartdocs_failed_index.html");
       dartDocsIndex.deleteSync();
-    });
+    }).catchError((error) =>
+        Logger.root.severe("fetch and build failed on building index pages: $error"));
   }
 
   // TODO: DRY

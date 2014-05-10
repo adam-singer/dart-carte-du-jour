@@ -114,6 +114,9 @@ class PackageBuildInfoDataStore {
       return _datastore.datasets.commit(req, _googleComputeEngineConfig.projectId);
     }).then((client.CommitResponse commitResponse) {
       return true;
+    }).catchError((error) {
+      Logger.root.severe("Not able to save ${packageBuildInfo.toString()}: $error");
+      return false;
     });
   }
 
@@ -167,6 +170,9 @@ class PackageBuildInfoDataStore {
       String datetime = entity.properties['lastBuild'].dateTimeValue;
       bool isBuilt = entity.properties['isBuilt'].booleanValue;
       return new PackageBuildInfo(name, version, datetime, isBuilt);
+    }).catchError((error) {
+      Logger.root.severe("Not able to fetch ${name}-${version}: $error");
+      return false;
     });
   }
 
@@ -197,6 +203,9 @@ class PackageBuildInfoDataStore {
         packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
       });
       return packageBuildInfos;
+    }).catchError((error) {
+      Logger.root.severe("Not able to fetchBuilt: $error");
+      return new List<PackageBuildInfo>();
     });
   }
 }
