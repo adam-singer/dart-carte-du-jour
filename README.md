@@ -71,7 +71,11 @@ port | path | function
 - daemon_isolate_build_package_validation.dart no services
 - daemon_isolate_queue.dart no services
 
-Helper shell script functions for authorized users can be found in `dart-carte-du-jour/scripts/daemon_launch/daemon-isolate-functions.sh`
+Helper shell script functions for authorized users
+
+```shell
+source dart-carte-du-jour/scripts/daemon_launch/daemon-isolate-functions.sh
+```
 
 TODO: examples of each
 
