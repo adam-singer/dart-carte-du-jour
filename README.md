@@ -44,7 +44,21 @@ TODO
 Starting and stopping documentation service
 --
 
-TODO
+Only authorized users are able to start and stop the `daemon-isolate`
+
+Starting the `daemon-isolate`
+
+```shell 
+cd dart-carte-du-jour/scripts/daemon_launch
+./launch-instance.sh
+```
+
+Stopping the `daemon-isolate`
+
+```shell 
+cd dart-carte-du-jour/scripts/daemon_launch
+./kill-instance.sh
+```
 
 Monitoring service
 --
