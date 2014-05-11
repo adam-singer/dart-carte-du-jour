@@ -64,3 +64,26 @@ Monitoring service
 --
 
 TODO
+
+Sending commands to `daemon-isolate`
+---
+
+`daemon-isolate` service runs multiple isolates. Each isolate can receive 
+commands over `http://localhost:<isolate_port>`. One `isolate_port` is open for
+each isolate. 
+
+isolate | port | path | function
+ --- | :---: | :--- | --- 
+daemon_isolate.dart | 8889 | `/build/(.*)` | build all versions of a `package`
+daemon_isolate.dart | 8889 | `/rebuild/(.*)` | force rebuild of all versions of a `package`
+daemon_isolate.dart | 8889 | `/buildAll` | build all packages and versions of those packages
+daemon_isolate.dart | 8889 | `/rebuildAll` | force rebuild of all packages and versions of those packages
+daemon_isolate.dart | 8889 | `/buildFirstPage` | build first page of packages on [pub.dartlang.org](http://pub.dartlang.org/)
+daemon_isolate_build_index.dart | 8887 | `/buildIndexHtml` | rebuild [www.dartdocs.org](www.dartdocs.org) index.html, failed/index.html and history.html 
+daemon_isolate_gce_launcher.dart | 8888 | `/build/(.*)\/(.*)` | force build `package` and `version`
+daemon_isolate_build_package_validation.dart | | |  no services
+daemon_isolate_queue.dart | |  | no services
+
+Helper shell script functions for authorized users can be found in `dart-carte-du-jour/scripts/daemon_launch/daemon-isolate-functions.sh`
+
+TODO: examples of each
