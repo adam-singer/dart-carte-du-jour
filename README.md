@@ -44,8 +44,6 @@ Sending commands to daemon-isolate service
 commands over `http://localhost:<isolate_port>`. One `isolate_port` is open for
 each isolate. 
 
-
-
 - daemon_isolate.dart 
 
 port | path | function
