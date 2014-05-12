@@ -170,7 +170,7 @@ class IsolateGceLauncher {
 
     void health(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
-      req.response.write('All systems a go');
+      req.response.writeln('All systems a go');
       req.response.writeln('buildQueue: ');
       buildQueue.forEach((e) => req.response.writeln(e.toString()));
       req.response.writeln('buildingQueue: ');
