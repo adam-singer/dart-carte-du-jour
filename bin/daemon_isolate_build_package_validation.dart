@@ -90,6 +90,11 @@ class IsolateBuildPackageValidation {
             .send(createMessage(PackageValidationCommand.PACKAGE_ADD_OUTBOX,
                                 packageBuild));
           }
+
+          // Remove package from inbox, fully processed
+          isolateQueueServiceSendPort
+           .send(createMessage(PackageValidationCommand.PACKAGE_REMOVE_INBOX,
+               package));
         }, cancelOnError: true);
       } else if (isCommand(QueueCommand.FORCE_PACKAGE, data)) {
         Package package = new Package.fromJson(data['message']);
