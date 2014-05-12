@@ -53,21 +53,36 @@ port | path | function
 8889 | `/buildAll` | build all packages and versions of those packages
 8889 | `/rebuildAll` | force rebuild of all packages and versions of those packages
 8889 | `/buildFirstPage` | build first page of packages on [pub.dartlang.org](http://pub.dartlang.org/)
-
-- daemon_isolate_build_index.dart 
-
-port | path | function
---- | --- | ---
- 8887 | `/buildIndexHtml` | rebuild [www.dartdocs.org](www.dartdocs.org) index.html, failed/index.html and history.html 
+8889 | `/health` | health check 
 
 - daemon_isolate_gce_launcher.dart 
 
 port | path | function
 --- | --- | ---
 8888 | `/build/(.*)\/(.*)` | force build `package` and `version`
+8888 | `/health` | health check 
 
-- daemon_isolate_build_package_validation.dart no services
-- daemon_isolate_queue.dart no services
+- daemon_isolate_build_index.dart 
+
+port | path | function
+--- | --- | ---
+ 8887 | `/buildIndexHtml` | rebuild [www.dartdocs.org](www.dartdocs.org) index.html, failed/index.html and history.html 
+ 8887 | `/health` | health check 
+
+
+- daemon_isolate_build_package_validation.dart
+
+port | path | function
+--- | --- | ---
+ 8886 | `/health` | health check 
+
+
+- daemon_isolate_queue.dart 
+
+port | path | function
+--- | --- | ---
+ 8885 | `/health` | health check 
+
 
 Helper shell script functions for authorized users
 

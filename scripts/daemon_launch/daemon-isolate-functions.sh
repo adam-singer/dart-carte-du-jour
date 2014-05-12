@@ -66,6 +66,73 @@ function carte_build_index_html() {
   gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://localhost:8887/buildIndexHtml
 }
 
-function build_package_version() {
+function carte_build_package_version() {
   gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://localhost:8888/build/${1}/${2}
+}
+
+function _health_report() {
+  EXIT_CODE=0;
+  if [[ ${1} -eq 200 ]]; then
+    echo "daemon_isolate.dart - everything is ok"
+  else 
+    echo "daemon_isolate.dart - not ok"
+    EXIT_CODE=1
+  fi
+
+
+  if [[ ${2} -eq 200 ]];
+    then
+    echo "daemon_isolate_gce_launcher.dart - everything is ok"
+  else 
+    echo "daemon_isolate_gce_launcher.dart - not ok"
+    EXIT_CODE=1    
+  fi  
+
+
+  if [[ ${3} -eq 200 ]];
+    then
+    echo "daemon_isolate_build_index.dart - everything is ok"
+  else 
+    echo "daemon_isolate_build_index.dart - not ok"
+    EXIT_CODE=1    
+  fi  
+
+
+  if [[ ${4} -eq 200 ]];
+    then
+    echo "daemon_isolate_build_package_validation.dart -everything is ok"
+  else 
+    echo "daemon_isolate_build_package_validation.dart - not ok"
+    EXIT_CODE=1    
+  fi  
+
+
+  if [[ ${5} -eq 200 ]];
+    then
+    echo "daemon_isolate_queue.dart - everything is ok"
+  else 
+    echo "daemon_isolate_queue.dart - not ok"
+    EXIT_CODE=1    
+  fi  
+
+  return ${EXIT_CODE}
+}
+
+function carte_health_checks() {
+  S1=$(curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8889/health)
+  S2=$(curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8888/health)
+  S3=$(curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8887/health)
+  S4=$(curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8886/health)
+  S5=$(curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8885/health)
+  
+  _health_report ${S1} ${S2} ${S3} ${S4} ${S5}
+}
+
+function carte_remote_health_checks() {
+  S1=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8889/health)
+  S2=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8888/health)
+  S3=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8887/health)
+  S4=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8886/health)
+  S5=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8885/health)
+  _health_report ${S1} ${S2} ${S3} ${S4} ${S5} 
 }
