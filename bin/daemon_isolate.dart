@@ -55,6 +55,7 @@ class IsolateService {
     final buildAllUrl = new UrlPattern(r'/buildAll');
     final rebuildAllUrl = new UrlPattern(r'/rebuildAll');
     final buildFirstPageUrl = new UrlPattern(r'/buildFirstPage');
+    final healthCheckUrl = new UrlPattern(r'/health');
 
     void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
@@ -101,6 +102,12 @@ class IsolateService {
       req.response.close();
     }
 
+    void health(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.writeln('All systems a go');
+      req.response.close();
+    }
+
     // Callback to handle illegal urls.
     void serveNotFound(HttpRequest req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
@@ -116,6 +123,7 @@ class IsolateService {
         ..serve(buildAllUrl, method: 'GET').listen(buildAll)
         ..serve(rebuildAllUrl, method: 'GET').listen(rebuildAll)
         ..serve(buildFirstPageUrl, method: 'GET').listen(buildFirstPage)
+        ..serve(healthCheckUrl, method: 'GET').listen(health)
         ..defaultStream.listen(serveNotFound);
     });
   }

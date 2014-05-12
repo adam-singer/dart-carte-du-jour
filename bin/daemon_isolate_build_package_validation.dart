@@ -3,6 +3,8 @@ import 'dart:isolate';
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
+import 'package:route/server.dart';
+import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -19,6 +21,7 @@ class IsolateBuildPackageValidation {
     isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
     _initConfig();
     _initListeners();
+    _initServer();
   }
 
   void stop() {
@@ -38,6 +41,30 @@ class IsolateBuildPackageValidation {
     _googleComputeEngineConfig =
       new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
           config["serviceAccountEmail"], rsaPrivateKey);
+  }
+
+  void _initServer() {
+    final healthCheckUrl = new UrlPattern(r'/health');
+
+    void health(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.writeln('All systems a go');
+      req.response.close();
+    }
+
+    // Callback to handle illegal urls.
+    void serveNotFound(HttpRequest req) {
+      req.response.statusCode = HttpStatus.NOT_FOUND;
+      req.response.write('Not found');
+      req.response.close();
+    }
+
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8886).then((server) {
+      var router = new Router(server)
+        // Associate callbacks with URLs.
+        ..serve(healthCheckUrl, method: 'GET').listen(health)
+        ..defaultStream.listen(serveNotFound);
+    });
   }
 
   void _initListeners() {

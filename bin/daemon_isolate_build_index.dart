@@ -169,15 +169,24 @@ class IsolateBuildIndex {
 
   void _initServer() {
     final buildIndexHtmlUrl = new UrlPattern(r'/buildIndexHtml');
+    final healthCheckUrl = new UrlPattern(r'/health');
 
-    void buildIndexHtml(req) {
+    void buildIndexHtml(HttpRequest req) {
       _fetchAndBuild();
       req.response.write('Rebuilding index html');
       req.response.close();
     }
 
+    void health(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.writeln('All systems a go');
+      req.response.writeln('isBuiltQueue: ');
+      isBuiltQueue.forEach((e) => req.response.writeln(e.toString()));
+      req.response.close();
+    }
+
     // Callback to handle illegal urls.
-    void serveNotFound(req) {
+    void serveNotFound(HttpRequest req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
       req.response.write('Not found');
       req.response.close();
@@ -187,6 +196,7 @@ class IsolateBuildIndex {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildIndexHtmlUrl, method: 'GET').listen(buildIndexHtml)
+        ..serve(healthCheckUrl, method: 'GET').listen(health)
         ..defaultStream.listen(serveNotFound);
     });
   }

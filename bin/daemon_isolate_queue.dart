@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:collection';
 
 import 'package:quiver/collection.dart';
 import 'package:logging/logging.dart';
+import 'package:route/server.dart';
+import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
@@ -45,11 +48,40 @@ class IsolateQueueService {
       // Send back a SendPort to communicate over for the spawner
       isolateServiceSendPort.send(isolateServiceReceivePort.sendPort);
       _initListeners();
+      _initServer();
     });
   }
 
   void stop() {
     // TODO: clean up lisenters and close ports.
+  }
+
+  void _initServer() {
+    final healthCheckUrl = new UrlPattern(r'/health');
+
+    void health(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.writeln('All systems a go');
+      req.response.writeln('packageInbox: ');
+      packageInbox.forEach((e) => req.response.writeln(e.toString()));
+      req.response.writeln('packageOutbox: ');
+      packageOutbox.forEach((e) => req.response.writeln(e.toString()));
+      req.response.close();
+    }
+
+    // Callback to handle illegal urls.
+    void serveNotFound(HttpRequest req) {
+      req.response.statusCode = HttpStatus.NOT_FOUND;
+      req.response.write('Not found');
+      req.response.close();
+    }
+
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8885).then((server) {
+      var router = new Router(server)
+        // Associate callbacks with URLs.
+        ..serve(healthCheckUrl, method: 'GET').listen(health)
+        ..defaultStream.listen(serveNotFound);
+    });
   }
 
   void _initListeners() {

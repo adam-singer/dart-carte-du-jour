@@ -155,8 +155,9 @@ class IsolateGceLauncher {
 
   void _initServer() {
     final buildUrl = new UrlPattern(r'/build/(.*)\/(.*)');
+    final healthCheckUrl = new UrlPattern(r'/health');
 
-    void build(req) {
+    void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
       var packageName = args[0];
       var packageVersion = args[1];
@@ -167,8 +168,20 @@ class IsolateGceLauncher {
       req.response.close();
     }
 
+    void health(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.write('All systems a go');
+      req.response.writeln('buildQueue: ');
+      buildQueue.forEach((e) => req.response.writeln(e.toString()));
+      req.response.writeln('buildingQueue: ');
+      buildingQueue.forEach((e) => req.response.writeln(e.toString()));
+      req.response.writeln('completedQueue: ');
+      completedQueue.forEach((e) => req.response.writeln(e.toString()));
+      req.response.close();
+    }
+
     // Callback to handle illegal urls.
-    void serveNotFound(req) {
+    void serveNotFound(HttpRequest req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
       req.response.write('Not found');
       req.response.close();
@@ -178,6 +191,7 @@ class IsolateGceLauncher {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
+        ..serve(healthCheckUrl, method: 'GET').listen(health)
         ..defaultStream.listen(serveNotFound);
     });
   }
