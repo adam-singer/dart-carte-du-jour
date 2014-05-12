@@ -136,3 +136,31 @@ function carte_remote_health_checks() {
   S5=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl -i -s -L -o /dev/null --silent --write-out '%{http_code}' http://127.0.0.1:8885/health)
   _health_report ${S1} ${S2} ${S3} ${S4} ${S5} 
 }
+
+function carte_local_status() {
+  S1=$(curl http://127.0.0.1:8889/health)
+  S2=$(curl http://127.0.0.1:8888/health)
+  S3=$(curl http://127.0.0.1:8887/health)
+  S4=$(curl http://127.0.0.1:8886/health)
+  S5=$(curl http://127.0.0.1:8885/health)
+  
+  echo "${S1}"
+  echo "${S2}"
+  echo "${S3}"
+  echo "${S4}"
+  echo "${S5}" 
+}
+
+function carte_remote_status() {
+  S1=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://127.0.0.1:8889/health)
+  S2=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://127.0.0.1:8888/health)
+  S3=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://127.0.0.1:8887/health)
+  S4=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://127.0.0.1:8886/health)
+  S5=$(gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://127.0.0.1:8885/health)
+
+  echo "${S1}"
+  echo "${S2}"
+  echo "${S3}"
+  echo "${S4}"
+  echo "${S5}" 
+}
