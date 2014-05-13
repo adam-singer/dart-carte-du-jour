@@ -1,5 +1,12 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.7 2014-05-12 (SDK 1.4.0-dev.6.3 r35960)
+
+- More documentation
+- Addtional shell script functions available
+- Health checks for isolates available
+- Fixed bug with inbox queue
+
 ### 0.0.6 2014-05-10 (SDK 1.4.0-dev.6.2 r35890)
 
 - Added explicit setting for file cache on cloud storage
