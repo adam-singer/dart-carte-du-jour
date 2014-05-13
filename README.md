@@ -11,7 +11,27 @@ TODO
 Configuration settings
 --
 
-TODO
+Configuration settings for project and google related services are stored on 
+cloud storage as a plain json file. Upon startup of `daemon-isolate` the
+`config.json` file is copied to the compute engine instance. 
+
+```
+gsutil cat gs://dart-carte-du-jour/configurations/config.json
+{
+  "projectId":"dart-carte-du-jour",
+  "projectNumber":"00000000001",
+  "serviceAccountEmail":"00000000001-xyz@developer.gserviceaccount.com",
+  "rsaPrivateKey":"bin/rsa_private_key.pem",
+  "sdkPath":"/dart-sdk"
+}
+```
+
+The other configuration that is copied from cloud storage is `rsa_private_key.pem` file.
+`rsa_private_key.pem` is the key file for google api services called from dart. 
+
+```
+gsutil ls gs://dart-carte-du-jour/configurations/rsa_private_key.pem
+```
 
 Starting and stopping documentation service
 --
@@ -32,10 +52,26 @@ cd dart-carte-du-jour/scripts/daemon_launch
 ./kill-instance.sh
 ```
 
-Monitoring service
+Monitoring
 --
 
-TODO
+Authorized users can check if the `daemon-isolate` is still alive and all
+isolates have not bailed out by running the following script. 
+
+```shell
+cd dart-carte-du-jour/scripts/daemon_launch
+source daemon-isolate-functions.sh && carte_remote_health_checks
+```
+
+output:
+
+```
+daemon_isolate.dart - everything is ok
+daemon_isolate_gce_launcher.dart - everything is ok
+daemon_isolate_build_index.dart - everything is ok
+daemon_isolate_build_package_validation.dart -everything is ok
+daemon_isolate_queue.dart - everything is ok
+```
 
 Sending commands to daemon-isolate service
 ---
@@ -87,36 +123,24 @@ port | path | function
 Helper shell script functions for authorized users
 
 ```shell
-source dart-carte-du-jour/scripts/daemon_launch/daemon-isolate-functions.sh
+cd dart-carte-du-jour/scripts/daemon_launch
+source daemon-isolate-functions.sh
 ```
 
-TODO: examples of each
+In bash shell type `carte_<tab>` to see the list of functions available. 
 
-Pub documentation generation system
--- 
-
-- `bin/client_builder.dart` takes parameters to
-generate documentation and uploads it to cloud storage. `client_builder.dart`
-can be run locally from DartEditor for functional testing. 
-
-Example:
-
-```shell
-dart bin/client_builder.dart --verbose --sdk
-/Applications/dart/dart-sdk --package unittest --version 0.10.1+1
 ```
+–(~/dart/dart-carte-du-jour/scripts/daemon_launch)–($ carte_
+carte_build_first_page        carte_rebuild_package
+carte_build_index_html        carte_rebuildall_packages
+carte_build_package           carte_remote_health_checks
+carte_build_package_version   carte_remote_status
+carte_buildall_packages       carte_restart_daemon_isolate
+carte_catconfig               carte_ssh_daemon_isolate
+carte_catlog                  carte_start_daemon_isolate
+carte_health_checks           carte_stop_daemon_isolate
+carte_list                    carte_tail_daemon_isolate
+carte_local_status            carte_tail_instance
+``` 
 
-Mac OSX has an issue where `gsutil` does not run in threaded mode cause of
-`ulimit` settings. One way around that is for the shell process running
-the script run the following commands `ulimit -S 1024 && ulimit -S -n
-1024`. The uploading portion to cloud storage should not take more then
-1-3 minutes. If the upload takes 5 or more then `gsutil` is not running in
-multi threaded mode. 
-
-- `bin/daemon_isolate.dart` is the main service that polls pub for packages to
-build. 
-
-- `scripts/make_image/build_image.sh` is the script used for creating 
-the compute engine instance that has latest dart-sdk
-
-- [scope document](https://docs.google.com/document/d/1DYeca9T-FJTePXLksqNoSrOwp8eFlnbqbLs_qGfC99o/edit)
+See the `daemon-isolate-functions.sh` script for paramters of the functions. 
