@@ -77,17 +77,22 @@ class IsolateBuildIndex {
   Future _fetchAndBuild() {
     return _packageBuildInfoDataStore.fetchBuilt()
     .then((List<PackageBuildInfo> packageBuildInfos) {
-      Map renderData = {'docsUrls': []};
+      Map renderData = {'packages': []};
+      Map packages = {};
 
-      renderData['docsUrls'].addAll(packageBuildInfos.map((packageBuildInfo) {
-        return {
+      packageBuildInfos.forEach((packageBuildInfo) {
+        final package = packages.putIfAbsent(packageBuildInfo.name, () => {
           "name": packageBuildInfo.name,
+          "versions": [],
+        });
+        package['versions'].insert(0, {
           "version": packageBuildInfo.version,
           "url": 'http://www.dartdocs.org/documentation/'
             '${packageBuildInfo.name}/${packageBuildInfo.version}/index.html#'
             '${packageBuildInfo.name}'
-        };
-      }).toList());
+        });
+      });
+      renderData['packages'].addAll(packages.values);
 
       File dartDocsIndex = new File("dartdocs_index.html");
       dartDocsIndex.writeAsStringSync(_buildDartDocsIndexHtml(renderData));
