@@ -3,8 +3,18 @@
 <title>www.dartdocs.org</title>
 </head>
 <body>
-{{#docsUrls}}
-  <a href="{{url}}">{{name}} {{version}}</a><br/>
-{{/docsUrls}}
+  <table>
+    <caption>Packages</caption>
+    <tr>
+      <th>Name</th>
+      <th>Versions</th>
+    </tr>
+{{#packages}}
+    <tr>
+      <td>{{name}}</td>
+      <td>{{#versions}}<a href="{{url}}">{{version}}</a> {{/versions}}</td>
+    </tr>
+{{/packages}}
+  </table>
 </body>
 </html>
