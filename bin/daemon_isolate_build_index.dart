@@ -94,9 +94,9 @@ class IsolateBuildIndex {
         packages[name]["versions"] = packages[name]["versions"]
         .reversed
         .map((Version version) => {
-          "version": version,
+          "version": version.toString(),
           "url": 'http://www.dartdocs.org/documentation/'
-          '${name}/${version}/index.html#${name}'
+          '${name}/${version.toString()}/index.html#${name}'
         }).toList();
       });
 
@@ -106,6 +106,14 @@ class IsolateBuildIndex {
       dartDocsIndex.writeAsStringSync(_buildDartDocsIndexHtml(renderData));
       _copyDartDocsIndexHtml("dartdocs_index.html");
       dartDocsIndex.deleteSync();
+
+      // Generate index.json
+      String indexJson = JSON.encode(renderData);
+      File dartDocsIndexJson = new File("dartdocs_index.json");
+      dartDocsIndexJson.writeAsStringSync(indexJson);
+      _copyDartDocsIndexJson("dartdocs_index.json");
+      dartDocsIndexJson.deleteSync();
+
       return _packageBuildInfoDataStore.fetchBuilt(false);
     }).then((List<PackageBuildInfo> packageBuildInfos) {
       // TODO: DRY
@@ -142,6 +150,21 @@ class IsolateBuildIndex {
     var template = mustache.parse(indexTemplate);
     var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
     return indexHtml;
+  }
+
+
+  // TODO: DRY
+  int _copyDartDocsIndexJson(String dartDocsIndexPath) {
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
+                         dartDocsIndexPath, "gs://www.dartdocs.org/index.json"];
+    ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
+    stdout.write(processResult.stdout);
+    stderr.write(processResult.stderr);
+    return processResult.exitCode;
   }
 
   // TODO: DRY
