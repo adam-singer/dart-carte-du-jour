@@ -85,13 +85,21 @@ class IsolateBuildIndex {
           "name": packageBuildInfo.name,
           "versions": [],
         });
-        package['versions'].insert(0, {
-          "version": packageBuildInfo.version,
-          "url": 'http://www.dartdocs.org/documentation/'
-            '${packageBuildInfo.name}/${packageBuildInfo.version}/index.html#'
-            '${packageBuildInfo.name}'
-        });
+        package['versions'].add(packageBuildInfo.version);
       });
+
+      // Sort versions
+      packages.keys.forEach((String name) {
+        packages[name]["versions"].sort();
+        packages[name]["versions"] = packages[name]["versions"]
+        .reversed
+        .map((Version version) => {
+          "version": version,
+          "url": 'http://www.dartdocs.org/documentation/'
+          '${name}/${version}/index.html#${name}'
+        }).toList();
+      });
+
       renderData['packages'].addAll(packages.values);
 
       File dartDocsIndex = new File("dartdocs_index.html");
