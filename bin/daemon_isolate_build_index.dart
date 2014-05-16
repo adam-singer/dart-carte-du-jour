@@ -74,6 +74,7 @@ class IsolateBuildIndex {
     }
   }
 
+  // TODO: consider building history here.
   Future _fetchAndBuild() {
     return _packageBuildInfoDataStore.fetchBuilt()
     .then((List<PackageBuildInfo> packageBuildInfos) {
@@ -111,7 +112,7 @@ class IsolateBuildIndex {
       String indexJson = JSON.encode(renderData);
       File dartDocsIndexJson = new File("dartdocs_index.json");
       dartDocsIndexJson.writeAsStringSync(indexJson);
-      _copyDartDocsIndexJson("dartdocs_index.json");
+      _copyDartDocsRoot("dartdocs_index.json", "index.json");
       dartDocsIndexJson.deleteSync();
 
       return _packageBuildInfoDataStore.fetchBuilt(false);
@@ -139,6 +140,13 @@ class IsolateBuildIndex {
       dartDocsIndex.writeAsStringSync(_buildDartDocsFailedIndexHtml(renderData));
       _copyDartDocsFailedIndexHtml("dartdocs_failed_index.html");
       dartDocsIndex.deleteSync();
+
+      // Generate failed.json
+      String failedJson = JSON.encode(renderData);
+      File dartDocsFailedJson = new File("dartdocs_failed.json");
+      dartDocsFailedJson.writeAsStringSync(failedJson);
+      _copyDartDocsRoot("dartdocs_failed.json", "failed.json");
+      dartDocsFailedJson.deleteSync();
     }).catchError((error) =>
         Logger.root.severe("fetch and build failed on building index pages: $error"));
   }
@@ -154,13 +162,13 @@ class IsolateBuildIndex {
 
 
   // TODO: DRY
-  int _copyDartDocsIndexJson(String dartDocsIndexPath) {
+  int _copyDartDocsRoot(String filePath, String destinationPath) {
     List<String> args = ['-m', 'cp',
                          '-e',
                          '-c',
                          '-z', COMPRESS_FILE_TYPES,
                          '-a', 'public-read',
-                         dartDocsIndexPath, "gs://www.dartdocs.org/index.json"];
+                         filePath, "gs://www.dartdocs.org/${filePath}"];
     ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
     stdout.write(processResult.stdout);
     stderr.write(processResult.stderr);
