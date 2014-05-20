@@ -27,7 +27,7 @@ function carte_restart_daemon_isolate() {
 
 function carte_start_daemon_isolate() {
 	# TODO: request y/n on startup script location
-  gcutil --service_version="v1" --project=${GCE_PROJECT} addinstance "daemon-isolate" --zone="us-central1-a" --machine_type="g1-small" --network="default" --external_ip_address="ephemeral" --service_account_scopes="https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control" --image="https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1" --persistent_boot_disk="true" --auto_delete_boot_disk="true" --metadata_from_file=startup-script:$DAEMON_ISOLATE_STARTUP_SCRIPT
+  gcutil --service_version="v1" --project=${GCE_PROJECT} addinstance "daemon-isolate" --zone="us-central1-a" --machine_type="g1-small" --network="default" --external_ip_address="ephemeral" --service_account_scopes="https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control" --image="https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-daemon-isolate-v1" --persistent_boot_disk="true" --auto_delete_boot_disk="true" --metadata_from_file=startup-script:$DAEMON_ISOLATE_STARTUP_SCRIPT
 }
 
 function carte_tail_daemon_isolate() {
