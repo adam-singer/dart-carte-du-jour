@@ -51,6 +51,12 @@ function setup_proxy () {
   sudo echo "export ftp_proxy=\"http://daemon-isolate:3128\"" >> /etc/profile.d/proxy.sh
   sudo echo "export no_proxy=169.254.169.254,metadata,metadata.google.internal" >> /etc/profile.d/proxy.sh
 
+  # Configure boto with proxy settings. gcloud tools depend on boto configuration.
+  sudo echo "[Boto]" >> /etc/boto.cfg
+  sudo echo "proxy = daemon-isolate" >> /etc/boto.cfg
+  sudo echo "proxy_port = 3128" >> /etc/boto.cfg
+
+
   # Update sudoers to pass these env variables through
   sudo cp /etc/sudoers /tmp/sudoers.new
   sudo chmod 640 /tmp/sudoers.new
