@@ -10,7 +10,6 @@
 - Created new daemon-isolate image `dart-daemon-isolate-v1`
 - Add proxy configuration to node instances
 
-
 ### 0.0.7 2014-05-12 (SDK 1.4.0-dev.6.3 r35960)
 
 - More documentation
