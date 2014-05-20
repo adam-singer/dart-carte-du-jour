@@ -44,8 +44,25 @@ function fetch_latest_dart_sdk () {
   unzip -d / /tmp/dartsdk-linux-x64-release.zip
   chmod -R go+rx /dart-sdk
 }
+function setup_proxy () {
+  #daemon-isolate is the instance name of the proxy gateway
+  sudo echo "export http_proxy=\"http://daemon-isolate:3128\"" >> /etc/profile.d/proxy.sh
+  sudo echo "export https_proxy=\"http://daemon-isolate:3128\"" >> /etc/profile.d/proxy.sh
+  sudo echo "export ftp_proxy=\"http://daemon-isolate:3128\"" >> /etc/profile.d/proxy.sh
+  sudo echo "export no_proxy=169.254.169.254,metadata,metadata.google.internal" >> /etc/profile.d/proxy.sh
+
+  # Update sudoers to pass these env variables through
+  sudo cp /etc/sudoers /tmp/sudoers.new
+  sudo chmod 640 /tmp/sudoers.new
+  sudo echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy"\" >>/tmp/sudoers.new
+  sudo chmod 440 /tmp/sudoers.new
+  sudo visudo -c -f /tmp/sudoers.new && mv -f /tmp/sudoers.new /etc/sudoers
+
+  source /etc/profile.d/proxy.sh
+}
 sed -i '1i Port 443' /etc/ssh/sshd_config 
 /etc/init.d/ssh restart
+setup_proxy
 fetch_latest_dart_sdk
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/{{user_name}}/dart-carte-du-jour.git'
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'

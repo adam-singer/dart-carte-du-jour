@@ -29,6 +29,28 @@ gcutil --service_version="v1" --project="dart-carte-du-jour" addinstance bootstr
 # Add dart bin to global path
 # sudo sh -c 'echo "export PATH=\$PATH:/dart-sdk/bin" >> /etc/profile'
 
+# install squid3 for proxy
+# sudo -s
+# apt-get -y install squid3
+
+# sed -i 's:#\(http_access allow localnet\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(http_access deny to_localhost\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(acl localnet src 10.0.0.0/8.*\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(acl localnet src 172.16.0.0/12.*\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(acl localnet src 192.168.0.0/16.*\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(acl localnet src fc00\:\:/7.*\):\1:' /etc/squid3/squid.conf
+# sed -i 's:#\(acl localnet src fe80\:\:/10.*\):\1:' /etc/squid3/squid.conf
+
+# cat <<EOF >>/etc/squid3/squid.conf
+# acl to_metadata dst 169.254.169.254
+# http_access deny to_metadata
+# EOF
+
+# service squid3 restart
+
+# exit sudo -s
+# exit
+
 # TODO(adam): at this point if we have a stable repo we could git clone it so the image is baked. 
 
 # Create the google compute engine image:

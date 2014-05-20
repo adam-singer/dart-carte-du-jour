@@ -242,7 +242,7 @@ int deployMultiDocumentationBuilder(ClientBuilderConfig clientBuilderConfig) {
   String zone = "us-central1-a";
   String machineType = "n1-standard-1"; // "g1-small";
   String network = "default"; // TODO(adam): we should use the internal network
-  String externalIpAddress = "ephemeral";
+  String externalIpAddress = "none";
   String serviceAccountScopes = "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
   String image = "https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1"; // TODO(adam): parameterize this
   String persistentBootDisk = "true";
