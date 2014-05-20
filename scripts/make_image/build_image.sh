@@ -29,6 +29,7 @@ gcutil --service_version="v1" --project="dart-carte-du-jour" addinstance bootstr
 # Add dart bin to global path
 # sudo sh -c 'echo "export PATH=\$PATH:/dart-sdk/bin" >> /etc/profile'
 
+# NOTE: only install squid for `daemon-isolate` images. 
 # install squid3 for proxy
 # sudo -s
 # apt-get -y install squid3
