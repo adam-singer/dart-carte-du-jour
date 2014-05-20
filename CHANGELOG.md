@@ -1,5 +1,16 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.8 2014-05-19 (SDK 1.4.0-dev.6.7 r36210)
+
+- Displaying one line per package on [www.dartdocs.org](http://www.dartdocs.org)
+- Removed old build index code
+- Added support for `index.json` file uploaded to [index.json](http://www.dartdocs.org/index.json)
+- Pin version of datastore client api
+- Add metaview port for mobile
+- Created new daemon-isolate image `dart-daemon-isolate-v1`
+- Add proxy configuration to node instances
+
+
 ### 0.0.7 2014-05-12 (SDK 1.4.0-dev.6.3 r35960)
 
 - More documentation
