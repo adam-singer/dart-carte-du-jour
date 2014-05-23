@@ -24,7 +24,14 @@
   color: #777777;
   text-decoration: none;
 }
-dl { margin-top: 75px; }
+.failed { 
+ margin-top: 76px;
+ color: #777777;
+ text-decoration: none;
+}
+.packagetable {
+}
+dl { margin-top: 5px; }
 dt {
   font-weight: bold;
   padding-top: 1em;
@@ -45,11 +52,16 @@ dd a:hover, dd a:focus {
   <div class="navbar">
     <a href="/" class="navbar-brand header-logo">Packages API Reference</a>
   </div>
-  <dl>
-{{#packages}}
-    <dt>{{name}}</dt>
-    <dd>{{#versions}}<a href="{{url}}">{{version}}</a> {{/versions}}</dd>
-{{/packages}}
-  </dl>
+  <div class="failed">
+    <span>Package not listed? <a href="{{failedurl}}">check here</a>.</span>
+  </div>
+  <div class="packagetable">
+    <dl>
+  {{#packages}}
+      <dt>{{name}}</dt>
+      <dd>{{#versions}}<a href="{{url}}">{{version}}</a> {{/versions}}</dd>
+  {{/packages}}
+    </dl>
+  </div>
 </body>
 </html>

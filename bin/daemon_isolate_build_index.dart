@@ -12,6 +12,7 @@ import 'package:mustache/mustache.dart' as mustache;
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 const int TIMEOUT_CALLBACK_SECONDS = 60;
+final String FAILED_URL = "http://www.dartdocs.org/failed/index.html";
 
 class IsolateBuildIndex {
   Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
@@ -102,6 +103,7 @@ class IsolateBuildIndex {
       });
 
       renderData['packages'].addAll(packages.values);
+      renderData['failedurl'] = FAILED_URL;
 
       File dartDocsIndex = new File("dartdocs_index.html");
       dartDocsIndex.writeAsStringSync(_buildDartDocsIndexHtml(renderData));
@@ -142,11 +144,11 @@ class IsolateBuildIndex {
       dartDocsIndex.deleteSync();
 
       // Generate failed.json
-      String failedJson = JSON.encode(renderData);
-      File dartDocsFailedJson = new File("dartdocs_failed.json");
-      dartDocsFailedJson.writeAsStringSync(failedJson);
-      _copyDartDocsRoot("dartdocs_failed.json", "failed.json");
-      dartDocsFailedJson.deleteSync();
+//      String failedJson = JSON.encode(renderData);
+//      File dartDocsFailedJson = new File("dartdocs_failed.json");
+//      dartDocsFailedJson.writeAsStringSync(failedJson);
+//      _copyDartDocsRoot("dartdocs_failed.json", "failed.json");
+//      dartDocsFailedJson.deleteSync();
     }).catchError((error) =>
         Logger.root.severe("fetch and build failed on building index pages: $error"));
   }
