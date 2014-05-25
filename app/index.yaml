@@ -35,8 +35,3 @@ indexes:
     - name: lastBuild
       direction: desc
 
-- kind: PackageBuildInfo
-  properties:
-    - name: isBuilt
-      direction: asc
-
