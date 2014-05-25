@@ -35,9 +35,7 @@ class IsolateBuildIndex {
     Timer.run(callback);
   }
 
-  void stop() {
-
-  }
+  void stop() {}
 
   void _initDatastore() {
     // TODO: remove hard coded config
@@ -143,19 +141,57 @@ class IsolateBuildIndex {
       _copyDartDocsFailedIndexHtml("dartdocs_failed_index.html");
       dartDocsIndex.deleteSync();
 
+      return;
       // Generate failed.json
 //      String failedJson = JSON.encode(renderData);
 //      File dartDocsFailedJson = new File("dartdocs_failed.json");
 //      dartDocsFailedJson.writeAsStringSync(failedJson);
 //      _copyDartDocsRoot("dartdocs_failed.json", "failed.json");
 //      dartDocsFailedJson.deleteSync();
-    }).catchError((error) =>
-        Logger.root.severe("fetch and build failed on building index pages: $error"));
+    }).then((_) {
+      return _packageBuildInfoDataStore.fetchHistory();
+    }).then((List<PackageBuildInfo> packageBuildInfos) {
+      Map renderData = {'packages': []};
+      renderData['packages'].addAll(packageBuildInfos.map((PackageBuildInfo packageBuildInfo) {
+
+        Uri httpBuildLog;
+
+        if (packageBuildInfo.buildLog != null && packageBuildInfo.buildLog.isNotEmpty) {
+          Uri gsBuildLog = Uri.parse(packageBuildInfo.buildLog);
+          httpBuildLog = new Uri.http(gsBuildLog.host, gsBuildLog.path);
+        } else {
+          httpBuildLog = new Uri.http("www.dartdocs.org", "/failed/notfound.html");
+        }
+
+        return {
+          "name": packageBuildInfo.name,
+          "version": packageBuildInfo.version.toString(),
+          "timestamp": packageBuildInfo.datetime,
+          "isBuilt": packageBuildInfo.isBuilt.toString(),
+          "buildLogUrl": httpBuildLog.toString()
+        };
+      }).toList());
+      File historyIndexFile = new File("dartdocs_history_index.html");
+      historyIndexFile.writeAsStringSync(_buildDartDocsHistoryIndexHtml(renderData));
+      _copyDartDocsHistoryIndexHtml("dartdocs_history_index.html");
+      historyIndexFile.deleteSync();
+    }).catchError((error) {
+        Logger.root.severe("fetch and build failed on building index pages: $error");
+    });
   }
 
   // TODO: DRY
   String _buildDartDocsFailedIndexHtml(Map renderData, {String dartDocsTemplate:
                                   "bin/dartdocs_failed_index.html.mustache"}) {
+    String indexTemplate = new File(dartDocsTemplate).readAsStringSync();
+    var template = mustache.parse(indexTemplate);
+    var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
+    return indexHtml;
+  }
+
+  // TODO: DRY
+  String _buildDartDocsHistoryIndexHtml(Map renderData, {String dartDocsTemplate:
+                                  "bin/dartdocs_history_index.html.mustache"}) {
     String indexTemplate = new File(dartDocsTemplate).readAsStringSync();
     var template = mustache.parse(indexTemplate);
     var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
@@ -185,6 +221,20 @@ class IsolateBuildIndex {
                          '-z', COMPRESS_FILE_TYPES,
                          '-a', 'public-read',
                          dartDocsIndexPath, "gs://www.dartdocs.org/failed/index.html"];
+    ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
+    stdout.write(processResult.stdout);
+    stderr.write(processResult.stderr);
+    return processResult.exitCode;
+  }
+
+  // TODO: DRY
+  int _copyDartDocsHistoryIndexHtml(String dartDocsIndexPath) {
+    List<String> args = ['-m', 'cp',
+                         '-e',
+                         '-c',
+                         '-z', COMPRESS_FILE_TYPES,
+                         '-a', 'public-read',
+                         dartDocsIndexPath, "gs://www.dartdocs.org/history/index.html"];
     ProcessResult processResult = Process.runSync('gsutil', args, runInShell: true);
     stdout.write(processResult.stdout);
     stderr.write(processResult.stderr);

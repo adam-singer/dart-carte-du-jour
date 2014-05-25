@@ -208,4 +208,40 @@ class PackageBuildInfoDataStore {
       return new List<PackageBuildInfo>();
     });
   }
+
+  Future<List<PackageBuildInfo>> fetchHistory([int historyCount = 100]) {
+    client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
+    runQueryRequest.gqlQuery = new client.GqlQuery.fromJson({});
+    runQueryRequest.gqlQuery.queryString ='''
+SELECT * FROM PackageBuildInfo 
+  ORDER BY lastBuild DESC
+  LIMIT @q
+''';
+
+    runQueryRequest.gqlQuery.nameArgs = new List<client.GqlQueryArg>();
+    client.GqlQueryArg arg = new client.GqlQueryArg.fromJson({});
+    arg = new client.GqlQueryArg.fromJson({});
+    arg.name = "q";
+    arg.value =  new client.Value.fromJson({});
+    arg.value.integerValue = historyCount;
+    runQueryRequest.gqlQuery.nameArgs.add(arg);
+
+    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+        .then((client.RunQueryResponse runQueryResponse) {
+      List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
+      runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
+        String name = entityResult.entity.properties["name"].stringValue;
+        Version version = new Version.parse(entityResult.entity.properties["version"].stringValue);
+        bool isBuilt = entityResult.entity.properties["isBuilt"].booleanValue;
+        String datetime = entityResult.entity.properties["lastBuild"].dateTimeValue;
+        String buildLog = entityResult.entity.properties["lastBuildLog"].stringValue;
+        packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
+      });
+
+      return packageBuildInfos;
+    }).catchError((error) {
+      Logger.root.severe("Not able to fetchBuilt: $error");
+      return new List<PackageBuildInfo>();
+    });
+  }
 }

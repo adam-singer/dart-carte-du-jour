@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>Build History</title>
+  </head>
+  <body>
+    <div class="history">
+      <ul>
+        {{#packages}}
+          <li>
+            <span>{{name}}-{{version}} {{timestamp}} isBuilt:{{isBuilt}} <a href="{{buildLogUrl}}">build log</a></span>
+          </li>
+        {{/packages}}
+      </ul>
+    </div>
+  </body>
+</html>
