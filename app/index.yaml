@@ -15,7 +15,6 @@ indexes:
     - name: lastBuild
       direction: asc
 
-
 - kind: PackageBuildInfo
   properties:
     - name: name
@@ -35,4 +34,9 @@ indexes:
     - name: isBuilt
     - name: lastBuild
       direction: desc
+
+- kind: PackageBuildInfo
+  properties:
+    - name: isBuilt
+      direction: asc
 
