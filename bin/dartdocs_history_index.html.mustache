@@ -1,16 +1,55 @@
 <html>
   <head>
     <title>Build History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
   </head>
   <body>
-    <div class="history">
-      <ul>
-        {{#packages}}
-          <li>
-            <span>{{name}}-{{version}} {{timestamp}} isBuilt:{{isBuilt}} <a href="{{buildLogUrl}}">build log</a></span>
-          </li>
-        {{/packages}}
-      </ul>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a href="/">Home</a></li>
+          <li class="active"><a href="/history/index.html">Build history</a></li>
+          <li><a href="/failed/index.html">Build failures</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class='container'>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Package</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Log</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#packages}}
+            <tr class='{{^isBuilt}}danger{{/isBuilt}}'>
+              <td>
+                {{#isBuilt}}
+                  <a href="/documentation/{{name}}/{{version}}/index.html#{{name}}">{{name}}-{{version}}</a>
+                {{/isBuilt}}
+                {{^isBuilt}}
+                  {{name}}-{{version}}
+                {{/isBuilt}}
+              </td>
+              <td>{{timestamp}}</td>
+              <td>
+                {{#isBuilt}}
+                  Success
+                {{/isBuilt}}
+                {{^isBuilt}}
+                  <strong>FAILURE</strong>
+                {{/isBuilt}}
+              </td>
+              <td><a href="{{buildLogUrl}}">build log</a></td>
+            </tr>
+          {{/packages}}
+        </tbody>
+      </table>
     </div>
   </body>
 </html>
