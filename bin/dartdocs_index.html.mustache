@@ -1,67 +1,28 @@
 <html>
-<head>
-<title>www.dartdocs.org</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-.navbar {
-  background: #fff;
-  height: 65px;
-  line-height: 65px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  -webkit-box-shadow: 0px 2px 2px rgba(50, 50, 50, 0.15);
-  -moz-box-shadow: 0px 2px 2px rgba(50, 50, 50, 0.15);
-  box-shadow: 0px 2px 2px rgba(50, 50, 50, 0.15);
-}
-.navbar a {
-  background-image: url(https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/static/dart-logo.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  background-position: 10px 18px;
-  padding: 8px 0 0 140px;
-  color: #777777;
-  text-decoration: none;
-}
-.failed { 
- margin-top: 76px;
- color: #777777;
- text-decoration: none;
-}
-.packagetable {
-}
-dl { margin-top: 5px; }
-dt {
-  font-weight: bold;
-  padding-top: 1em;
-}
-dt:first-child { padding-top: 0; }
-dd { word-spacing: 0.5em; }
-dd a {
-  color: #428bca;
-  text-decoration: none;
-}
-dd a:hover, dd a:focus {
-  color: #2a6496;
-  text-decoration: underline;
-}
-</style>
-</head>
-<body>
-  <div class="navbar">
-    <a href="/" class="navbar-brand header-logo">Packages API Reference</a>
-  </div>
-  <div class="failed">
-    <span>Package not listed? <a href="{{failedurl}}">check here</a>.</span>
-  </div>
-  <div class="packagetable">
-    <dl>
-  {{#packages}}
-      <dt>{{name}}</dt>
-      <dd>{{#versions}}<a href="{{url}}">{{version}}</a> {{/versions}}</dd>
-  {{/packages}}
-    </dl>
-  </div>
-</body>
+  <head>
+    <title>www.dartdocs.org</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/">Home</a></li>
+          <li><a href="/history/index.html">Build history</a></li>
+          <li><a href="/failed/index.html">Build failures</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <p class="bg-warning" style='padding: 15px;'>Package not listed? Check the <a href="{{failedurl}}">build failures</a>.</p>
+      <dl>
+    {{#packages}}
+        <dt>{{name}}</dt>
+        <dd>{{#versions}}<a href="{{url}}">{{version}}</a> {{/versions}}</dd>
+    {{/packages}}
+      </dl>
+    </div>
+  </body>
 </html>
