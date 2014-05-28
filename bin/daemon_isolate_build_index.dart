@@ -167,7 +167,7 @@ class IsolateBuildIndex {
           "name": packageBuildInfo.name,
           "version": packageBuildInfo.version.toString(),
           "timestamp": packageBuildInfo.datetime,
-          "isBuilt": packageBuildInfo.isBuilt.toString(),
+          "isBuilt": packageBuildInfo.isBuilt,
           "buildLogUrl": httpBuildLog.toString()
         };
       }).toList());
