@@ -149,7 +149,7 @@ class IsolateBuildIndex {
 //      _copyDartDocsRoot("dartdocs_failed.json", "failed.json");
 //      dartDocsFailedJson.deleteSync();
     }).then((_) {
-      return _packageBuildInfoDataStore.fetchHistory();
+      return _packageBuildInfoDataStore.fetchHistory(200);
     }).then((List<PackageBuildInfo> packageBuildInfos) {
       Map renderData = {'packages': []};
       renderData['packages'].addAll(packageBuildInfos.map((PackageBuildInfo packageBuildInfo) {
