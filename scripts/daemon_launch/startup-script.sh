@@ -53,8 +53,9 @@ function fetch_latest_dart_sdk () {
 	rm -rf /dart-sdk
 
 	# Download the latest dart sdk
-	wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
-
+	# wget http://storage.googleapis.com/dart-archive/channels/dev/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+  wget http://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip 
+  
 	# Unpack the dart sdk
 	unzip -d / /tmp/dartsdk-linux-x64-release.zip
 
