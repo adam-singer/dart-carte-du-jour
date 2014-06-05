@@ -176,7 +176,6 @@ class Package {
     List<String> args = ['--compile',
                          '--no-include-sdk',
                          '--no-include-dependent-packages',
-                         '--include-private',
                          '--out', outputFolder,
                          '--sdk', dartSdkPath,
                          '--package-root', packagesFolder];
