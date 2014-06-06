@@ -29,12 +29,6 @@ part 'src/package_build_info_data_store.dart';
 part 'src/client_builder_config.dart';
 part 'src/google_compute_engine_config.dart';
 
-String versionHash(Version version) {
-  SHA1 versionHash = new SHA1()
-  ..add(version.toString().codeUnits);
-  return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
-}
-
 String buildLogStorePath() {
   return join(BUILD_LOGS_ROOT, "${Platform.localHostname}-startupscript.log");
 }
