@@ -198,24 +198,6 @@ String versionHash(Version version) {
   return versionHash.close().map((e) => e.toRadixString(16)).take(5).toList().join();
 }
 
-@deprecated
-String buildGceName(String packageName, Version version) {
-
-  RegExp invalidChars = new RegExp("[^-a-z0-9]");
-  RegExp validString = new RegExp("[a-z]([-a-z0-9]{0,61}[a-z0-9])?");
-  String prefix = "b-";
-  String postfix = "-${versionHash(version)}";
-
-  packageName = packageName.replaceAll(invalidChars, "");
-  int packageNameMaxLength = 32 - (prefix.length + postfix.length);
-  if (packageName.length > packageNameMaxLength) {
-    packageName = packageName.substring(0, packageNameMaxLength);
-  }
-
-  String gce_name = prefix+packageName+postfix;
-  return gce_name;
-}
-
 String buildLogStorePath() {
   return join(BUILD_LOGS_ROOT, "${Platform.localHostname}-startupscript.log");
 }
