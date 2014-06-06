@@ -34,14 +34,16 @@ String buildLogStorePath() {
 
 // Build a startup script
 // TODO(adam): make username and application entry parameters
-String buildMultiStartupScript(String startupScriptTemplatePath, String clientConfigFile) {
-  String startupScriptTemplate =
-     new File(startupScriptTemplatePath).readAsStringSync();
+String buildMultiStartupScript(String startupScriptTemplatePath, String
+    clientConfigFile) {
+  String startupScriptTemplate = new File(startupScriptTemplatePath
+      ).readAsStringSync();
   var template = mustache.parse(startupScriptTemplate);
   var startupScript = template.renderString({
-   'user_name': 'financeCoding',
-   'dart_application': r'bin/client_builder.dart --verbose --clientConfig bin/'+clientConfigFile,
-   'client_config_file': clientConfigFile
+    'user_name': 'financeCoding',
+    'dart_application': r'bin/client_builder.dart --verbose --clientConfig bin/'
+        + clientConfigFile,
+    'client_config_file': clientConfigFile
   }, htmlEscapeValues: false);
   return startupScript;
 }
@@ -55,32 +57,31 @@ int deployMultiDocumentationBuilder(ClientBuilderConfig clientBuilderConfig) {
   String machineType = "n1-standard-1"; // "g1-small";
   String network = "default"; // TODO(adam): we should use the internal network
   String externalIpAddress = "none";
-  String serviceAccountScopes = "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
-  String image = "https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1"; // TODO(adam): parameterize this
+  String serviceAccountScopes =
+      "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
+  String image =
+      "https://www.googleapis.com/compute/v1/projects/dart-carte-du-jour/global/images/dart-engine-v1";
+      // TODO(adam): parameterize this
   String persistentBootDisk = "true";
   String autoDeleteBootDisk = "true";
-  String startupScript = buildMultiStartupScript("packages/dart_carte_du_jour/multi_package_startup_script.mustache", clientBuilderConfig.storeFileName()); // "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
+  String startupScript = buildMultiStartupScript(
+      "packages/dart_carte_du_jour/multi_package_startup_script.mustache",
+      clientBuilderConfig.storeFileName());
+      // "startup-script.sh"; // TODO(adam): dont actually write a startup-script.sh to file system, pass it as a string if possible
   String metadataStartupScript = "startup-script:$startupScript";
 
-  String workingDirectory = "/tmp/"; // TODO(adam): this might need to be the location where the startup-script.sh was generated..
+  String workingDirectory = "/tmp/";
+      // TODO(adam): this might need to be the location where the startup-script.sh was generated..
   String metadataAutoShutdown = "autoshutdown:1";
 
-  List<String> args = ['--format',
-                       'json',
-                       '--service_version=$service_version',
-                       '--project=$project',
-                       'addinstance',
-                       instanceName,
-                       '--zone=$zone',
-                       '--machine_type=$machineType',
-                       '--network=$network',
-                       '--external_ip_address=$externalIpAddress',
-                       '--service_account_scopes=$serviceAccountScopes',
-                       '--image=$image',
-                       '--persistent_boot_disk=$persistentBootDisk',
-                       '--auto_delete_boot_disk=$autoDeleteBootDisk',
-                       '--metadata=$metadataAutoShutdown',
-                       '--metadata=$metadataStartupScript'];
+  List<String> args = ['--format', 'json', '--service_version=$service_version',
+      '--project=$project', 'addinstance', instanceName, '--zone=$zone',
+      '--machine_type=$machineType', '--network=$network',
+      '--external_ip_address=$externalIpAddress',
+      '--service_account_scopes=$serviceAccountScopes', '--image=$image',
+      '--persistent_boot_disk=$persistentBootDisk',
+      '--auto_delete_boot_disk=$autoDeleteBootDisk',
+      '--metadata=$metadataAutoShutdown', '--metadata=$metadataStartupScript'];
 
   Logger.root.finest("gcutil ${args}");
 
@@ -100,17 +101,13 @@ bool multiDocumentationInstanceAlive(ClientBuilderConfig clientBuilderConfig) {
 
   // TODO: Use the dart client apis
   // https://developers.google.com/compute/docs/instances#checkmachinestatus
-  List<String> args = ['--format',
-                       'json',
-                       '--service_version=$service_version',
-                       '--project=$project',
-                       'getinstance',
-                       instanceName,
-                       '--zone=$zone'];
+  List<String> args = ['--format', 'json', '--service_version=$service_version',
+      '--project=$project', 'getinstance', instanceName, '--zone=$zone'];
 
   Logger.root.finest("gcutil ${args}");
 
-  ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true);
+  ProcessResult processResult = Process.runSync('gcutil', args, runInShell: true
+      );
   // TODO: read stdout into json object and check status
   Logger.root.finest(processResult.stdout);
   // To much stderr printed out
