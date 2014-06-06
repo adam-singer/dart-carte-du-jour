@@ -35,3 +35,4 @@ bin/test_datastore_gql.dart
 bin/test_genClientConfig.dart
 bin/test_local_build_interface.dart
 bin/testClientConfig.json
+quick_exec.sh
