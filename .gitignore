@@ -27,3 +27,11 @@ test/dummyLibraries/packages
 config.json
 packages
 clientConfig.json
+Configuing-logstash.txt
+bin/clientConfig.json.bak
+bin/test_config_file.dart
+bin/test_datastore.dart
+bin/test_datastore_gql.dart
+bin/test_genClientConfig.dart
+bin/test_local_build_interface.dart
+bin/testClientConfig.json
