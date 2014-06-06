@@ -1,5 +1,25 @@
 part of carte_de_jour;
 
+/**
+ * Execute `pub install` at the `workingDirectory`
+ */
+int pubInstall(String workingDirectory) {
+  List<String> args = ['install'];
+  ProcessResult processResult = Process.runSync('pub', args, workingDirectory:
+      workingDirectory, runInShell: true);
+  Logger.root.finest(processResult.stdout);
+  Logger.root.severe(processResult.stderr);
+  return processResult.exitCode;
+}
+
+String _buildCloudStorageDocumentationPath(Package package, Version version) {
+  return join(PACKAGE_STORAGE_ROOT, package.name, version.toString());
+}
+
+String _buildHttpDocumentationPath(Package package, Version version) {
+  return join(DOCUMENTATION_HTTP_ROOT, package.name, version.toString(), PACKAGE_BUILD_INFO_FILE_NAME);
+}
+
 class VersionBuild {
   final String name;
   final Version version;
