@@ -155,30 +155,6 @@ String _buildHttpDocumentationPath(Package package, Version version) {
   return join(DOCUMENTATION_HTTP_ROOT, package.name, version.toString(), PACKAGE_BUILD_INFO_FILE_NAME);
 }
 
-/**
- * Finds all possible dart library files by excluding `.dart` files that have
- * a `part of id;` string.
- */
-@deprecated
-List<String> findDartLibraryFiles(String libPath) {
-  RegExp partOf = new RegExp(r'^part\Wof\W[a-zA-Z]([a-zA-Z0-9_-]*);$');
-  Directory libraryDirectory = new Directory(libPath);
-  if (!libraryDirectory.existsSync()) {
-    return [];
-  }
-
-  List<FileSystemEntity> libraryFiles = libraryDirectory.listSync(followLinks:
-      false).where((FileSystemEntity entity) => FileSystemEntity.isFileSync(
-          entity.path) && extension(entity.path) == '.dart').toList();
-
-  libraryFiles.removeWhere((FileSystemEntity entity) {
-        List<String> libraryFileString = new File(entity.path).readAsLinesSync();
-        String m = libraryFileString.firstWhere((e) => partOf.hasMatch(e), orElse: () => "");
-        return m.isNotEmpty;
-      });
-  return libraryFiles.map((e) => e.path).toList();
-}
-
 // Build a startup script
 // TODO(adam): make username and application entry parameters
 String buildStartupScript(String startupScriptTemplatePath) {
