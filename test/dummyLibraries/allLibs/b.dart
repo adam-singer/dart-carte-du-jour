@@ -1,2 +1,0 @@
-library b;
-void main() {}

@@ -1,3 +1,0 @@
-part of b;
-
-print(){}
