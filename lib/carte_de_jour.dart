@@ -137,19 +137,6 @@ String _buildHttpDocumentationPath(Package package, Version version) {
   return join(DOCUMENTATION_HTTP_ROOT, package.name, version.toString(), PACKAGE_BUILD_INFO_FILE_NAME);
 }
 
-// Build a startup script
-// TODO(adam): make username and application entry parameters
-String buildStartupScript(String startupScriptTemplatePath) {
-  String startupScriptTemplate =
-      new File(startupScriptTemplatePath).readAsStringSync();
-  var template = mustache.parse(startupScriptTemplate);
-  var startupScript = template.renderString({
-    'user_name': 'financeCoding',
-    'dart_application': r'bin/client_builder.dart --verbose --sdk  $DARTSDK --config bin/config.json --package $PACKAGE --version $VERSION'
-  }, htmlEscapeValues: false);
-  return startupScript;
-}
-
 String versionHash(Version version) {
   SHA1 versionHash = new SHA1()
   ..add(version.toString().codeUnits);
