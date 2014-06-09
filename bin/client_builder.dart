@@ -26,30 +26,10 @@ void main(args) {
 
     startClient(clientBuilderConfig);
     return;
-  }
-
-  String dartSdk;
-  if (results['sdk'] == null) {
-    print("You must provide a value for 'sdk'.");
-    _printUsage(parser);
-    return;
   } else {
-    dartSdk = results['sdk'];
-  }
-
-  String configPath;
-  if (results['config'] == null) {
-    print("You must provide a value for 'config'.");
+    print("You must provide a value for 'clientConfig'.");
     _printUsage(parser);
-    return;
-  } else {
-    configPath = results['config'];
   }
-
-  String package = results['package'];
-  Version version = new Version.parse(results['version']);
-  _initClient(dartSdk, configPath, package, version);
-  return;
 }
 
 void startClient(ClientBuilderConfig clientBuilderConfig) {
@@ -60,7 +40,7 @@ void startClient(ClientBuilderConfig clientBuilderConfig) {
   });
 }
 
-// TODO: move to carte_de_jour.dart
+// TODO(adam): move to carte_de_jour.dart
 void buildVersion(String packageName,
                  Version version, ClientBuilderConfig clientBuilderConfig) {
   Logger.root.info("Starting build of ${packageName} ${version}");
@@ -109,57 +89,6 @@ void buildVersion(String packageName,
   }
 }
 
-@deprecated
-void _initClient(String dartSdk, String configPath, String packageName,
-                 Version version) {
-  Logger.root.info("Starting build of ${packageName} ${version}");
-  Package package = new Package(packageName, [version]);
-  String configFile = new File(configPath).readAsStringSync();
-  Map config = JSON.decode(configFile);
-  String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
-  GoogleComputeEngineConfig googleComputeEngineConfig =
-  new GoogleComputeEngineConfig(config["projectId"], config["projectNumber"],
-      config["serviceAccountEmail"], rsaPrivateKey);
-  PackageBuildInfoDataStore packageBuildInfoDataStore
-    = new PackageBuildInfoDataStore(googleComputeEngineConfig);
-
-  try {
-    package.buildDocumentationCacheSync(versionConstraint: version);
-    package.initPackageVersion(version);
-    package.buildDocumentationSync(version, dartSdk);
-    package.moveDocumentationPackages(version);
-    package.copyDocumentation(version);
-    package.createVersionFile(version);
-    package.copyVersionFile(version);
-    // Copy the package_build_info.json file, should only be copied if everything
-    // else was successful.
-    package.createPackageBuildInfo(version, true);
-    package.copyPackageBuildInfo(version);
-
-    // TODO: Factor out into Package class
-    // all time stamps need to be in UTC/Iso8601 format.
-    var now = new DateTime.now().toUtc().toIso8601String();
-    PackageBuildInfo packageBuildInfo =
-        new PackageBuildInfo(package.name, version, now, true, buildLogStorePath());
-    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
-      Logger.root.info("packageBuildInfoDataStore = ${r}");
-    });
-  } catch (e) {
-    Logger.root.severe(("Not able to build ${package.toString()}"));
-    package.createPackageBuildInfo(version, false);
-    package.copyPackageBuildInfo(version);
-
-    // TODO: Factor out into Package class
-    // all time stamps need to be in UTC/Iso8601 format.
-    var now = new DateTime.now().toUtc().toIso8601String();
-    PackageBuildInfo packageBuildInfo =
-        new PackageBuildInfo(package.name, version, now, false, buildLogStorePath());
-    packageBuildInfoDataStore.save(packageBuildInfo).then((r) {
-      Logger.root.info("packageBuildInfoDataStore = ${r}");
-    });
-  }
-}
-
 ArgParser _createArgsParser() {
   ArgParser parser = new ArgParser();
     parser.addFlag('help',
@@ -180,34 +109,11 @@ ArgParser _createArgsParser() {
           }
         });
 
-    // TODO: remove when <uuid>.json config is implemented
-    parser.addOption(
-        'sdk',
-        help: 'Path to the sdk. Required.',
-        defaultsTo: null);
-
-    // TODO: remove when <uuid>.json config is implemented
-    parser.addOption(
-        'config',
-        help: 'Path to the config. Required.',
-        defaultsTo: null);
-
-    // TODO: rename option to `--config`
+    // TODO(adam): rename option to `--config`
     parser.addOption(
         'clientConfig',
         help: 'Path to the config. Required.',
         defaultsTo: null);
-
-
-    //
-    // Client options
-    //
-    parser.addOption(
-        'package',
-        help: 'Package to generate documentation for.', defaultsTo: null);
-    parser.addOption( // TODO(adam): support possible version constraints for package generation.
-        'version',
-        help: 'Version of package to generate.', defaultsTo: null);
 
     return parser;
 }
