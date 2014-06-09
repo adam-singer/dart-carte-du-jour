@@ -347,16 +347,6 @@ class Package {
     return controller.stream;
   }
 
-  void createVersionFile(Version version) {
-    // TODO(adam): factor this out into a private method.
-    String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
-          DARTDOC_VIEWER_OUT);
-    String versionPath = join(out, 'web', 'VERSION');
-
-    File versionFile = new File(versionPath);
-    versionFile.writeAsStringSync(version.toString(), flush: true);
-  }
-
   void createPackageBuildInfo(Version version, bool successfullyBuilt) {
     // TODO(adam): factor this out into a private method.
     String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}");
@@ -368,35 +358,6 @@ class Package {
 
     File packageBuildInfoFile = new File(packageBuildInfoPath);
     packageBuildInfoFile.writeAsStringSync(packageBuildInfo.toString());
-  }
-
-  int copyVersionFile(Version version) {
-    String packageFolderPath = "${name}-${version}";
-    String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-        DARTDOC_VIEWER_OUT, 'web');
-
-    String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
-    cloudDocumentationPath = join(cloudDocumentationPath, 'docs');
-
-    List<String> args = ['-h', CACHE_CONTROL,
-                         '-m', 'cp',
-                         '-e',
-                         '-c',
-                         '-z', COMPRESS_FILE_TYPES,
-                         '-a', 'public-read',
-                         'VERSION', cloudDocumentationPath];
-
-    Logger.root.finest("workingDirectory: ${workingDirectory}");
-    Logger.root.finest("gsutil ${args}");
-
-    // TODO(adam): factor out the runsync of all gsutils
-    ProcessResult processResult = Process.runSync('gsutil', args, workingDirectory:
-        workingDirectory, runInShell: true);
-
-    Logger.root.finest(processResult.stdout);
-    Logger.root.severe(processResult.stderr);
-
-    return processResult.exitCode;
   }
 
   int copyPackageBuildInfo(Version version) {

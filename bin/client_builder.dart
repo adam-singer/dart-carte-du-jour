@@ -58,8 +58,6 @@ void buildVersion(String packageName,
     package.buildDocumentationSync(version, dartSdk);
     package.moveDocumentationPackages(version);
     package.copyDocumentation(version);
-    package.createVersionFile(version);
-    package.copyVersionFile(version);
     // Copy the package_build_info.json file, should only be copied if everything
     // else was successful.
     package.createPackageBuildInfo(version, true);
