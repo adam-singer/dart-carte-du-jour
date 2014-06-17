@@ -82,6 +82,7 @@ function fetch_latest_dart_sdk () {
   # wget http://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -O /tmp/dartsdk-linux-x64-release.zip
   unzip -d / /tmp/dartsdk-linux-x64-release.zip
   chmod -R go+rx /dart-sdk
+  /dart-sdk/bin/dart --version
 }
 function setup_proxy () {
   #daemon-isolate is the instance name of the proxy gateway
