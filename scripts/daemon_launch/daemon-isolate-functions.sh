@@ -164,3 +164,12 @@ function carte_remote_status() {
   echo "${S4}"
   echo "${S5}" 
 }
+
+function carte_update_404_page() {
+   if [ -z "$1" ]; then
+    echo "No argument supplied"
+   else 
+    S1=$(gsutil cp -e -c -z json,css,html,xml,js,dart,map,txt -a public-read ${1} gs://www.dartdocs.org/404.html)
+    echo "${1}"
+   fi
+}
