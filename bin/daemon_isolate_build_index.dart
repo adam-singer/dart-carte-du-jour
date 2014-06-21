@@ -13,6 +13,7 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 const int TIMEOUT_CALLBACK_SECONDS = 60;
 final String FAILED_URL = "http://www.dartdocs.org/failed/index.html";
+final String COFNIG_FILE = "bin/config.json";
 
 class IsolateBuildIndex {
   Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
@@ -39,7 +40,7 @@ class IsolateBuildIndex {
 
   void _initDatastore() {
     // TODO: remove hard coded config
-    String configFile = new File("bin/config.json").readAsStringSync();
+    String configFile = new File(COFNIG_FILE).readAsStringSync();
     Map config = JSON.decode(configFile);
     // TODO: remove this hack for something better.
     String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
@@ -266,6 +267,7 @@ class IsolateBuildIndex {
   void _initServer() {
     final buildIndexHtmlUrl = new UrlPattern(r'/buildIndexHtml');
     final healthCheckUrl = new UrlPattern(r'/health');
+    final SERVER_PORT = 8887;
 
     void buildIndexHtml(HttpRequest req) {
       _fetchAndBuild();
@@ -288,7 +290,7 @@ class IsolateBuildIndex {
       req.response.close();
     }
 
-    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8887).then((server) {
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildIndexHtmlUrl, method: 'GET').listen(buildIndexHtml)
