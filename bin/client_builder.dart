@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-void main(args) {
+void main(List<String> args) {
   Logger.root.onRecord.listen((LogRecord record) {
     print(record.message);
   });

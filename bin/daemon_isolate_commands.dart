@@ -2,7 +2,7 @@
 
 import 'package:unscripted/unscripted.dart';
 
-main(arguments) => declare(DaemonCommands).execute(arguments);
+void main(List<String> args) => declare(DaemonCommands).execute(args);
 
 class DaemonCommands {
   final String configPath;
