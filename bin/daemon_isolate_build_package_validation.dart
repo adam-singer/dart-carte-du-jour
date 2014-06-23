@@ -8,6 +8,8 @@ import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
+final String COFNIG_FILE = "bin/config.json";
+
 class IsolateBuildPackageValidation {
   GoogleComputeEngineConfig _googleComputeEngineConfig;
 
@@ -31,7 +33,7 @@ class IsolateBuildPackageValidation {
   void _initConfig() {
     // TODO: duplicate code from daemon_isolate_gce_launcher.dart
     // TODO: remove hard coded config
-    String configFile = new File("bin/config.json").readAsStringSync();
+    String configFile = new File(COFNIG_FILE).readAsStringSync();
     Map config = JSON.decode(configFile);
     // TODO: remove this hack for something better.
     String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
@@ -45,6 +47,7 @@ class IsolateBuildPackageValidation {
 
   void _initServer() {
     final healthCheckUrl = new UrlPattern(r'/health');
+    final SERVER_PORT = 8886;
 
     void health(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
@@ -59,7 +62,7 @@ class IsolateBuildPackageValidation {
       req.response.close();
     }
 
-    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8886).then((server) {
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(healthCheckUrl, method: 'GET').listen(health)

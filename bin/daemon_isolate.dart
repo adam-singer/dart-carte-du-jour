@@ -56,6 +56,7 @@ class IsolateService {
     final rebuildAllUrl = new UrlPattern(r'/rebuildAll');
     final buildFirstPageUrl = new UrlPattern(r'/buildFirstPage');
     final healthCheckUrl = new UrlPattern(r'/health');
+    final SERVER_PORT = 8889;
 
     void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
@@ -115,7 +116,7 @@ class IsolateService {
       req.response.close();
     }
 
-    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8889).then((server) {
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
@@ -269,7 +270,7 @@ ArgParser _createArgsParser() {
     return parser;
 }
 
-void main(args) {
+void main(List<String> args) {
   Logger.root.onRecord.listen((LogRecord record) {
     print("daemon_isolate: ${record.message}");
   });

@@ -14,6 +14,7 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 // TODO: increase to 75 once internal networking is being used.
 final int MAX_GCE_INSTANCES = 20;
 const int TIMEOUT_CALLBACK_SECONDS = 10;
+final String COFNIG_FILE = "bin/config.json";
 
 class IsolateGceLauncher {
   final Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
@@ -113,8 +114,7 @@ class IsolateGceLauncher {
   }
 
   void _initConfig() {
-    // TODO: remove hard coded config
-    String configFile = new File("bin/config.json").readAsStringSync();
+    String configFile = new File(COFNIG_FILE).readAsStringSync();
     Map config = JSON.decode(configFile);
     // TODO: remove this hack for something better.
     String rsaPrivateKey = new File(config["rsaPrivateKey"]).readAsStringSync();
@@ -156,6 +156,7 @@ class IsolateGceLauncher {
   void _initServer() {
     final buildUrl = new UrlPattern(r'/build/(.*)\/(.*)');
     final healthCheckUrl = new UrlPattern(r'/health');
+    final SERVER_PORT = 8888;
 
     void build(HttpRequest req) {
       List<String> args = buildUrl.parse(req.uri.path);
@@ -187,7 +188,7 @@ class IsolateGceLauncher {
       req.response.close();
     }
 
-    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 8888).then((server) {
+    HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
       var router = new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
