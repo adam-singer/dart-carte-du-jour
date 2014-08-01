@@ -76,5 +76,6 @@ sudo -E -H -u {{user_name}} bash -c 'cd ~/ && git clone https://github.com/{{use
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/config.json ~/dart-carte-du-jour/bin/config.json'
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/configurations/rsa_private_key.pem ~/dart-carte-du-jour/bin/rsa_private_key.pem'
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/client_builder_configurations/{{client_config_file}} ~/dart-carte-du-jour/bin/{{client_config_file}}'
+sudo -E -H -u {{user_name}} bash -c 'cd ~/ && source /etc/profile && cd ~/dart-carte-du-jour && dart --version'
 sudo -E -H -u {{user_name}} bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart {{dart_application}}'
 shutdown_instance
