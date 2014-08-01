@@ -117,6 +117,7 @@ sudo -E -H -u financeCoding bash -c 'cd ~/ && gsutil cp gs://dart-carte-du-jour/
           + clientBuilderConfig.id + r""".json ~/dart-carte-du-jour/bin/""" +
           clientBuilderConfig.id +
           r""".json'
+sudo -E -H -u financeCoding bash -c 'cd ~/ && source /etc/profile && cd ~/dart-carte-du-jour && dart --version'
 sudo -E -H -u financeCoding bash -c 'cd ~/ && rm -rf ~/pub-cache; source /etc/profile && cd ~/dart-carte-du-jour && pub install && dart bin/client_builder.dart --verbose --clientConfig bin/"""
           + clientBuilderConfig.id + r""".json'
 shutdown_instance
