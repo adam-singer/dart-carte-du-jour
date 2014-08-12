@@ -40,7 +40,6 @@ class IsolateBuildLatestIndex {
   void callback() { 
     if (buildQueue.isNotEmpty) {
       Package package = buildQueue.removeFirst();
-      Logger.root.finest("building latest index ${package.toString()}");
       _buildLatestIndex(package.name).then((_) => 
           new Timer(_timeoutBetweenPackageBuild, callback));
     } else {

@@ -89,6 +89,8 @@ port | path | function
 8889 | `/buildAll` | build all packages and versions of those packages
 8889 | `/rebuildAll` | force rebuild of all packages and versions of those packages
 8889 | `/buildFirstPage` | build first page of packages on [pub.dartlang.org](http://pub.dartlang.org/)
+8889 | `/isPaused` | check if pub polling is paused
+8889 | `/pause` | pause pub polling
 8889 | `/health` | health check 
 
 - daemon_isolate_gce_launcher.dart 
@@ -118,6 +120,15 @@ port | path | function
 port | path | function
 --- | --- | ---
  8885 | `/health` | health check 
+ 
+ 
+- daemon_isolate_build_latest_index.dart 
+
+port | path | function
+--- | --- | ---
+ 8884 | `/build/(.*)` | build package latest version redirect
+ 8884 | `/buildAll` | build all package latest version redirect 
+ 8884 | `/health` | health check   
 
 
 Helper shell script functions for authorized users

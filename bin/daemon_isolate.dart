@@ -11,6 +11,8 @@ import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
 class IsolateService {
   Duration _timeout;
+  // Pausing the fetching of first page.
+  bool _isPaused = false;
   Timer _timer;
   ReceivePort port = new ReceivePort();
   Isolate queueIsolate;
@@ -55,6 +57,8 @@ class IsolateService {
     final buildAllUrl = new UrlPattern(r'/buildAll');
     final rebuildAllUrl = new UrlPattern(r'/rebuildAll');
     final buildFirstPageUrl = new UrlPattern(r'/buildFirstPage');
+    final isPausedUrl = new UrlPattern(r'/isPaused');
+    final pauseUrl = new UrlPattern(r'/pause');
     final healthCheckUrl = new UrlPattern(r'/health');
     final SERVER_PORT = 8889;
 
@@ -102,6 +106,19 @@ class IsolateService {
       req.response.write("Building first page");
       req.response.close();
     }
+    
+    void pauseBuildingStatus(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      req.response.writeln(_isPaused);
+      req.response.close();
+    }
+    
+    void pauseBuilding(HttpRequest req) {
+      req.response.statusCode = HttpStatus.OK;
+      _isPaused = !_isPaused;
+      req.response.writeln(_isPaused);
+      req.response.close();
+    }
 
     void health(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
@@ -124,6 +141,8 @@ class IsolateService {
         ..serve(buildAllUrl, method: 'GET').listen(buildAll)
         ..serve(rebuildAllUrl, method: 'GET').listen(rebuildAll)
         ..serve(buildFirstPageUrl, method: 'GET').listen(buildFirstPage)
+        ..serve(isPausedUrl, method: 'GET').listen(pauseBuildingStatus)
+        ..serve(pauseUrl, method: 'GET').listen(pauseBuilding)
         ..serve(healthCheckUrl, method: 'GET').listen(health)
         ..defaultStream.listen(serveNotFound);
     });
@@ -198,6 +217,10 @@ class IsolateService {
   }
 
   void callback(Timer _) {
+    if (_isPaused) {
+      return;
+    }
+    
     Logger.root.fine("fetching first page");
     _fetchFirstPage().then((List<Package> packages){
       if (queueSendPort != null) {
