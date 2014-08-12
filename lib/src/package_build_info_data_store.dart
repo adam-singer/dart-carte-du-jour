@@ -142,7 +142,7 @@ class PackageBuildInfoDataStore {
         'kind': 'PackageBuildInfo',
         'name': '${name}-${version}'
       });
-
+      
       key.path = new List<client.KeyPathElement>();
       key.path.add(path);
       lookupRequest.keys = new List<client.Key>();
@@ -208,6 +208,43 @@ class PackageBuildInfoDataStore {
       return new List<PackageBuildInfo>();
     });
   }
+  
+  // Fetch all the versions of a package with [name]
+  Future<List<PackageBuildInfo>> fetchVersions(String name) {
+    client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
+    runQueryRequest.gqlQuery = new client.GqlQuery.fromJson({});
+    runQueryRequest.gqlQuery.queryString ='''
+SELECT * FROM PackageBuildInfo 
+  WHERE name = @n
+''';
+
+    runQueryRequest.gqlQuery.nameArgs = new List<client.GqlQueryArg>();
+    client.GqlQueryArg arg = new client.GqlQueryArg.fromJson({});
+    arg = new client.GqlQueryArg.fromJson({});
+    arg.name = "n";
+    arg.value =  new client.Value.fromJson({});
+    arg.value.stringValue = name;
+    runQueryRequest.gqlQuery.nameArgs.add(arg);
+
+    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+        .then((client.RunQueryResponse runQueryResponse) {
+      List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
+      runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
+        String name = entityResult.entity.properties["name"].stringValue;
+        Version version = new Version.parse(entityResult.entity.properties["version"].stringValue);
+        bool isBuilt = entityResult.entity.properties["isBuilt"].booleanValue;
+        String datetime = entityResult.entity.properties["lastBuild"].dateTimeValue;
+        String buildLog = entityResult.entity.properties["lastBuildLog"].stringValue;
+        packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
+      });
+
+      return packageBuildInfos;
+    }).catchError((error) {
+      Logger.root.severe("Not able to fetchBuilt: $error");
+      return new List<PackageBuildInfo>();
+    });
+  }
+  
 
   Future<List<PackageBuildInfo>> fetchHistory([int historyCount = 100]) {
     client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});

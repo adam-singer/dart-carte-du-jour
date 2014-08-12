@@ -26,12 +26,15 @@ class IsolateGceLauncher {
   Queue<Package> completedQueue = new Queue<Package>();
 
   Isolate buildIndexIsolate;
+  Isolate buildLatestIndexIsolate;
 
   ReceivePort isolateQueueServiceReceivePort = new ReceivePort();
   ReceivePort isolateBuildIndexReceivePort = new ReceivePort();
+  ReceivePort isolateBuildLatestIndexReceivePort = new ReceivePort();
 
   SendPort isolateQueueServiceSendPort;
   SendPort isolateBuildIndexSendPort;
+  SendPort isolateBuildLatestIndexSendPort;
 
   IsolateGceLauncher(this.isolateQueueServiceSendPort);
 
@@ -39,6 +42,11 @@ class IsolateGceLauncher {
     Isolate.spawnUri(Uri.parse("daemon_isolate_build_index.dart"), ["init"],
         isolateBuildIndexReceivePort.sendPort).then((Isolate buildIndexIsolate) {
       this.buildIndexIsolate = buildIndexIsolate;
+      return;
+    }).then((_) {
+      Isolate.spawnUri(Uri.parse("daemon_isolate_build_latest_index.dart"), 
+          ["init"], isolateBuildLatestIndexReceivePort.sendPort)
+          .then((Isolate buildLatestIndexIsolate) => this.buildLatestIndexIsolate = buildLatestIndexIsolate);
       return;
     }).then((_) {
       isolateQueueServiceSendPort.send(isolateQueueServiceReceivePort.sendPort);
@@ -107,6 +115,12 @@ class IsolateGceLauncher {
                   createMessage(GceLauncherCommand.PACKAGE_BUILD_COMPLETE,
                                 completedPackage));
       }
+      
+      if (isolateBuildLatestIndexSendPort != null) {
+        isolateBuildLatestIndexSendPort.send(
+                  createMessage(GceLauncherCommand.PACKAGE_BUILD_COMPLETE,
+                                completedPackage));
+      }
 
     }
 
@@ -149,6 +163,12 @@ class IsolateGceLauncher {
     isolateBuildIndexReceivePort.listen((data) {
       if (data is SendPort) {
         isolateBuildIndexSendPort = data;
+      }
+    });
+    
+    isolateBuildLatestIndexReceivePort.listen((data) {
+      if (data is SendPort) {
+        isolateBuildLatestIndexSendPort = data;
       }
     });
   }

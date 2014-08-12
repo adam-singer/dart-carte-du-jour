@@ -2,6 +2,7 @@ part of carte_de_jour;
 
 final String PACKAGES_DATA_URI = "http://pub.dartlang.org/packages.json";
 final String PACKAGE_STORAGE_ROOT = "gs://www.dartdocs.org/documentation";
+final String PACKAGE_HTTP_ROOT = "http://www.dartdocs.org/documentation";
 final String DOCUMENTATION_HTTP_ROOT = "http://storage.googleapis.com/www.dartdocs.org/documentation";
 final String DARTDOC_VIEWER_OUT = 'dartdoc-viewer/client/out';
 final String PACKAGE_BUILD_INFO_FILE_NAME = "package_build_info.json";
