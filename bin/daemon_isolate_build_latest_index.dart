@@ -13,7 +13,7 @@ import 'package:mustache/mustache.dart' as mustache;
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-const int TIMEOUT_CALLBACK_SECONDS = 2;
+const int TIMEOUT_CALLBACK_SECONDS = 60;
 const int TIMEOUT_CALLBACK_BETWEEN_PACKAGE_SECONDS = 5;
 final String COFNIG_FILE = "bin/config.json";
 
