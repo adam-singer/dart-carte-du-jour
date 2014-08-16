@@ -6,7 +6,7 @@ dart-carte-du-jour [www.dartdocs.org](http://www.dartdocs.org)
 Introduction
 --
 
-TODO
+dart-carte-du-jour is the source code behind [www.dartdocs.org](http://www.dartdocs.org). Technology preview. Have a feature request? Send it over to the [issue tracker](https://github.com/financeCoding/dart-carte-du-jour/issues/new). This project is still evolving and looking for contributors to help. 
 
 Configuration settings
 --
