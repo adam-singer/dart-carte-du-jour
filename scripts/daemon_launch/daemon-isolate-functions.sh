@@ -78,6 +78,10 @@ function carte_build_package_version() {
   gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://localhost:8888/build/${1}/${2}
 }
 
+function carte_build_latest_index_html_health() {
+  gcutil --service_version="v1" --project=${GCE_PROJECT} ssh --ssh_user=${SSH_USER} --ssh_port=${SSH_PORT} daemon-isolate curl http://localhost:8884/health
+}
+
 function _health_report() {
   EXIT_CODE=0;
   if [[ ${1} -eq 200 ]]; then
