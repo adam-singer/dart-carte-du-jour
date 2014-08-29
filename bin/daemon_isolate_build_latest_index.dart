@@ -96,7 +96,7 @@ class IsolateBuildLatestIndex {
        Version latest = versions.last;
        String latestIndexPath = _latestIndexPath(name, latest);
        String latestStoragePath = _latestStoragePath(name);
-       Map renderData = {'url': latestIndexPath};
+       Map renderData = {'url': latestIndexPath, 'refreshTime': '0'};
        String latestIndexHtml = _buildLatestIndexHmtl(renderData);
        String latestFileName = _latestFileName(name);
        File latestIndexFile = new File(latestFileName);

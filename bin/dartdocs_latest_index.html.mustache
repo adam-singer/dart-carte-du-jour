@@ -1,7 +1,16 @@
 <html>
   <head>
     <title>www.dartdocs.org</title>
-    <meta http-equiv="refresh" content="0; url='{{url}}'">
+    <script>
+     var meta = document.createElement("meta");
+     var hash=document.location.hash;
+     var latestUrl='{{url}}';
+     var refreshTime='{{refreshTime}}';
+     var content=refreshTime + "; url='" + latestUrl + hash +"'";
+     meta.setAttribute("http-equiv", "refresh");
+     meta.setAttribute("content", content); 
+     document.head.appendChild(meta);
+    </script>
   </head>
   <body></body>
 </html>
