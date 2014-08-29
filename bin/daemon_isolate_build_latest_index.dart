@@ -128,7 +128,8 @@ class IsolateBuildLatestIndex {
   
   // copy the latest index.html file
   int _copyLatestIndex(String filePath, String destinationPath) {
-    List<String> args = ['-m', 'cp',
+    List<String> args = ['-h', NO_CACHE_CONTROL,
+                         '-m', 'cp',
                          '-e',
                          '-c',
                          '-z', COMPRESS_FILE_TYPES,
