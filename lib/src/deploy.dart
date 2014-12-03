@@ -27,8 +27,7 @@ int deployMultiDocumentationBuilder(ClientBuilderConfig clientBuilderConfig) {
   String instanceName = clientBuilderConfig.id;
   String zone = "us-central1-a";
   String machineType = "n1-standard-1"; // "g1-small";
-  String network = "default"; // TODO(adam): we should use the internal network
-  String externalIpAddress = "none";
+  String network = "default";
   String serviceAccountScopes =
       "https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control";
   String image =
@@ -49,7 +48,6 @@ int deployMultiDocumentationBuilder(ClientBuilderConfig clientBuilderConfig) {
   List<String> args = ['--format', 'json', '--service_version=$service_version',
       '--project=$project', 'addinstance', instanceName, '--zone=$zone',
       '--machine_type=$machineType', '--network=$network',
-      '--external_ip_address=$externalIpAddress',
       '--service_account_scopes=$serviceAccountScopes', '--image=$image',
       '--persistent_boot_disk=$persistentBootDisk',
       '--auto_delete_boot_disk=$autoDeleteBootDisk',

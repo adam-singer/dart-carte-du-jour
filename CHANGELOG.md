@@ -1,5 +1,10 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.9 2014-12-02 (SDK 1.8.0-dev.4.6 r41978)
+
+- Removed builder instances from behind proxy
+- Removed port 443 for SSH
+
 ### 0.0.8 2014-05-19 (SDK 1.4.0-dev.6.7 r36210)
 
 - Displaying one line per package on [www.dartdocs.org](http://www.dartdocs.org)

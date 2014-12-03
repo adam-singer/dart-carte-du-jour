@@ -11,8 +11,7 @@ import 'package:route/url_pattern.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
-// TODO: increase to 75 once internal networking is being used.
-final int MAX_GCE_INSTANCES = 20;
+final int MAX_GCE_INSTANCES = 15;
 const int TIMEOUT_CALLBACK_SECONDS = 10;
 final String COFNIG_FILE = "bin/config.json";
 

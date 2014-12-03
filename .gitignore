@@ -36,3 +36,4 @@ bin/test_genClientConfig.dart
 bin/test_local_build_interface.dart
 bin/testClientConfig.json
 quick_exec.sh
+scripts/daemon_launch/fix_build.sh

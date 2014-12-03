@@ -1,6 +1,7 @@
 
 DAEMON_ISOLATE_STARTUP_SCRIPT=startup-script.sh
-SSH_PORT=443
+# SSH_PORT=443
+SSH_PORT=22
 SSH_USER=financeCoding
 GCE_PROJECT=dart-carte-du-jour
 

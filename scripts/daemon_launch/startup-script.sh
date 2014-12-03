@@ -65,10 +65,10 @@ function fetch_latest_dart_sdk () {
 
 # TODO(adam): hack for non ssh friendly firewalls. 
 # update the sshd_config to open port 443
-sed -i '1i Port 443' /etc/ssh/sshd_config 
+# sed -i '1i Port 443' /etc/ssh/sshd_config
 
 # restart sshd
-/etc/init.d/ssh restart
+# /etc/init.d/ssh restart
 
 # upgrade dart sdk to latest
 fetch_latest_dart_sdk
