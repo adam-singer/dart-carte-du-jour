@@ -36,11 +36,11 @@ Future<List<PubPackages>> fetchAllPackages() {
 
       pageCount++;
       pubPackages.add(p);
-      Timer.run(callback);
+      new Timer(new Duration(seconds: PACKAGE_FETCH_TIMEOUT_SECONDS), callback);
     });
   }
 
-  Timer.run(callback);
+  new Timer(new Duration(seconds: PACKAGE_FETCH_TIMEOUT_SECONDS), callback);
   return completer.future;
 }
 
@@ -80,11 +80,11 @@ Future<List<Package>> fetchAllPackage() {
      print("fetching ${packagesUris.last}");
      fetchPackage(packagesUris.removeLast()).then((Package package) {
        packages.add(package);
-       Timer.run(callback);
+       new Timer(new Duration(seconds: PACKAGE_FETCH_TIMEOUT_SECONDS), callback);
      });
    }
 
-   Timer.run(callback);
+   new Timer(new Duration(seconds: PACKAGE_FETCH_TIMEOUT_SECONDS), callback);
    return completer.future;
   });
 }

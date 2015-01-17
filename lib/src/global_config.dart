@@ -20,3 +20,5 @@ final Uuid uuid_generator = new Uuid();
 final String CACHE_CONTROL = "Cache-Control:public,max-age=3600";
 final String NO_CACHE_CONTROL = "Cache-Control:public,no-cache,no-store,must-revalidate,max-age=0";
 final String COMPRESS_FILE_TYPES = "json,css,html,xml,js,dart,map,txt";
+
+final int PACKAGE_FETCH_TIMEOUT_SECONDS = 1;

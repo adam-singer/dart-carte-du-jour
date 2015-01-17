@@ -1,31 +1,50 @@
 part of carte_de_jour;
 
-class PackageBuildInfoDataStore {
-  GoogleComputeEngineConfig _googleComputeEngineConfig;
+class DatastoreConnection {
   final String _scopes = 'https://www.googleapis.com/auth/userinfo.email '
-      'https://www.googleapis.com/auth/datastore';
-
+  'https://www.googleapis.com/auth/datastore';
+  GoogleComputeEngineConfig _googleComputeEngineConfig;
   ComputeOAuth2Console _computeEngineClient;
   console.Datastore _datastore;
 
-  PackageBuildInfoDataStore(this._googleComputeEngineConfig) {
+  console.Datastore get datastore {
+    return _datastore;
+  }
+
+  DatastoreConnection(this._googleComputeEngineConfig) {
     _computeEngineClient = new ComputeOAuth2Console(
         _googleComputeEngineConfig.projectNumber,
         privateKey: _googleComputeEngineConfig.rsaPrivateKey,
         iss: _googleComputeEngineConfig.serviceAccountEmail,
         scopes: _scopes);
-
     _datastore = new console.Datastore(_computeEngineClient)
-    ..makeAuthRequests = true;
+      ..makeAuthRequests = true;
   }
 
-  // TODO: look up the entity first before commiting it.
+  void close() {
+    // Safer way to close connection
+    try {
+      _computeEngineClient.close();
+    } catch (ex) {
+      Logger.root.severe("_computeEngineClient.close() Exception: ${ex}}");
+    }
+  }
+}
+
+class PackageBuildInfoDataStore {
+  GoogleComputeEngineConfig _googleComputeEngineConfig;
+
+  PackageBuildInfoDataStore(this._googleComputeEngineConfig);
+
+  // TODO: look up the entity first before committing it.
   Future<bool> save(PackageBuildInfo packageBuildInfo) {
+    DatastoreConnection datastoreConnection = new DatastoreConnection(_googleComputeEngineConfig);
+
     client.Key key;
     String transaction;
 
     var beginTransactionRequest = new client.BeginTransactionRequest.fromJson({});
-    return _datastore.datasets.beginTransaction(beginTransactionRequest, _googleComputeEngineConfig.projectId)
+    return datastoreConnection.datastore.datasets.beginTransaction(beginTransactionRequest, _googleComputeEngineConfig.projectId)
         .then((client.BeginTransactionResponse beginTransactionResponse) {
       // Get the transaction handle from the response.
       transaction = beginTransactionResponse.transaction;
@@ -56,7 +75,7 @@ class PackageBuildInfoDataStore {
       });
 
       // Execute the RPC and get the response.
-      return _datastore.datasets.lookup(lookupRequest, _googleComputeEngineConfig.projectId);
+      return datastoreConnection.datastore.datasets.lookup(lookupRequest, _googleComputeEngineConfig.projectId);
     }).then((client.LookupResponse lookupResponse) {
 
       // Create a RPC request to commit the transaction.
@@ -111,8 +130,9 @@ class PackageBuildInfoDataStore {
       // Execute the Commit RPC synchronously and ignore the response:
       // Apply the insert mutation if the entity was not found and close
       // the transaction.
-      return _datastore.datasets.commit(req, _googleComputeEngineConfig.projectId);
+      return datastoreConnection.datastore.datasets.commit(req, _googleComputeEngineConfig.projectId);
     }).then((client.CommitResponse commitResponse) {
+      datastoreConnection.close();
       return true;
     }).catchError((error) {
       Logger.root.severe("Not able to save ${packageBuildInfo.toString()}: $error");
@@ -121,11 +141,13 @@ class PackageBuildInfoDataStore {
   }
 
   Future<PackageBuildInfo> fetch(String name, Version version) {
+    DatastoreConnection datastoreConnection = new DatastoreConnection(_googleComputeEngineConfig);
+
     client.Key key;
     String transaction;
     var beginTransactionRequest = new client.BeginTransactionRequest.fromJson({});
 
-    return _datastore.datasets.beginTransaction(beginTransactionRequest, _googleComputeEngineConfig.projectId)
+    return datastoreConnection.datastore.datasets.beginTransaction(beginTransactionRequest, _googleComputeEngineConfig.projectId)
             .then((client.BeginTransactionResponse beginTransactionResponse) {
 
       // Get the transaction handle from the response.
@@ -157,7 +179,7 @@ class PackageBuildInfoDataStore {
       });
 
       // Execute the RPC and get the response.
-      return _datastore.datasets.lookup(lookupRequest, _googleComputeEngineConfig.projectId);
+      return datastoreConnection.datastore.datasets.lookup(lookupRequest, _googleComputeEngineConfig.projectId);
     }).then((client.LookupResponse lookupResponse) {
       if (lookupResponse.found.isEmpty) {
         return null;
@@ -169,14 +191,18 @@ class PackageBuildInfoDataStore {
       Version version = new Version.parse(entity.properties['version'].stringValue);
       String datetime = entity.properties['lastBuild'].dateTimeValue;
       bool isBuilt = entity.properties['isBuilt'].booleanValue;
+      datastoreConnection.close();
       return new PackageBuildInfo(name, version, datetime, isBuilt);
     }).catchError((error) {
+      datastoreConnection.close();
       Logger.root.severe("Not able to fetch ${name}-${version}: $error");
       return false;
     });
   }
 
   Future<List<PackageBuildInfo>> fetchBuilt([bool isBuilt = true]) {
+    DatastoreConnection datastoreConnection = new DatastoreConnection(_googleComputeEngineConfig);
+
     client.Query query = new client.Query.fromJson({
       "kinds": [{ "name": 'PackageBuildInfo' }],
       "filter": {
@@ -191,7 +217,7 @@ class PackageBuildInfoDataStore {
     client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
     runQueryRequest.query = query;
 
-    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+    return datastoreConnection.datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
     .then((client.RunQueryResponse runQueryResponse) {
       List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
       runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
@@ -202,8 +228,11 @@ class PackageBuildInfoDataStore {
         String buildLog = entityResult.entity.properties["lastBuildLog"].stringValue;
         packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
       });
+
+      datastoreConnection.close();
       return packageBuildInfos;
     }).catchError((error) {
+      datastoreConnection.close();
       Logger.root.severe("Not able to fetchBuilt: $error");
       return new List<PackageBuildInfo>();
     });
@@ -211,6 +240,8 @@ class PackageBuildInfoDataStore {
   
   // Fetch all the versions of a package with [name]
   Future<List<PackageBuildInfo>> fetchVersions(String name) {
+    DatastoreConnection datastoreConnection = new DatastoreConnection(_googleComputeEngineConfig);
+
     client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
     runQueryRequest.gqlQuery = new client.GqlQuery.fromJson({});
     runQueryRequest.gqlQuery.queryString ='''
@@ -226,7 +257,7 @@ SELECT * FROM PackageBuildInfo
     arg.value.stringValue = name;
     runQueryRequest.gqlQuery.nameArgs.add(arg);
 
-    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+    return datastoreConnection.datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
         .then((client.RunQueryResponse runQueryResponse) {
       List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
       runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
@@ -238,8 +269,10 @@ SELECT * FROM PackageBuildInfo
         packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
       });
 
+      datastoreConnection.close();
       return packageBuildInfos;
     }).catchError((error) {
+      datastoreConnection.close();
       Logger.root.severe("Not able to fetchBuilt: $error");
       return new List<PackageBuildInfo>();
     });
@@ -247,6 +280,8 @@ SELECT * FROM PackageBuildInfo
   
 
   Future<List<PackageBuildInfo>> fetchHistory([int historyCount = 100]) {
+    DatastoreConnection datastoreConnection = new DatastoreConnection(_googleComputeEngineConfig);
+
     client.RunQueryRequest runQueryRequest = new client.RunQueryRequest.fromJson({});
     runQueryRequest.gqlQuery = new client.GqlQuery.fromJson({});
     runQueryRequest.gqlQuery.queryString ='''
@@ -263,7 +298,7 @@ SELECT * FROM PackageBuildInfo
     arg.value.integerValue = historyCount;
     runQueryRequest.gqlQuery.nameArgs.add(arg);
 
-    return _datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
+    return datastoreConnection.datastore.datasets.runQuery(runQueryRequest, _googleComputeEngineConfig.projectId)
         .then((client.RunQueryResponse runQueryResponse) {
       List<PackageBuildInfo> packageBuildInfos = new List<PackageBuildInfo>();
       runQueryResponse.batch.entityResults.forEach((client.EntityResult entityResult) {
@@ -275,8 +310,10 @@ SELECT * FROM PackageBuildInfo
         packageBuildInfos.add(new PackageBuildInfo(name, version, datetime, isBuilt, buildLog));
       });
 
+      datastoreConnection.close();
       return packageBuildInfos;
     }).catchError((error) {
+      datastoreConnection.close();
       Logger.root.severe("Not able to fetchBuilt: $error");
       return new List<PackageBuildInfo>();
     });

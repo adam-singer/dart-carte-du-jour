@@ -1,5 +1,10 @@
 # Changelog - dart-carte-du-jour
 
+### 0.0.10 2015-01-16 (SDK 1.9.0-dev.3.0 r42684)
+
+- Created `DatastoreConnection` to explicitly open and close datastore connections on each usage.
+- Eased timing on fetching all packages from pub.dartlang.org to one second.
+
 ### 0.0.9 2014-12-02 (SDK 1.8.0-dev.4.6 r41978)
 
 - Removed builder instances from behind proxy
