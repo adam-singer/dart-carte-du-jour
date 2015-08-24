@@ -18,9 +18,9 @@ void main() {
     test('fromJson', () {
       GoogleComputeEngineConfig googleComputeEngineConfig =
           new GoogleComputeEngineConfig("123", "456", "blah@blah.com", "xyz");
-      var json = googleComputeEngineConfig.toJson();
-      GoogleComputeEngineConfig googleComputeEngineConfig2 =
-          new GoogleComputeEngineConfig.fromJson(json);
+      //var json = googleComputeEngineConfig.toJson();
+      // GoogleComputeEngineConfig googleComputeEngineConfig2 =
+      //     new GoogleComputeEngineConfig.fromJson(json);
       expect(googleComputeEngineConfig.projectId, equals("123"));
       expect(googleComputeEngineConfig.projectNumber, equals("456"));
       expect(googleComputeEngineConfig.serviceAccountEmail, equals("blah@blah.com"));

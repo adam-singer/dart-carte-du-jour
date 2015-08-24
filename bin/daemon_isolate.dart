@@ -106,13 +106,13 @@ class IsolateService {
       req.response.write("Building first page");
       req.response.close();
     }
-    
+
     void pauseBuildingStatus(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
       req.response.writeln(_isPaused);
       req.response.close();
     }
-    
+
     void pauseBuilding(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
       _isPaused = !_isPaused;
@@ -134,7 +134,7 @@ class IsolateService {
     }
 
     HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
-      var router = new Router(server)
+      new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
         ..serve(rebuildUrl, method: 'GET').listen(rebuild)
@@ -220,7 +220,7 @@ class IsolateService {
     if (_isPaused) {
       return;
     }
-    
+
     Logger.root.fine("fetching first page");
     _fetchFirstPage().then((List<Package> packages){
       if (queueSendPort != null) {

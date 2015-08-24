@@ -63,7 +63,7 @@ class IsolateBuildPackageValidation {
     }
 
     HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
-      var router = new Router(server)
+      new Router(server)
         // Associate callbacks with URLs.
         ..serve(healthCheckUrl, method: 'GET').listen(health)
         ..defaultStream.listen(serveNotFound);
