@@ -1,6 +1,6 @@
 library test_google_compute_engine_config;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 

@@ -266,7 +266,7 @@ void _printUsage(ArgParser parser) {
   print('usage: dart bin/daemon_isolate.dart <options>');
   print('');
   print('where <options> is one or more of:');
-  print(parser.getUsage().replaceAll('\n\n', '\n'));
+  print(parser.usage.replaceAll('\n\n', '\n'));
   exit(1);
 }
 
