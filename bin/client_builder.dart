@@ -41,8 +41,8 @@ void startClient(ClientBuilderConfig clientBuilderConfig) {
 }
 
 // TODO(adam): move to carte_de_jour.dart
-void buildVersion(String packageName,
-                 Version version, ClientBuilderConfig clientBuilderConfig) {
+void buildVersion(
+    String packageName, Version version, ClientBuilderConfig clientBuilderConfig) {
   Logger.root.info("Starting build of ${packageName} ${version}");
   Package package = new Package(packageName, [version]);
   String dartSdk = clientBuilderConfig.sdkPath;
@@ -56,7 +56,7 @@ void buildVersion(String packageName,
     package.buildDocumentationCacheSync(versionConstraint: version);
     package.initPackageVersion(version);
     package.buildDocumentationSync(version, dartSdk);
-    package.moveDocumentationPackages(version);
+    //package.moveDocumentationPackages(version);
     package.copyDocumentation(version);
     // Copy the package_build_info.json file, should only be copied if everything
     // else was successful.

@@ -139,66 +139,64 @@ class Package {
     return processResult.exitCode;
   }
 
-  /**
-   * Moves the packages folder into the root of the web folder. WARNING: this may
-   * change in the future versions dartdoc-viewer.
-   *
-   */
-  void moveDocumentationPackages(Version version) {
-    String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
-        DARTDOC_VIEWER_OUT);
-    String webPath = join(out, 'web');
-    String webPackagesPath = join(webPath, 'packages');
-    String outPackagesPath = join(out, 'packages');
+  // /**
+  //  * Moves the packages folder into the root of the web folder.
+  //  *
+  //  * WARNING: this may change in the future versions dartdoc-viewer.
+  //  */
+  // void moveDocumentationPackages(Version version) {
+  //   String out = join(BUILD_DOCUMENTATION_ROOT_PATH, "${name}-${version}",
+  //       DARTDOC_VIEWER_OUT);
+  //   String webPath = join(out, 'web');
+  //   String webPackagesPath = join(webPath, 'packages');
+  //   String outPackagesPath = join(out, 'packages');
+  //
+  //   // 1) remove symlink in out/web/packages
+  //   Directory webPackagesDirectory = new Directory(webPackagesPath);
+  //   webPackagesDirectory.deleteSync();
+  //
+  //   // 2) only copy dartdoc_viewer specific packages
+  //   _moveDartDocViewerSpecificFiles(outPackagesPath, webPackagesPath);
+  // }
 
-    // 1) remove symlink in out/web/packages
-    Directory webPackagesDirectory = new Directory(webPackagesPath);
-    webPackagesDirectory.deleteSync();
-
-    // 2) only copy dartdoc_viewer specific packages
-    _moveDartDocViewerSpecificFiles(outPackagesPath, webPackagesPath);
-  }
-
-  void _moveDartDocViewerSpecificFiles(String outPackagesPath, String webPackagesPath) {
-    // mkdir web/packages
-    // copy -r packages/web_components web/packages/
-    // copy -r packages/polymer web/packages/
-
-    Directory webPackagesDirectory = new Directory(webPackagesPath);
-    webPackagesDirectory.createSync();
-
-    String outWebComponentsPath = join(outPackagesPath, "web_components");
-    String outPolymerPath = join(outPackagesPath, "polymer");
-    String outDartdocViewerPath = join(outPackagesPath, "dartdoc_viewer");
-
-    String webWebComponentsPath = join(webPackagesPath, "web_components");
-    String webPolymerPath = join(webPackagesPath, "polymer");
-    String webDartdocViewerPath = join(webPackagesPath, "dartdoc_viewer");
-
-    Directory outWebComponentsDirectory = new Directory(outWebComponentsPath);
-    Directory outPolymerDirectory = new Directory(outPolymerPath);
-    Directory outDartdocViewerDirectory = new Directory(outDartdocViewerPath);
-
-    outWebComponentsDirectory.renameSync(webWebComponentsPath);
-    outPolymerDirectory.renameSync(webPolymerPath);
-    outDartdocViewerDirectory.renameSync(webDartdocViewerPath);
-  }
+  // void _moveDartDocViewerSpecificFiles(String outPackagesPath, String webPackagesPath) {
+  //   // mkdir web/packages
+  //   // copy -r packages/web_components web/packages/
+  //   // copy -r packages/polymer web/packages/
+  //
+  //   Directory webPackagesDirectory = new Directory(webPackagesPath);
+  //   webPackagesDirectory.createSync();
+  //
+  //   String outWebComponentsPath = join(outPackagesPath, "web_components");
+  //   String outPolymerPath = join(outPackagesPath, "polymer");
+  //   String outDartdocViewerPath = join(outPackagesPath, "dartdoc_viewer");
+  //
+  //   String webWebComponentsPath = join(webPackagesPath, "web_components");
+  //   String webPolymerPath = join(webPackagesPath, "polymer");
+  //   String webDartdocViewerPath = join(webPackagesPath, "dartdoc_viewer");
+  //
+  //   Directory outWebComponentsDirectory = new Directory(outWebComponentsPath);
+  //   Directory outPolymerDirectory = new Directory(outPolymerPath);
+  //   Directory outDartdocViewerDirectory = new Directory(outDartdocViewerPath);
+  //
+  //   outWebComponentsDirectory.renameSync(webWebComponentsPath);
+  //   outPolymerDirectory.renameSync(webPolymerPath);
+  //   outDartdocViewerDirectory.renameSync(webDartdocViewerPath);
+  // }
 
   /**
    * Builds documentation for a particular version of a package.
    */
   int buildDocumentationSync(Version version, String dartSdkPath, {bool verbose: false}) {
     String outputFolder = 'docs';
-    String packagesFolder = './packages'; // The pub installed packages
+    //String packagesFolder = './packages'; // The pub installed packages
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH,
         "${name}-${version}");
 
-    List<String> args = ['--compile',
-                         '--no-include-sdk',
-                         '--no-include-dependent-packages',
-                         '--out', outputFolder,
-                         '--sdk', dartSdkPath,
-                         '--package-root', packagesFolder];
+    List<String> args = [
+                         '--output', outputFolder,
+                         '--dart-sdk', dartSdkPath
+    ];
 
     if (verbose) {
       args.add('--verbose');
@@ -207,13 +205,13 @@ class Package {
     args.add('.');
 
     Logger.root.finest("workingDirectory = ${workingDirectory}");
-    Logger.root.finest("docgen ${args}");
+    Logger.root.finest("dartdoc ${args}");
 
-    ProcessResult processResult = Process.runSync('docgen', args,
+    ProcessResult processResult = Process.runSync('dartdoc', args,
         workingDirectory: workingDirectory, runInShell: true);
     Logger.root.finest(processResult.stdout);
     Logger.root.severe(processResult.stderr);
-    Logger.root.fine("docgen exit code = ${processResult.exitCode}");
+    Logger.root.fine("dartdoc exit code = ${processResult.exitCode}");
     return processResult.exitCode;
   }
 
