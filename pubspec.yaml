@@ -7,18 +7,18 @@ homepage: https://github.com/financeCoding/dart-carte-du-jour
 environment:
   sdk: '>=1.8.0 <2.0.0'
 dependencies:
-  args: any
-  google_oauth2_client: any
-  google_datastore_v1beta2_api: any
-  http: any
-  meta: any
-  path: any
-  logging: any
-  crypto: any
-  mustache: any
-  quiver: any
-  unscripted: any
-  uuid: any
-  route: any
+  args: ^0.13.0
+  google_oauth2_client: ^0.4.0
+  google_datastore_v1beta2_api: ^0.4.0
+  http: ^0.11.0
+  meta: ^0.8.0
+  path: ^1.0.0
+  logging: '>=0.9.0 <0.12.0'
+  crypto: ^0.9.0
+  mustache: ^0.1.0
+  quiver: '>=0.18.0 <0.22.0'
+  unscripted: ^0.6.0
+  uuid: ^0.5.0
+  route: ^0.4.0
 dev_dependencies:
-  test: any
+  test: ^0.12.0
