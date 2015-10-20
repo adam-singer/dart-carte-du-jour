@@ -115,7 +115,7 @@ class Package {
   int copyDocumentation(Version version) {
     String packageFolderPath = "${name}-${version}";
     String workingDirectory = join(BUILD_DOCUMENTATION_ROOT_PATH, packageFolderPath,
-        DARTDOC_VIEWER_OUT, 'web');
+        DARTDOC_VIEWER_OUT); //, 'web');
     String cloudDocumentationPath = _buildCloudStorageDocumentationPath(this, version);
     List<String> args = ['-h', CACHE_CONTROL,
                          '-m', 'cp',
