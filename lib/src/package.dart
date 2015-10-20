@@ -204,7 +204,7 @@ class Package {
       args.add('--verbose');
     }
 
-    args.add('.');
+    // args.add('.');
 
     Logger.root.finest("workingDirectory = ${workingDirectory}");
     Logger.root.finest("docgen ${args}");
