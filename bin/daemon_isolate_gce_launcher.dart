@@ -43,7 +43,7 @@ class IsolateGceLauncher {
       this.buildIndexIsolate = buildIndexIsolate;
       return;
     }).then((_) {
-      Isolate.spawnUri(Uri.parse("daemon_isolate_build_latest_index.dart"), 
+      Isolate.spawnUri(Uri.parse("daemon_isolate_build_latest_index.dart"),
           ["init"], isolateBuildLatestIndexReceivePort.sendPort)
           .then((Isolate buildLatestIndexIsolate) => this.buildLatestIndexIsolate = buildLatestIndexIsolate);
       return;
@@ -114,7 +114,7 @@ class IsolateGceLauncher {
                   createMessage(GceLauncherCommand.PACKAGE_BUILD_COMPLETE,
                                 completedPackage));
       }
-      
+
       if (isolateBuildLatestIndexSendPort != null) {
         isolateBuildLatestIndexSendPort.send(
                   createMessage(GceLauncherCommand.PACKAGE_BUILD_COMPLETE,
@@ -164,7 +164,7 @@ class IsolateGceLauncher {
         isolateBuildIndexSendPort = data;
       }
     });
-    
+
     isolateBuildLatestIndexReceivePort.listen((data) {
       if (data is SendPort) {
         isolateBuildLatestIndexSendPort = data;
@@ -208,7 +208,7 @@ class IsolateGceLauncher {
     }
 
     HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
-      var router = new Router(server)
+      new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildUrl, method: 'GET').listen(build)
         ..serve(healthCheckUrl, method: 'GET').listen(health)

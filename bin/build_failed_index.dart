@@ -37,8 +37,8 @@ void main() {
   PackageBuildInfoDataStore packageBuildInfoDataStore
       = new PackageBuildInfoDataStore(googleComputeEngineConfig);
 
-  packageBuildInfoDataStore.fetchBuilt(false)
-  .then((List<PackageBuildInfo> packageBuildInfos) {
+  packageBuildInfoDataStore.fetchBuilt(false).then(
+      (List<PackageBuildInfo> packageBuildInfos) {
     Map renderData = {'docsUrls': []};
 
     renderData['docsUrls'].addAll(packageBuildInfos.map((packageBuildInfo) {

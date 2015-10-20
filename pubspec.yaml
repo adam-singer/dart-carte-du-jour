@@ -5,20 +5,20 @@ authors:
 description: Service that generates package documentation for pub.dartlang.org
 homepage: https://github.com/financeCoding/dart-carte-du-jour
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=1.8.0 <2.0.0'
 dependencies:
-  args: ">=0.11.0 <0.12.0"
-  google_oauth2_client: ">=0.3.6 <0.3.7"
-  google_datastore_v1beta2_api: "0.4.3"
-  http: ">=0.9.0 <0.11.0"
-  meta: ">=0.8.8 <0.9.0"
-  path: ">=1.1.0 <2.0.0"
-  logging: ">=0.9.0 <0.10.0"
-  crypto: ">=0.9.0 <0.10.0"
-  mustache: ">=0.1.5 <0.2.0"
-  quiver: ">=0.18.2 <0.19.0"
-  unscripted: ">=0.4.2 <0.5.0"
-  uuid: ">=0.3.2 <0.3.3"
-  route: ">=0.4.6 <0.4.7"
+  args: ^0.13.0
+  google_oauth2_client: ^0.4.0
+  google_datastore_v1beta2_api: ^0.4.0
+  http: ^0.11.0
+  meta: ^0.8.0
+  path: ^1.0.0
+  logging: '>=0.9.0 <0.12.0'
+  crypto: ^0.9.0
+  mustache: ^0.1.0
+  quiver: '>=0.18.0 <0.22.0'
+  unscripted: ^0.6.0
+  uuid: ^0.5.0
+  route: ^0.4.0
 dev_dependencies:
-  unittest: ">=0.10.1+2 <0.11.0"
+  test: ^0.12.0

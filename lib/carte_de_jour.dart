@@ -13,7 +13,7 @@ import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_client.dart"
     as client;
 import "package:google_datastore_v1beta2_api/datastore_v1beta2_api_console.dart"
     as console;
-import 'package:uuid/uuid_server.dart';
+import 'package:uuid/uuid.dart';
 
 import 'src/version.dart' show Version, VersionConstraint, VersionRange;
 export 'src/version.dart' show Version, VersionConstraint, VersionRange;

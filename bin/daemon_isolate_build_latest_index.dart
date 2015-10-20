@@ -19,16 +19,16 @@ final String COFNIG_FILE = "bin/config.json";
 
 class IsolateBuildLatestIndex {
   Duration _timeout = const Duration(seconds: TIMEOUT_CALLBACK_SECONDS);
-  Duration _timeoutBetweenPackageBuild = 
+  Duration _timeoutBetweenPackageBuild =
       const Duration(seconds: TIMEOUT_CALLBACK_BETWEEN_PACKAGE_SECONDS);
-  
+
   PackageBuildInfoDataStore _packageBuildInfoDataStore;
   GoogleComputeEngineConfig _googleComputeEngineConfig;
   Queue<Package> buildQueue = new Queue<Package>();
   ReceivePort isolateGceLauncherReceivePort = new ReceivePort();
   SendPort isolateGceLauncherSendPort;
   IsolateBuildLatestIndex(this.isolateGceLauncherSendPort);
-  
+
   void start() {
     isolateGceLauncherSendPort.send(isolateGceLauncherReceivePort.sendPort);
     _initListeners();
@@ -36,24 +36,24 @@ class IsolateBuildLatestIndex {
     _initServer();
     Timer.run(callback);
   }
-  
-  void callback() { 
+
+  void callback() {
     if (buildQueue.isNotEmpty) {
       Package package = buildQueue.removeFirst();
-      _buildLatestIndex(package.name).then((_) => 
+      _buildLatestIndex(package.name).then((_) =>
           new Timer(_timeoutBetweenPackageBuild, callback));
     } else {
       new Timer(_timeout, callback);
     }
   }
-  
+
   void _addPackage(Package package) {
     // If the package is not already enqueued then queue it.
     if (!buildQueue.any((e) => e.name == package.name)) {
       buildQueue.add(package);
     }
   }
-  
+
   void _addAllPackages(List<Package> packages) =>
     packages.forEach((Package package) => _addPackage(package));
 
@@ -62,10 +62,10 @@ class IsolateBuildLatestIndex {
       if (isCommand(GceLauncherCommand.PACKAGE_BUILD_COMPLETE, data)) {
         Package package = new Package.fromJson(data['message']);
         _addPackage(package);
-      }    
+      }
     });
   }
-  
+
   // TODO: DRY
   void _initDatastore() {
     String configFile = new File(COFNIG_FILE).readAsStringSync();
@@ -82,13 +82,13 @@ class IsolateBuildLatestIndex {
     _packageBuildInfoDataStore
         = new PackageBuildInfoDataStore(_googleComputeEngineConfig);
   }
-  
+
   Future _buildLatestIndex(String name) {
-     return _packageBuildInfoDataStore.fetchVersions(name).then((List<PackageBuildInfo> packageBuildInfos) { 
+     return _packageBuildInfoDataStore.fetchVersions(name).then((List<PackageBuildInfo> packageBuildInfos) {
        if (packageBuildInfos.isEmpty) {
          return;
        }
-       
+
        List<Version> versions = new List<Version>();
        versions.addAll(packageBuildInfos
            .map((PackageBuildInfo package) => package.version).toList());
@@ -109,15 +109,15 @@ class IsolateBuildLatestIndex {
        Logger.root.severe("error = ${error.toString()}");
      });
   }
-  
-  String _latestIndexPath(String name, Version version) => 
+
+  String _latestIndexPath(String name, Version version) =>
       "${PACKAGE_HTTP_ROOT}/${name}/${version.toString()}/index.html";
-  
-  String _latestStoragePath(String name) => 
+
+  String _latestStoragePath(String name) =>
       "${PACKAGE_STORAGE_ROOT}/${name}/latest/index.html";
-      
+
   String _latestFileName(String name) => "dartdocs_${name}_index.html";
-  
+
   // renderData = {'url': 'http://www.dartdocs.org/documentation/unittest/0.9.3'}
   String _buildLatestIndexHmtl(Map renderData, {String dartDocsTemplate: "bin/dartdocs_latest_index.html.mustache"}) {
     String indexTemplate = new File(dartDocsTemplate).readAsStringSync();
@@ -125,7 +125,7 @@ class IsolateBuildLatestIndex {
     var indexHtml = template.renderString(renderData, htmlEscapeValues: false);
     return indexHtml;
   }
-  
+
   // copy the latest index.html file
   int _copyLatestIndex(String filePath, String destinationPath) {
     List<String> args = ['-h', NO_CACHE_CONTROL,
@@ -140,21 +140,21 @@ class IsolateBuildLatestIndex {
     stderr.write(processResult.stderr);
     return processResult.exitCode;
   }
-  
+
   void _initServer() {
     // TODO: have a handler that sets the latest?
-    final buildPackageLatestIndexUrl = new UrlPattern(r'/build/(.*)');    
+    final buildPackageLatestIndexUrl = new UrlPattern(r'/build/(.*)');
     final buildAllPackageLatestIndexUrl =  new UrlPattern(r'/buildAll');
     final healthCheckUrl = new UrlPattern(r'/health');
     final SERVER_PORT = 8884;
-    
+
     // Callback to handle illegal urls.
     void serveNotFound(HttpRequest req) {
       req.response.statusCode = HttpStatus.NOT_FOUND;
       req.response.write('Not found');
       req.response.close();
     }
-    
+
     void build(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
       List<String> args = buildPackageLatestIndexUrl.parse(req.uri.path);
@@ -164,14 +164,14 @@ class IsolateBuildLatestIndex {
       req.response.write('queue $packageName');
       req.response.close();
     }
-    
+
     void buildAll(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
       fetchAllPackage().then(_addAllPackages);
       req.response.write('Queued all packages to redirect to latest version');
       req.response.close();
     }
-    
+
     void health(HttpRequest req) {
       req.response.statusCode = HttpStatus.OK;
       req.response.writeln('All systems a go');
@@ -179,9 +179,9 @@ class IsolateBuildLatestIndex {
       buildQueue.forEach((e) => req.response.writeln(e.toString()));
       req.response.close();
     }
-    
+
     HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
-      var router = new Router(server)
+      new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildPackageLatestIndexUrl, method: 'GET').listen(build)
         ..serve(buildAllPackageLatestIndexUrl, method: 'GET').listen(buildAll)

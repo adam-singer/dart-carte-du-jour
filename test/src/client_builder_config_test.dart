@@ -2,7 +2,7 @@ library test_client_builder_config;
 
 import 'dart:convert';
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import 'package:dart_carte_du_jour/carte_de_jour.dart';
 
