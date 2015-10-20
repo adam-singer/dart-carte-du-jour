@@ -291,7 +291,7 @@ class IsolateBuildIndex {
     }
 
     HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, SERVER_PORT).then((server) {
-      var router = new Router(server)
+      new Router(server)
         // Associate callbacks with URLs.
         ..serve(buildIndexHtmlUrl, method: 'GET').listen(buildIndexHtml)
         ..serve(healthCheckUrl, method: 'GET').listen(health)
