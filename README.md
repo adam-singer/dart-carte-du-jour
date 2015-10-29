@@ -1,12 +1,18 @@
-dart-carte-du-jour [www.dartdocs.org](http://www.dartdocs.org)
+dart-carte-du-jour
 ==================
+
+This project, which served the Dart community very well for more than a year,
+has been gracefully retired.
+
+https://github.com/astashov/dartdocorg is the new implementation
+of http://www.dartdocs.org
 
 [![Build Status](https://drone.io/github.com/financeCoding/dart-carte-du-jour/status.png)](https://drone.io/github.com/financeCoding/dart-carte-du-jour/latest)
 
 Introduction
 --
 
-dart-carte-du-jour is the source code behind [www.dartdocs.org](http://www.dartdocs.org). Technology preview. Have a feature request? Send it over to the [issue tracker](https://github.com/financeCoding/dart-carte-du-jour/issues/new). This project is still evolving and looking for contributors to help. 
+dart-carte-du-jour was the source code behind [www.dartdocs.org](http://www.dartdocs.org). Technology preview. Have a feature request? Send it over to the [issue tracker](https://github.com/financeCoding/dart-carte-du-jour/issues/new). This project is still evolving and looking for contributors to help. 
 
 Configuration settings
 --
